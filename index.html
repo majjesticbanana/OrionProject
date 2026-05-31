@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Orion Project — Class 10S4</title>
+<meta name="description" content="The Orion Project — Grade 10 students from class 10S4 building engineering and tech projects.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Sora:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --void: #070a14;
+    --void-2: #0c1120;
+    --panel: #111829;
+    --line: #1e2942;
+    --ink: #e8ecf7;
+    --ink-dim: #8a93ab;
+    --amber: #f7a440;
+    --amber-soft: #ffce8f;
+    --blue: #6aa6ff;
+    --blue-soft: #a8c8ff;
+    --rule: rgba(255,255,255,.07);
+    --maxw: 1140px;
+  }
+
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
+  html{ scroll-behavior: smooth; }
+
+  body{
+    background: var(--void);
+    color: var(--ink);
+    font-family: 'Sora', system-ui, sans-serif;
+    font-weight: 300;
+    line-height: 1.65;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before{
+    content:"";
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(1200px 700px at 75% -5%, rgba(106,166,255,.13), transparent 60%),
+      radial-gradient(900px 600px at 10% 110%, rgba(247,164,64,.10), transparent 60%),
+      linear-gradient(180deg, var(--void) 0%, var(--void-2) 100%);
+    z-index: -2;
+  }
+  body::after{
+    content:"";
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E");
+    opacity: .035; z-index: -1; pointer-events: none;
+  }
+
+  #stars{ position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+  .star{ position: absolute; background:#fff; border-radius:50%; animation: twinkle var(--t) ease-in-out infinite alternate; }
+  @keyframes twinkle{ from{ opacity:.15 } to{ opacity:1 } }
+
+  .wrap{ max-width: var(--maxw); margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- NAV ---------- */
+  header{
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(10px);
+    background: rgba(7,10,20,.55);
+    border-bottom: 1px solid var(--rule);
+  }
+  nav{ display:flex; align-items:center; justify-content:space-between; height:70px; }
+  .brand{
+    display:flex; align-items:center; gap:11px;
+    font-family:'Syne',sans-serif; font-weight:800;
+    letter-spacing:.05em; font-size:1.05rem; text-decoration:none; color:var(--ink);
+  }
+  .brand .dot{ width:10px; height:10px; border-radius:50%; background:var(--amber); box-shadow:0 0 14px 2px var(--amber); }
+  .navlinks{ display:flex; gap:30px; list-style:none; }
+  .navlinks a{
+    color:var(--ink-dim); text-decoration:none;
+    font-family:'Space Mono',monospace; font-size:.78rem;
+    letter-spacing:.08em; text-transform:uppercase; transition:color .25s;
+  }
+  .navlinks a:hover{ color:var(--ink); }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height: 100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding: 20vh 0 8vh; position:relative;
+  }
+  .hero-text{ position:relative; z-index:4; will-change: opacity, transform; }
+  .eyebrow{
+    font-family:'Space Mono',monospace; font-size:.78rem;
+    letter-spacing:.28em; text-transform:uppercase; color:var(--amber);
+    opacity:0; animation: rise .8s .1s forwards; margin-bottom: 6px;
+  }
+  .logo-mark{ opacity:0; animation: fade 1.4s .35s forwards; }
+  .logo-mark svg{ width:130px; height:auto; overflow:visible; }
+  .wordmark{
+    font-family:'Syne',sans-serif; font-weight:800;
+    font-size: clamp(3rem, 11vw, 7rem); line-height:.95;
+    letter-spacing:.06em; margin:.05em 0 .15em;
+    background: linear-gradient(115deg, var(--amber-soft), var(--amber) 38%, var(--blue) 115%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    opacity:0; animation: rise .9s .5s forwards;
+  }
+  .project-tag{
+    display:flex; align-items:center; justify-content:center; gap:16px;
+    font-family:'Space Mono',monospace; font-size:clamp(.7rem,1.4vw,.95rem);
+    letter-spacing:.5em; text-transform:uppercase; color:var(--blue);
+    padding-left:.5em; opacity:0; animation: rise .9s .62s forwards;
+  }
+  .project-tag::before, .project-tag::after{ content:""; width:42px; height:1px; background:var(--blue); opacity:.7; }
+
+  .hero p.lead{
+    max-width: 52ch; color:var(--ink-dim); font-size:1.05rem; margin-top:34px;
+    opacity:0; animation: rise .9s .74s forwards;
+  }
+  .cta-row{ display:flex; gap:16px; flex-wrap:wrap; justify-content:center; margin-top:34px; opacity:0; animation: rise .9s .86s forwards; }
+  .btn{
+    font-family:'Space Mono',monospace; font-size:.8rem; letter-spacing:.06em; text-transform:uppercase;
+    text-decoration:none; padding:14px 26px; border-radius:2px; transition: transform .2s, box-shadow .25s, border-color .25s, color .25s;
+  }
+  .btn-primary{ background:var(--amber); color:#1a1205; font-weight:700; }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 10px 30px -8px rgba(247,164,64,.6); }
+  .btn-ghost{ color:var(--ink); border:1px solid var(--line); }
+  .btn-ghost:hover{ border-color:var(--blue); color:var(--blue-soft); transform:translateY(-2px); }
+
+  /* constellation */
+  .c-line{
+    stroke:var(--blue); stroke-width:1; opacity:.45;
+    stroke-dasharray:600; stroke-dashoffset:600; animation: draw 2.4s 1s ease forwards;
+  }
+  .c-star{ fill:#fff; }
+  .c-star.lg{ animation: pulse 3.2s ease-in-out infinite; }
+  @keyframes draw{ to{ stroke-dashoffset:0 } }
+  @keyframes pulse{ 0%,100%{ opacity:.6 } 50%{ opacity:1 } }
+  @keyframes rise{ from{ opacity:0; transform:translateY(22px) } to{ opacity:1; transform:none } }
+  @keyframes fade{ to{ opacity:1 } }
+
+  /* ---------- SCROLL REVEAL ---------- */
+  .reveal{
+    opacity:0; transform: translateY(34px);
+    transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);
+    will-change: opacity, transform;
+  }
+  .reveal.in{ opacity:1; transform:none; }
+
+  /* scroll progress bar */
+  #progress{
+    position: fixed; top:0; left:0; height:2px; width:0%;
+    background: linear-gradient(90deg, var(--amber), var(--blue));
+    z-index: 100; box-shadow: 0 0 10px rgba(247,164,64,.5);
+    transition: width .08s linear;
+  }
+
+  /* parallax wrappers */
+  #stars{ will-change: transform; }
+  .logo-mark{ will-change: transform; }
+
+  /* nav active link */
+  .navlinks a.active{ color: var(--amber); }
+
+  @media (prefers-reduced-motion: reduce){
+    .reveal{ opacity:1 !important; transform:none !important; transition:none; }
+    #progress{ display:none; }
+    .c-line{ animation:none; stroke-dashoffset:0; }
+    .star{ animation:none; opacity:.5; }
+    .idle, .planet .bands, .orbit-spin{ animation:none; }
+    .tilt{ transition:none; }
+    html{ scroll-behavior:auto; }
+  }
+
+  /* ---------- HERO ORB (ringed planet — fixed, follows scroll) ---------- */
+  .orb{
+    position:fixed; top:0; left:0;
+    width: clamp(280px, 40vw, 460px); height: clamp(280px, 40vw, 460px);
+    z-index:2; pointer-events:none;
+    will-change: transform, opacity;
+    /* transform + opacity are set every frame in JS */
+    transform: translate(50vw, 32vh) translate(-50%,-50%);
+  }
+  .scene{ width:100%; height:100%; perspective:1100px; opacity:0; animation: fade 1.4s .3s both; }
+  .tilt{
+    width:100%; height:100%; position:relative;
+    transform-style:preserve-3d;
+    transform: rotateX(8deg);
+  }
+  .idle{
+    position:absolute; inset:0; transform-style:preserve-3d;
+    animation: orbBob 11s ease-in-out infinite;
+  }
+  @keyframes orbBob{
+    0%,100%{ transform: rotateZ(-11deg) translateY(0); }
+    50%    { transform: rotateZ(-11deg) translateY(-12px); }
+  }
+
+  .ring{ position:absolute; left:50%; top:50%; width:100%; height:100%; transform:translate(-50%,-50%); }
+  .ring svg{ width:100%; height:100%; overflow:visible; display:block; filter: drop-shadow(0 0 6px rgba(106,166,255,.35)); }
+  .ring-back{ z-index:1; }
+  .ring-front{ z-index:3; clip-path: inset(50% 0 0 0); }
+
+  .planet{
+    position:absolute; left:50%; top:50%; width:64%; height:64%;
+    transform:translate(-50%,-50%); border-radius:50%; overflow:hidden; z-index:2;
+    background:#0a1735;
+    box-shadow:
+      inset -14px -20px 46px rgba(0,0,0,.75),
+      inset 10px 12px 30px rgba(122,170,255,.16),
+      0 0 60px rgba(106,166,255,.30),
+      0 0 130px rgba(247,164,64,.14);
+  }
+  /* the moving surface — scrolls horizontally under a fixed light => reads as axial spin */
+  .planet .bands{
+    position:absolute; inset:0;
+    background-repeat: repeat;
+    background-position-x: 0px;
+    background-image:
+      /* one warm storm */
+      radial-gradient(ellipse 15% 9% at 32% 60%, rgba(255,168,86,.55), rgba(255,168,86,0) 72%),
+      /* soft, elongated cloud streaks that drift across (rotation cue) */
+      radial-gradient(ellipse 46% 5% at 64% 30%, rgba(214,228,255,.16), transparent 75%),
+      radial-gradient(ellipse 52% 4% at 18% 45%, rgba(255,222,180,.13), transparent 75%),
+      radial-gradient(ellipse 40% 5% at 82% 72%, rgba(190,212,255,.15), transparent 75%),
+      /* continuous latitude bands (stay put as the planet spins) */
+      linear-gradient(180deg,
+        #16335f 0%, #234a82 9%, #18365f 17%, #2a5089 27%, #1c3a6b 38%,
+        #2f579a 50%, #1a3563 62%, #2b5390 73%, #173158 83%, #21426f 92%, #122a4f 100%);
+    background-size: 50% 100%, 50% 100%, 50% 100%, 50% 100%, 100% 100%;
+    filter: saturate(1.05);
+  }
+  /* fixed sphere lighting — stays put while the surface spins beneath it */
+  .planet .terminator{
+    position:absolute; inset:0; border-radius:50%; pointer-events:none; z-index:3;
+    background:
+      radial-gradient(circle at 33% 29%, rgba(255,238,205,.55), rgba(255,238,205,0) 26%),
+      radial-gradient(circle at 40% 36%, rgba(170,200,255,.16), transparent 42%),
+      radial-gradient(circle at 73% 77%, rgba(2,5,14,.78), transparent 60%),
+      radial-gradient(circle at 50% 50%, transparent 54%, rgba(2,5,14,.6) 100%);
+  }
+
+  .orbit-plane{ position:absolute; left:50%; top:50%; width:100%; height:100%; transform: translate(-50%,-50%) scaleY(.32); z-index:4; }
+  .orbit-spin{ position:absolute; inset:0; animation: orbCircle 18s linear infinite; }
+  @keyframes orbCircle{ from{ transform: rotate(0); } to{ transform: rotate(360deg); } }
+  .spark{
+    position:absolute; left:50%; top:-2%; width:14px; height:14px; transform: translate(-50%,-50%);
+    background:
+      radial-gradient(circle, var(--amber-soft) 0 18%, transparent 60%),
+      conic-gradient(from 0deg, transparent 0 8%, var(--amber) 9% 11%, transparent 12% 33%,
+        var(--amber) 34% 36%, transparent 37% 58%, var(--amber) 59% 61%, transparent 62% 83%,
+        var(--amber) 84% 86%, transparent 87%);
+    filter: drop-shadow(0 0 6px var(--amber));
+  }
+
+  /* ---------- SECTIONS ---------- */
+  section{ padding: 80px 0; position:relative; }
+  .sec-head{ margin-bottom:44px; max-width:62ch; }
+  .sec-num{ font-family:'Space Mono',monospace; color:var(--blue); font-size:.78rem; letter-spacing:.2em; }
+  .sec-head h2{ font-family:'Syne',sans-serif; font-weight:700; font-size:clamp(1.8rem,4vw,2.7rem); line-height:1.06; margin:.3em 0 .4em; letter-spacing:-.01em; }
+  .sec-head p{ color:var(--ink-dim); }
+  .divider{ height:1px; background:var(--rule); }
+
+  /* about line */
+  .about-text{ font-size:1.15rem; max-width:60ch; color:var(--ink); font-weight:300; }
+  .about-text b{ color:var(--amber-soft); font-weight:500; }
+
+  /* ---------- PROJECTS ---------- */
+  .grid-4{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+  .proj{
+    background: linear-gradient(180deg, var(--panel), #0d1322);
+    border:1px solid var(--line); border-radius:6px; padding:28px 24px;
+    position:relative; overflow:hidden; transition: transform .3s, border-color .3s;
+  }
+  .proj:hover{ transform:translateY(-5px); border-color: rgba(106,166,255,.45); }
+  .proj .icon{ color:var(--blue-soft); margin-bottom:16px; transition:color .3s; }
+  .proj:hover .icon{ color:var(--amber); }
+  .proj .icon svg{ width:30px; height:30px; }
+  .proj h3{ font-family:'Syne',sans-serif; font-weight:700; font-size:1.2rem; margin-bottom:.35em; }
+  .proj p{ color:var(--ink-dim); font-size:.92rem; }
+  .proj .status{
+    display:inline-block; margin-top:14px; font-family:'Space Mono',monospace;
+    font-size:.64rem; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--blue); border:1px solid rgba(106,166,255,.35); border-radius:999px; padding:3px 10px;
+  }
+  .proj.more{ border-style:dashed; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; }
+  .proj.more h3{ color:var(--ink-dim); }
+
+  /* ---------- TEAM ---------- */
+  .team-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .member{
+    border:1px solid var(--line); border-radius:6px; padding:20px;
+    background:var(--panel); transition:border-color .3s, transform .3s;
+    display:flex; align-items:center; gap:14px;
+  }
+  .member:hover{ border-color:rgba(247,164,64,.5); transform:translateY(-3px); }
+  .member .av{
+    width:38px; height:38px; border-radius:50%; flex-shrink:0;
+    background: radial-gradient(circle at 35% 30%, var(--amber), #7a4a12);
+  }
+  .member .av.b{ background: radial-gradient(circle at 35% 30%, var(--blue-soft), #1e3a6b); }
+  .member h4{ font-family:'Syne',sans-serif; font-weight:700; font-size:.98rem; line-height:1.1; }
+  .member span{ color:var(--ink-dim); font-family:'Space Mono',monospace; font-size:.68rem; letter-spacing:.06em; }
+
+  /* ---------- FOOTER ---------- */
+  footer{ border-top:1px solid var(--rule); padding:56px 0 50px; }
+  .foot-grid{ display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:30px; }
+  .foot-brand{ font-family:'Syne',sans-serif; font-weight:800; font-size:1.6rem; letter-spacing:.04em; }
+  .foot-brand .glow{ background:linear-gradient(115deg, var(--amber-soft), var(--blue)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  footer p{ color:var(--ink-dim); font-size:.85rem; }
+  .foot-links{ display:flex; gap:22px; }
+  .foot-links a{ color:var(--ink-dim); text-decoration:none; font-family:'Space Mono',monospace; font-size:.78rem; letter-spacing:.06em; transition:color .25s; }
+  .foot-links a:hover{ color:var(--amber); }
+  .copyr{ margin-top:38px; color:var(--ink-dim); font-family:'Space Mono',monospace; font-size:.72rem; letter-spacing:.06em; }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 880px){
+    .grid-4{ grid-template-columns:repeat(2,1fr); }
+    .team-grid{ grid-template-columns:repeat(2,1fr); }
+    .navlinks{ display:none; }
+  }
+  @media (max-width: 480px){
+    .grid-4{ grid-template-columns:1fr; }
+    .team-grid{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div id="stars"></div>
+
+<!-- ===================== NAV ===================== -->
+<header>
+  <div class="wrap">
+    <nav>
+      <a href="#top" class="brand"><span class="dot"></span> ORION PROJECT</a>
+      <ul class="navlinks">
+        <li><a href="#about">About</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#team">Team</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- ===================== ORB (fixed, follows scroll) ===================== -->
+<div class="orb" id="orb" aria-hidden="true">
+  <div class="scene">
+    <div class="tilt">
+      <div class="idle">
+        <!-- back of the ring (far arc) -->
+        <div class="ring ring-back">
+          <svg viewBox="0 0 200 200">
+            <defs>
+              <linearGradient id="rg" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#f7a440"/>
+                <stop offset="55%" stop-color="#6aa6ff"/>
+                <stop offset="100%" stop-color="#1e3a6b"/>
+              </linearGradient>
+            </defs>
+            <ellipse cx="100" cy="100" rx="94" ry="30" fill="none" stroke="url(#rg)" stroke-width="5" opacity=".55"/>
+            <ellipse cx="100" cy="100" rx="82" ry="26" fill="none" stroke="url(#rg)" stroke-width="2" opacity=".3"/>
+          </svg>
+        </div>
+
+        <!-- the planet -->
+        <div class="planet">
+          <div class="bands"></div>
+          <div class="terminator"></div>
+        </div>
+
+        <!-- front of the ring (near arc, drawn over the planet) -->
+        <div class="ring ring-front">
+          <svg viewBox="0 0 200 200">
+            <ellipse cx="100" cy="100" rx="94" ry="30" fill="none" stroke="url(#rg)" stroke-width="5.5"/>
+            <ellipse cx="100" cy="100" rx="82" ry="26" fill="none" stroke="url(#rg)" stroke-width="2.5" opacity=".7"/>
+          </svg>
+        </div>
+
+        <!-- orbiting spark -->
+        <div class="orbit-plane">
+          <div class="orbit-spin">
+            <div class="spark"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== HERO / LOGO ===================== -->
+<div class="wrap" id="top">
+  <section class="hero">
+    <div class="hero-text" id="heroText">
+      <div class="eyebrow">Grade 10 · Class 10S4</div>
+      <div class="wordmark">ORION</div>
+      <div class="project-tag">Project</div>
+
+      <p class="lead">Grade 10 students from class 10S4. We design and build engineering and tech projects — and document them here.</p>
+
+      <div class="cta-row">
+        <a href="#projects" class="btn btn-primary">Our projects</a>
+        <!-- TODO: replace with your GitHub repo link -->
+        <a href="https://github.com/" class="btn btn-ghost">View on GitHub</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="wrap"><div class="divider"></div></div>
+
+<!-- ===================== ABOUT ===================== -->
+<div class="wrap">
+  <section id="about">
+    <span class="sec-num reveal">01 / ABOUT</span>
+    <p class="about-text reveal" style="margin-top:.6em;">
+      We're <b>The Orion Project</b> — a team of Grade 10 students from <b>class 10S4</b>.
+      We work on hands-on engineering and technology projects, from remote-controlled
+      vehicles to AI. This site is where we collect what we build.
+    </p>
+  </section>
+</div>
+
+<div class="wrap"><div class="divider"></div></div>
+
+<!-- ===================== PROJECTS ===================== -->
+<div class="wrap">
+  <section id="projects">
+    <div class="sec-head reveal">
+      <span class="sec-num">02 / PROJECTS</span>
+      <h2>What we're working on.</h2>
+      <p>Our current idea list. Some are in progress, others are still on the drawing board.</p>
+    </div>
+
+    <div class="grid-4">
+      <!-- RC Car -->
+      <div class="proj">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 13l2-5h14l2 5"/><path d="M2 13h20v4H2z"/>
+            <circle cx="7" cy="17.5" r="1.7"/><circle cx="17" cy="17.5" r="1.7"/>
+          </svg>
+        </div>
+        <h3>RC Car</h3>
+        <p>A remote-controlled car — our build for handling, speed and control.</p>
+        <span class="status">In progress</span>
+      </div>
+
+      <!-- RC Plane -->
+      <div class="proj">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+          </svg>
+        </div>
+        <h3>RC Plane</h3>
+        <p>A remote-controlled aircraft. Lift, balance and flight, the hard way.</p>
+        <span class="status">Planned</span>
+      </div>
+
+      <!-- AI Agent -->
+      <div class="proj">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="6" y="6" width="12" height="12" rx="2"/>
+            <circle cx="12" cy="12" r="2.5"/>
+            <path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/>
+          </svg>
+        </div>
+        <h3>AI Agent</h3>
+        <p>A software project — an AI agent that can carry out tasks on its own.</p>
+        <span class="status">Exploring</span>
+      </div>
+
+      <!-- More -->
+      <div class="proj more">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>
+          </svg>
+        </div>
+        <h3>More to come</h3>
+        <p>New ideas land here as the team picks them up.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="wrap"><div class="divider"></div></div>
+
+<!-- ===================== TEAM ===================== -->
+<div class="wrap">
+  <section id="team">
+    <div class="sec-head reveal">
+      <span class="sec-num">03 / TEAM</span>
+      <h2>The 12 of us.</h2>
+      <p>The students of 10S4 behind the project. Swap in real names and roles below.</p>
+    </div>
+
+    <!-- TODO: edit the 12 names and roles -->
+    <div class="team-grid">
+      <div class="member"><div class="av"></div><div><h4>Member 01</h4><span>10S4</span></div></div>
+      <div class="member"><div class="av b"></div><div><h4>Member 02</h4><span>10S4</span></div></div>
+      <div class="member"><div class="av"></div><div><h4>Member 03</h4><span>10S4</span></div></div>
+      <div class="member"><div class="av b"></div><div><h4>Member 04</h4><span>10S4</span></div></div>
+      <div class="member"><div class="av b"></div><div><h4>Member 05</h4><span>10S4</span></div></div>
+      <div class="member"><div class="av"></div><div><h4>Member 06</h4><span>10S4</span></div></div>
+      <div class="member"><div class="av b"></div><div><h4>Member 07</h4><span>10S4</span></div></div>
+      <div class="member"><div class="av"></div><div><h4>Member 08</h4><span>10S4</span></div></div>
+      <div class="member"><div class="av"></div><div><h4>Member 09</h4><span>10S4</span></div></div>
+      <div class="member"><div class="av b"></div><div><h4>Member 10</h4><span>10S4</span></div></div>
+      <div class="member"><div class="av"></div><div><h4>Member 11</h4><span>10S4</span></div></div>
+      <div class="member"><div class="av b"></div><div><h4>Member 12</h4><span>10S4</span></div></div>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand"><span class="glow">ORION</span> PROJECT</div>
+        <p>Grade 10 · Class 10S4</p>
+      </div>
+      <div class="foot-links">
+        <!-- TODO: update these links -->
+        <a href="https://github.com/">GitHub</a>
+        <a href="#projects">Projects</a>
+        <a href="#team">Team</a>
+      </div>
+    </div>
+    <div class="copyr">© <span id="yr"></span> The Orion Project · Class 10S4</div>
+  </div>
+</footer>
+
+<script>
+  /* ---- starfield ---- */
+  (function(){
+    const sky = document.getElementById('stars');
+    for(let i=0;i<120;i++){
+      const s = document.createElement('div');
+      s.className = 'star';
+      const size = Math.random()*2 + 0.5;
+      s.style.width = size+'px'; s.style.height = size+'px';
+      s.style.left = Math.random()*100 + '%'; s.style.top = Math.random()*100 + '%';
+      s.style.setProperty('--t', (Math.random()*3 + 1.5)+'s');
+      s.style.animationDelay = (Math.random()*4)+'s';
+      sky.appendChild(s);
+    }
+  })();
+
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- mark grid items as reveal + stagger within their row ---- */
+  document.querySelectorAll('.grid-4, .team-grid').forEach(grid => {
+    [...grid.children].forEach((el, i) => {
+      el.classList.add('reveal');
+      el.style.transitionDelay = (i % 6) * 0.07 + 's';
+    });
+  });
+
+  /* ---- reveal on scroll ---- */
+  if(!reduced && 'IntersectionObserver' in window){
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  } else {
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+  }
+
+  /* ---- scroll progress + planet follow + text fade + spin + nav ---- */
+  const bar = document.getElementById('progress');
+  const stars = document.getElementById('stars');
+  const orb = document.getElementById('orb');
+  const heroText = document.getElementById('heroText');
+  const surface = document.querySelector('.planet .bands');
+  const sections = [...document.querySelectorAll('section[id]')];
+  const navMap = {};
+  document.querySelectorAll('.navlinks a').forEach(a => {
+    navMap[a.getAttribute('href').slice(1)] = a;
+  });
+
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  let lastY = window.scrollY;
+  let boost = 0;            // extra spin speed from scrolling, decays over time
+
+  if(reduced){
+    // don't pin the planet over content; let it sit in the hero and scroll away
+    orb.style.position = 'absolute';
+    orb.style.left = '50%';
+    orb.style.top = '16vh';
+    orb.style.transform = 'translateX(-50%)';
+  }
+
+  function render(){
+    const y = window.scrollY;
+    const W = window.innerWidth, H = window.innerHeight;
+    const docH = document.documentElement.scrollHeight - H;
+    bar.style.width = (docH > 0 ? (y / docH) * 100 : 0) + '%';
+
+    if(!reduced){
+      stars.style.transform = 'translateY(' + (y * 0.18) + 'px)';
+
+      // q: planet's journey from hero-centre to corner over the first ~85vh
+      const q  = clamp(y / (H * 0.85), 0, 1);
+      const eq = q * q * (3 - 2 * q);                 // smoothstep
+      const startX = W / 2,  startY = H * 0.32;
+      const endX   = W - 92, endY   = H - 92;          // bottom-right corner
+      const cx = startX + (endX - startX) * eq;
+      const cy = startY + (endY - startY) * eq;
+      const s  = 1 - eq * 0.62;                        // shrink to ~0.38
+      orb.style.transform =
+        'translate(' + cx + 'px,' + cy + 'px) translate(-50%,-50%) scale(' + s + ')';
+      orb.style.opacity = (1 - eq * 0.55).toFixed(3);  // stays faintly visible
+
+      // hero text fades + lifts as you scroll away
+      const tq = clamp(y / (H * 0.5), 0, 1);
+      heroText.style.opacity = (1 - tq).toFixed(3);
+      heroText.style.transform = 'translateY(' + (tq * -50) + 'px)';
+
+      // scrolling spins the planet faster (in the scroll direction)
+      boost = clamp(boost + (y - lastY) * 1.4, -900, 900);
+    }
+    lastY = y;
+
+    let current = sections[0] ? sections[0].id : null;
+    for(const sec of sections){
+      if(sec.getBoundingClientRect().top <= H * 0.4) current = sec.id;
+    }
+    Object.values(navMap).forEach(a => a.classList.remove('active'));
+    if(current && navMap[current]) navMap[current].classList.add('active');
+
+    ticking = false;
+  }
+
+  let ticking = false;
+  function schedule(){ if(!ticking){ requestAnimationFrame(render); ticking = true; } }
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule, { passive: true });
+  render();
+
+  /* ---- continuous axial spin: scroll the surface texture under the fixed light ---- */
+  if(!reduced && surface){
+    let pos = 0, last = performance.now();
+    (function spinLoop(t){
+      const dt = Math.min((t - last) / 1000, 0.05); last = t;
+      boost *= 0.94;                       // ease scroll boost back to zero
+      pos -= (34 + boost) * dt;            // base drift + scroll boost (px/s)
+      surface.style.backgroundPositionX = pos.toFixed(2) + 'px';
+      requestAnimationFrame(spinLoop);
+    })(last);
+  }
+
+</script>
+
+</body>
+</html>
