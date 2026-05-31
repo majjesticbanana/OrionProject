@@ -286,6 +286,31 @@
   .proj.more{ border-style:dashed; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; }
   .proj.more h3{ color:var(--ink-dim); }
 
+  /* ---------- TRY IT (AI embed) ---------- */
+  .sec-head code{
+    font-family:'Space Mono',monospace; font-size:.9em;
+    color:var(--amber-soft); background:rgba(247,164,64,.1);
+    border:1px solid rgba(247,164,64,.25); border-radius:4px; padding:1px 7px;
+  }
+  .ai-frame{
+    position:relative; border:1px solid var(--line); border-radius:14px;
+    overflow:hidden; background:#070a14;
+    box-shadow: 0 0 60px -20px rgba(106,166,255,.4), inset 0 0 0 1px rgba(255,255,255,.02);
+  }
+  .ai-frame::before{
+    content:""; position:absolute; inset:0; pointer-events:none; border-radius:14px;
+    box-shadow: inset 0 0 80px -40px rgba(247,164,64,.35);
+  }
+  .ai-frame iframe{
+    width:100%; height:780px; border:0; display:block;
+    background:#070a14;
+  }
+  .ai-note{
+    margin-top:14px; text-align:center; color:var(--ink-dim);
+    font-family:'Space Mono',monospace; font-size:.72rem; letter-spacing:.06em;
+  }
+  @media (max-width: 600px){ .ai-frame iframe{ height:680px; } }
+
   /* ---------- TEAM ---------- */
   .team-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
   .member{
@@ -338,6 +363,7 @@
       <ul class="navlinks">
         <li><a href="#about">About</a></li>
         <li><a href="#projects">Projects</a></li>
+        <li><a href="#try">Try it</a></li>
         <li><a href="#team">Team</a></li>
       </ul>
     </nav>
@@ -489,11 +515,37 @@
 
 <div class="wrap"><div class="divider"></div></div>
 
+<!-- ===================== TRY IT (AI embed) ===================== -->
+<div class="wrap">
+  <section id="try">
+    <div class="sec-head reveal">
+      <span class="sec-num">03 / TRY IT</span>
+      <h2>Ask the Orion AI.</h2>
+      <p>Our IGCSE question-answering model. Type a paper reference like
+         <code>0625/42/M/J/23 Q4</code>, or just ask a question in words —
+         it finds the official mark scheme and explains the full answer.</p>
+    </div>
+
+    <!-- TODO: confirm this is your exact Hugging Face Space URL once it is "Running".
+         Check it via the Space's "⋮ → Embed this Space" option. -->
+    <div class="ai-frame reveal">
+      <iframe
+        src="https://majjesticb-orion-qa.hf.space"
+        title="Orion AI Q&amp;A"
+        loading="lazy"
+        allow="clipboard-write"></iframe>
+    </div>
+    <p class="ai-note">Powered by our retrieval pipeline + Gemini, hosted on Hugging Face.</p>
+  </section>
+</div>
+
+<div class="wrap"><div class="divider"></div></div>
+
 <!-- ===================== TEAM ===================== -->
 <div class="wrap">
   <section id="team">
     <div class="sec-head reveal">
-      <span class="sec-num">03 / TEAM</span>
+      <span class="sec-num">04 / TEAM</span>
       <h2>The 12 of us.</h2>
       <p>The students of 10S4 behind the project. Swap in real names and roles below.</p>
     </div>
@@ -528,6 +580,7 @@
         <!-- TODO: update these links -->
         <a href="https://github.com/">GitHub</a>
         <a href="#projects">Projects</a>
+        <a href="#try">Try it</a>
         <a href="#team">Team</a>
       </div>
     </div>
