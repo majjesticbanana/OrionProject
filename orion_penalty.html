@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORION PENALTY - 8BIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d2b; --bg2:#1a1c4a;
+    --amber:#ffb13b; --amber2:#ffd98a;
+    --blue:#5ab0ff; --blue2:#a8d4ff;
+    --ink:#eef0ff; --dim:#8a8fd0; --line:#3a3e7a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{background:var(--bg);color:var(--ink);font-family:'Press Start 2P',monospace;
+    display:flex;align-items:center;justify-content:center;min-height:100vh;overflow:hidden;user-select:none;}
+  .cab{position:relative;width:680px;max-width:97vw;background:var(--bg2);
+    border:4px solid #000;box-shadow:0 0 0 4px var(--line),0 0 0 8px #000;padding:14px;}
+  .cab::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:30;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 2px,transparent 2px 4px);mix-blend-mode:multiply;}
+  .hud{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .title{font-size:13px;color:var(--amber);text-shadow:2px 2px 0 #000;letter-spacing:1px;}
+  .round{font-size:9px;color:var(--dim);text-shadow:1px 1px 0 #000;}
+  .round b{color:var(--amber2);}
+  .score{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:12px;
+    background:#000;border:3px solid var(--line);padding:10px 8px;}
+  .p{display:flex;align-items:center;gap:10px;}
+  .p.right{flex-direction:row-reverse;}
+  .p .lbl{font-size:8px;letter-spacing:1px;}
+  .p1 .lbl{color:var(--amber);} .p2 .lbl{color:var(--blue);}
+  .p .n{font-size:22px;text-shadow:2px 2px 0 #000;}
+  .p1 .n{color:var(--amber2);} .p2 .n{color:var(--blue2);}
+  .p.on{animation:blink 1s steps(2) infinite;}
+  @keyframes blink{50%{opacity:.45}}
+  .vs{font-size:9px;color:var(--dim);}
+  .dots{font-size:9px;letter-spacing:2px;}
+  .d{color:#2a2c55;} .d.g{color:#49e06b;} .d.m{color:#ff5b5b;}
+  .screen{position:relative;width:100%;}
+  canvas{display:block;width:100%;height:auto;image-rendering:pixelated;border:3px solid #000;background:#0a0a18;}
+  .prompt{margin-top:10px;text-align:center;font-size:9px;color:var(--ink);text-shadow:1px 1px 0 #000;line-height:1.6;min-height:14px;}
+  .prompt b{color:var(--amber2);}
+  .foot{margin-top:10px;display:flex;align-items:center;justify-content:space-between;}
+  .keys{font-size:8px;color:var(--dim);line-height:1.8;}
+  .keys b{color:var(--ink);}
+  button{font-family:'Press Start 2P',monospace;font-size:8px;color:#000;background:var(--amber);
+    border:3px solid #000;padding:8px 12px;cursor:pointer;box-shadow:3px 3px 0 #000;}
+  button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000;}
+  .ov{position:absolute;inset:0;z-index:25;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;background:rgba(5,5,20,.92);padding:18px;}
+  .ov h1{font-size:18px;color:var(--amber);text-shadow:3px 3px 0 #000;line-height:1.7;margin-bottom:14px;}
+  .ov p{font-size:9px;color:var(--ink);line-height:2.1;margin-bottom:16px;max-width:520px;}
+  .ov .k{color:#000;background:var(--amber2);padding:2px 6px;border:2px solid #000;}
+  .ov .b{color:var(--blue2);} .ov .a{color:var(--amber2);}
+</style>
+</head>
+<body>
+<div class="cab">
+  <div class="hud">
+    <div class="title">ORION PENALTY</div>
+    <div class="round" id="round">ROUND 1/5</div>
+  </div>
+  <div class="score">
+    <div class="p p1 on" id="p1box"><span class="lbl">P1</span><span class="n" id="n1">0</span><span class="dots" id="dots1"></span></div>
+    <div class="vs">VS</div>
+    <div class="p p2 right" id="p2box"><span class="lbl">P2</span><span class="n" id="n2">0</span><span class="dots" id="dots2"></span></div>
+  </div>
+  <div class="screen">
+    <canvas id="game" width="340" height="220"></canvas>
+    <div class="ov" id="ov"></div>
+  </div>
+  <div class="prompt" id="prompt"></div>
+  <div class="foot">
+    <div class="keys"><b>P1</b> = <b style="color:#ffd98a">A</b> &nbsp; <b>P2</b> = <b style="color:#a8d4ff">L</b><br>keys A / L &nbsp;or&nbsp; L1 / R1 on pad</div>
+    <button id="reset">RESET</button>
+  </div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('game'), ctx=cv.getContext('2d');
+  var W=cv.width,H=cv.height; ctx.imageSmoothingEnabled=false;
+  var C={skyTop:'#1a1c4a',skyBot:'#2a2d66',crowd1:'#3a3e7a',crowd2:'#4a4e9a',
+    grassA:'#1f6e2e',grassB:'#23802f',grassLine:'#2f9c3c',post:'#f4f6ff',postShade:'#c8ccee',
+    net:'#5a5e8a',kit:'#2bd46a',kitShade:'#16a04a',skin:'#ffcf9c',outline:'#06210f',
+    ball:'#ffffff',ballShade:'#c7ccd6',amber:'#ffb13b',amber2:'#ffd98a',blue:'#5ab0ff',blue2:'#a8d4ff'};
+  function px(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x|0,y|0,w|0,h|0);}
+  var GOAL={x:60,y:34,w:220,h:96};
+  function zoneCenter(z){var xs=[0.16,0.84,0.5,0.16,0.84],ys=[0.30,0.30,0.5,0.74,0.74];
+    return {x:GOAL.x+xs[z]*GOAL.w, y:GOAL.y+ys[z]*GOAL.h};}
+
+  function drawBackground(){
+    for(var i=0;i<18;i++){px(0,i*2,W,2,i<9?C.skyTop:C.skyBot);}
+    for(var cx=0;cx<W;cx+=6){for(var cy=2;cy<26;cy+=6){
+      var on=((cx+cy)%12===0)||(Math.floor(cx*7+cy*13)%5===0);px(cx,cy,4,4,on?C.crowd2:C.crowd1);}}
+    for(var gy=30;gy<H;gy+=8){var band=((gy-30)/8)|0;px(0,gy,W,8,band%2?C.grassA:C.grassB);}
+    for(var a=-1;a<=1;a+=0.25){px(W/2+a*40,150+Math.abs(a)*8,2,2,C.grassLine);}
+  }
+  function drawGoal(){var g=GOAL;
+    px(g.x,g.y,g.w,g.h,'#0c2a16');ctx.fillStyle=C.net;
+    for(var nx=g.x+4;nx<g.x+g.w;nx+=8){px(nx,g.y,1,g.h,C.net);}
+    for(var ny=g.y+4;ny<g.y+g.h;ny+=8){px(g.x,ny,g.w,1,C.net);}
+    px(g.x-6,g.y-6,6,g.h+6,C.post);px(g.x+g.w,g.y-6,6,g.h+6,C.post);px(g.x-6,g.y-6,g.w+12,6,C.post);
+    px(g.x-6,g.y,2,g.h,C.postShade);px(g.x+g.w+4,g.y,2,g.h,C.postShade);
+  }
+  // keeper poses: 'idle','low','high','catch'. side: -1 left, 1 right, 0 centre.
+  function drawKeeper(kx,ky,pose,side,holding){
+    var x=Math.round(kx), y=Math.round(ky);
+    function body(bx,by,tilt){
+      // torso
+      px(bx-7,by-14,14,18,C.kit);
+      px(bx-6,by-13,12,3,C.kitShade);
+      // head
+      px(bx-4,by-21,8,8,C.skin);
+      px(bx-4,by-21,8,1,'#e0a877');
+      // outline sides
+      px(bx-8,by-14,1,18,C.outline);
+      px(bx+7,by-14,1,18,C.outline);
+    }
+    if(pose==='idle'){
+      body(x,y,0);
+      // legs
+      px(x-6,y+4,5,5,C.kit); px(x+1,y+4,5,5,C.kit);
+      // arms slightly out (ready)
+      px(x-10,y-12,3,8,C.kit); px(x+7,y-12,3,8,C.kit);
+      px(x-11,y-13,4,4,C.skin); px(x+7,y-13,4,4,C.skin); // gloves
+    }
+    else if(pose==='low'){
+      // crouched lunge toward side, arms down-out
+      var d=side;
+      body(x, y+2, 0);
+      px(x+d*8, y+2, 8,4, C.kit);            // extended low arm
+      px(x+d*15, y+2, 5,5, C.skin);          // glove low
+      px(x-6,y+6,6,4,C.kit); px(x+2,y+6,6,4,C.kit); // legs spread
+    }
+    else if(pose==='high'){
+      // full-stretch dive, arms up-out toward side
+      var d2=side;
+      body(x, y-2, 0);
+      px(x+d2*8, y-12, 8,4, C.kit);          // extended high arm
+      px(x+d2*15, y-14, 5,5, C.skin);        // glove high
+      px(x-5,y+4,5,5,C.kit); px(x,y+4,5,5,C.kit);
+    }
+    else if(pose==='jump'){
+      // straight vertical jump, both arms up overhead
+      body(x, y-2, 0);
+      px(x-9,y-22,4,12,C.kit); px(x+5,y-22,4,12,C.kit);   // arms up
+      px(x-10,y-26,5,5,C.skin); px(x+5,y-26,5,5,C.skin);  // gloves up
+      px(x-5,y+4,5,6,C.kit); px(x,y+4,5,6,C.kit);         // legs together (tucked)
+    }
+    else if(pose==='catch'){
+      // both gloves together holding ball at chest, triumphant
+      body(x,y,0);
+      px(x-5,y+4,5,5,C.kit); px(x,y+4,5,5,C.kit);
+      px(x-8,y-10,4,6,C.kit); px(x+4,y-10,4,6,C.kit); // arms in
+      px(x-7,y-12,5,5,C.skin); px(x+3,y-12,5,5,C.skin); // gloves cupped
+      if(holding){ // ball held between gloves
+        px(x-4,y-13,8,8,C.ball);
+        px(x-2,y-11,3,3,C.ballShade);
+      }
+    }
+  }
+  function drawBall(bx,by,scale){var s=scale||1,r=Math.round(5*s);
+    px(bx-r,by-r,r*2,r*2,C.ball);px(bx-2,by-2,3,3,C.ballShade);px(bx-1,by-1,2,2,'#9aa0b0');}
+  function drawAimBar(t){var bx=W/2-70,by=H-20,bw=140,bh=8;
+    px(bx-2,by-2,bw+4,bh+4,'#000');px(bx,by,bw,bh,'#11132e');
+    var kx=bx+t*(bw-16);px(kx,by,16,bh,C.amber);px(kx,by,16,2,C.amber2);}
+  function drawPowBar(t){var bx=W-18,by=36,bw=8,bh=120;
+    px(bx-2,by-2,bw+4,bh+4,'#000');px(bx,by,bw,bh,'#11132e');
+    // top slice = MISS-HIGH zone (drawn dark red), rest playable
+    var missH=Math.round(bh*0.16); px(bx,by,bw,missH,'#5a1414');
+    var ky=by+(1-t)*(bh-16);px(bx,ky,bw,16,C.blue);px(bx,ky,bw,2,C.blue2);}
+  // timing bar: green (good) / yellow (ok) / red (bad) regions; green shrinks each round
+  function drawTimeBar(t,greenFrac){
+    var bx=W/2-70,by=H-34,bw=140,bh=8;
+    px(bx-2,by-2,bw+4,bh+4,'#000');
+    // regions left->right: red | yellow | green | yellow | red  (green centred, shrinks)
+    var g=Math.max(0.12, greenFrac);          // green width fraction
+    var ywd=yellowFrac();                      // each yellow band fraction (grows in sudden death)
+    var redL=(1-g-ywd*2)/2;                    // red on each side
+    var x=bx, segs=[[redL,'#c0392b'],[ywd,'#e0a800'],[g,'#2faa3c'],[ywd,'#e0a800'],[redL,'#c0392b']];
+    for(var i=0;i<segs.length;i++){var wseg=Math.round(segs[i][0]*bw);px(x,by,wseg,bh,segs[i][1]);x+=wseg;}
+    var kx=bx+t*(bw-10);px(kx,by-3,4,bh+6,'#ffffff');}  // white needle marker
+
+  var ROUNDS=5,state,current,round,score,results,anim,aimV,powV,timeV;
+  var ball={x:W/2,y:H-30,s:1,gx:W/2,gy:H-22,sh:0},keeper={x:W/2,y:118,pose:'idle',side:0,hold:false};
+  var flashTxt='',flashCol='',flashTimer=0;
+  var ov=document.getElementById('ov'),promptEl=document.getElementById('prompt'),roundEl=document.getElementById('round');
+  var n1=document.getElementById('n1'),n2=document.getElementById('n2');
+  var dots1=document.getElementById('dots1'),dots2=document.getElementById('dots2');
+  var p1box=document.getElementById('p1box'),p2box=document.getElementById('p2box');
+
+  function frame(){
+    drawBackground();drawGoal();
+    if(!keeper.hold && ball.sh>0){var sw=Math.round(7*ball.s);px(Math.round(ball.gx)-sw, Math.round(ball.gy), sw*2, 3, 'rgba(0,0,0,0.28)');}
+    drawKeeper(keeper.x,keeper.y,keeper.pose,keeper.side,keeper.hold);
+    if(!keeper.hold) drawBall(ball.x,ball.y,ball.s);
+    if(state==='aim')drawAimBar(aimV||0);
+    if(state==='power')drawPowBar(powV||0);
+    if(state==='time')drawTimeBar(timeV||0, greenFrac());
+    if(flashTimer>0){ctx.fillStyle='rgba(5,5,20,.35)';ctx.fillRect(0,0,W,H);
+      ctx.fillStyle=flashCol;ctx.font='16px "Press Start 2P"';ctx.textAlign='center';
+      ctx.fillText(flashTxt,W/2,H/2+6);flashTimer--;}
+    requestAnimationFrame(frame);
+  }
+  function updateScore(){n1.textContent=score[1];n2.textContent=score[2];
+    function b(el,arr){var h='';for(var i=0;i<ROUNDS;i++){
+      if(arr[i]==='goal')h+='<span class="d g">\u25CF</span>';
+      else if(arr[i]==='miss')h+='<span class="d m">\u25CB</span>';
+      else h+='<span class="d">\u25CF</span>';}el.innerHTML=h;}
+    b(dots1,results[1]);b(dots2,results[2]);}
+  function setActive(){p1box.classList.toggle('on',current===1);p2box.classList.toggle('on',current===2);
+    if(isSD()){ roundEl.innerHTML='<b style="color:#ff7b7b">SUDDEN DEATH '+(round-ROUNDS)+'</b> \u00B7 <b>P'+current+'</b>'+(extraLevel()>=3?' \u00B7 MAX':''); }
+    else { roundEl.innerHTML='ROUND '+round+'/'+ROUNDS+' \u00B7 <b>P'+current+'</b>'; }}
+  function parkBall(){ball.x=W/2;ball.y=H-30;ball.s=1;ball.gx=W/2;ball.gy=H-22;ball.sh=0;}
+  function parkKeeper(){keeper.x=W/2;keeper.y=118;keeper.pose='idle';keeper.side=0;keeper.hold=false;}
+
+  function showStart(){ov.style.display='flex';
+    ov.innerHTML='<h1>ORION<br>PENALTY</h1>'+
+    '<p>2 PLAYERS \u2014 5 PENS EACH<br><br>'+
+    '<span class="k">A</span> = P1 SHOOT &nbsp; <span class="k">L</span> = P2 SHOOT<br><br>'+
+    '1: LOCK <span class="a">AIM</span> &nbsp; 2: LOCK <span class="b">HEIGHT</span> &nbsp; 3: HIT <span style="color:#49e06b">GREEN</span><br>EDGES = MISS \u00B7 GREEN SHRINKS EACH ROUND<br>BEAT THE KEEPER!</p>'+
+    '<button id="go">START</button>';
+    document.getElementById('go').addEventListener('click',startMatch);}
+  function reset(){clearInterval(anim);state='idle';current=1;round=1;score={1:0,2:0};results={1:[],2:[]};
+    updateScore();setActive();parkBall();parkKeeper();promptEl.textContent='';flashTimer=0;showStart();}
+  function startMatch(){clearInterval(anim);current=1;round=1;score={1:0,2:0};results={1:[],2:[]};
+    updateScore();ov.style.display='none';beginShot();}
+  function beginShot(){
+    setActive();state='aim';parkBall();parkKeeper();
+    promptEl.innerHTML='P'+current+': PRESS <b>'+(current===1?'A':'L')+'</b> \u2014 LOCK AIM';
+    var pos=0,dir=1,sp=barSpeed();anim=setInterval(function(){pos+=dir*sp;if(pos>=1){pos=1;dir=-1;}if(pos<=0){pos=0;dir=1;}aimV=pos;},16);}
+  function lockAim(){clearInterval(anim);state='power';
+    promptEl.innerHTML='P'+current+': PRESS <b>'+(current===1?'A':'L')+'</b> \u2014 LOCK HEIGHT';
+    var pos=0,dir=1,sp=barSpeed();anim=setInterval(function(){pos+=dir*sp;if(pos>=1){pos=1;dir=-1;}if(pos<=0){pos=0;dir=1;}powV=pos;},16);}
+  function lockPower(){clearInterval(anim);state='time';
+    promptEl.innerHTML='P'+current+': PRESS <b>'+(current===1?'A':'L')+'</b> \u2014 HIT GREEN!';
+    var pos=0,dir=1,sp=barSpeed()*1.15;anim=setInterval(function(){pos+=dir*sp;if(pos>=1){pos=1;dir=-1;}if(pos<=0){pos=0;dir=1;}timeV=pos;},16);}
+  function lockTime(){clearInterval(anim);state='shooting';promptEl.textContent='';shoot();}
+  // map a zone -> keeper preset {side, pose, x, y}
+  function keeperPose(z){
+    var side = z===0||z===3 ? -1 : (z===1||z===4 ? 1 : 0);
+    // poses: top corners = high dive, bottom corners = low dive, centre = vertical JUMP
+    var pose = z===2 ? 'jump' : (z===0||z===1 ? 'high' : 'low');
+    var tx = side===0 ? W/2 : (W/2 + side*70);
+    var ty = (z===0||z===1) ? 96 : (z===2 ? 100 : 122);   // jump rises (smaller y)
+    return {side:side, pose:pose, x:tx, y:ty};
+  }
+  function bandOfTiming(){
+    // mirror the drawTimeBar layout to know which region the needle landed in
+    var g=Math.max(0.12,greenFrac()), ywd=yellowFrac(), redL=(1-g-ywd*2)/2;
+    var t=timeV;
+    if(t<redL || t>1-redL) return 'red';
+    if(t<redL+ywd || t>1-redL-ywd) return 'yellow';
+    return 'green';
+  }
+  function shoot(){
+    // CHECK 1 - horizontal: extreme edges = wide miss
+    var wideMiss = (aimV<0.07 || aimV>0.93);
+    var horiz = aimV<0.40?'L':(aimV>0.60?'R':'C');
+    // CHECK 2 - vertical: very top = miss high; low is always fine
+    var highMiss = (powV>0.90);
+    var high = powV>0.5;
+    var sz; if(horiz==='C')sz=2; else if(horiz==='L')sz=high?0:3; else sz=high?1:4;
+
+    // CHECK 3 - timing band affects save chance
+    var band=bandOfTiming();
+    var kz=keeperPick();                 // keeper's independent positional guess
+    var zoneSaved=(sz===kz);             // the normal 1-in-5 positional save
+    var saved;
+    if(band==='red') saved=true;                          // bad timing -> always saved
+    else if(band==='yellow') saved=(Math.random()<0.5) || zoneSaved; // shaky -> 50% saved (or zone)
+    else saved=zoneSaved;                                  // green -> normal positional duel
+
+    var outcome;
+    if(wideMiss) outcome='wide';
+    else if(highMiss) outcome='over';
+    else outcome = saved? 'saved':'goal';
+
+    // which zone does the keeper VISIBLY dive to?
+    //  - green band: keeper commits to its own guess (kz) -> wrong-way goals look earned
+    //  - yellow/red SAVE: keeper dives to the ball's zone (sz) so the save looks legit
+    var keeperZone = (band!=='green' && saved) ? sz : kz;
+
+    var bc=zoneCenter(sz);
+    var kp=keeperPose(keeperZone);
+    keeper.side=kp.side;
+    // anticipation: brief crouch, then dive into pose partway through the ball flight
+    var t0=performance.now(),dur=520,sx=ball.x,sy=ball.y,kx0=W/2,ky0=118;
+    keeper.pose='idle'; ball.sh=1;
+    // arc height: how high the ball lofts mid-flight. high corners loft more, low shots stay flat-ish.
+    var loft = (sz===0||sz===1) ? 46 : (sz===2 ? 26 : 16);
+    // miss targets: wide flies past a post; over sails above the bar
+    var tx=bc.x, tyTarget=bc.y;
+    if(outcome==='wide'){ tx = aimV<0.5 ? GOAL.x-26 : GOAL.x+GOAL.w+26; loft=40; }
+    if(outcome==='over'){ tyTarget = GOAL.y-30; loft=70; }
+    // only animate the keeper dive if it was actually a keeper save (not a wide/over miss)
+    var keeperActive = true;   // keeper always commits to its chosen dive
+    function fly(now){var p=Math.min((now-t0)/dur,1);
+      ball.x = sx+(tx-sx)*p;
+      var baseY = sy+(tyTarget-sy)*p;
+      var lift = Math.sin(p*Math.PI)*loft;
+      ball.y = baseY - lift;
+      ball.gx = ball.x;
+      ball.gy = sy+((tyTarget+34)-sy)*p;
+      ball.s = 1-0.28*p;
+      if(keeperActive && p>0.20){ keeper.pose=kp.pose;
+        var dp=Math.min((p-0.20)/0.6,1);var e=dp*dp*(3-2*dp);
+        keeper.x=kx0+(kp.x-kx0)*e;
+        var kLeap=(kp.pose==='high')?Math.sin(dp*Math.PI)*14:(kp.pose==='jump'?Math.sin(dp*Math.PI)*22:(kp.pose==='low'?-Math.sin(dp*Math.PI)*4:0));
+        keeper.y=(ky0+(kp.y-ky0)*e)-kLeap;
+      }
+      if(p<1)requestAnimationFrame(fly);
+      else { ball.sh=0;
+        if(outcome==='saved'){ keeper.pose='catch'; keeper.hold=true; keeper.x=kp.x; keeper.y=kp.y; }
+        resolveOutcome(outcome);
+      }
+    }
+    requestAnimationFrame(fly);}
+  function isSD(){ return round>ROUNDS; }            // sudden death?
+  function extraLevel(){ return Math.min(Math.max(round-ROUNDS,0), 3); } // 0 normal, 1..3 capped
+  function greenFrac(){
+    if(!isSD()){ var prog=(round-1)/(ROUNDS-1||1); return 0.5 - prog*0.34; }
+    // sudden death: green stays at its tight minimum, shrinks a touch more then holds (cap)
+    return Math.max(0.12, 0.16 - extraLevel()*0.012);
+  }
+  function yellowFrac(){
+    // normal play: fixed modest yellow. sudden death: yellow GROWS with the level (capped at 3).
+    if(!isSD()) return 0.18;
+    return 0.18 + extraLevel()*0.10;   // 0.28 -> 0.38 -> 0.48 then holds
+  }
+  function barSpeed(){
+    // gentler ramp across rounds 1..5, then a moderate jump in sudden death, capped.
+    if(!isSD()){ var prog=(round-1)/(ROUNDS-1||1); return 0.024 + prog*0.006; } // ~0.024 -> 0.030
+    return 0.038 + extraLevel()*0.007;  // softer jump: 0.045 -> 0.052 -> 0.059 then holds
+  }
+  function keeperPick(){var r=Math.random();if(r<0.16)return 2;var c=[0,1,3,4];return c[(Math.random()*4)|0];}
+  function resolveOutcome(outcome){state='result';
+    var scored = (outcome==='goal');
+    if(scored){results[current].push('goal');score[current]++;flashTxt='GOAL!';flashCol='#49e06b';}
+    else{ results[current].push('miss');
+      flashTxt = outcome==='wide'?'WIDE!':(outcome==='over'?'OVER!':'SAVED!');
+      flashCol = '#ff5b5b'; }
+    flashTimer=80;updateScore();
+    setTimeout(advanceTurn,1200);
+  }
+
+  function advanceTurn(){
+    if(current===1){ current=2; setActive(); beginShot(); return; }
+    // both players have taken this round -> P1 done and P2 just done
+    current=1; round++;
+    // end-of-round checks
+    if(round>ROUNDS){
+      // sudden death rules: if scores differ after an equal number of kicks, match over
+      if(score[1]!==score[2]){ endMatch(); return; }
+      // tied -> continue into (next) sudden death round
+    }
+    beginShot();
+  }
+  function endMatch(){state='over';parkBall();parkKeeper();
+    var w=score[1]>score[2]?'P1 WINS!':(score[2]>score[1]?'P2 WINS!':'DRAW!');
+    var sd = round>ROUNDS+1 ? '<br><span style="font-size:9px;color:#ff7b7b">SUDDEN DEATH</span>' : '';
+    ov.style.display='flex';
+    ov.innerHTML='<h1>'+w+sd+'</h1><p>FINAL SCORE<br><br><span class="a">P1 '+score[1]+'</span> &nbsp;\u2014&nbsp; <span class="b">'+score[2]+' P2</span></p><button id="again">PLAY AGAIN</button>';
+    document.getElementById('again').addEventListener('click',startMatch);}
+  function action(pl){if(pl!==current)return;
+    if(state==='aim')lockAim();
+    else if(state==='power')lockPower();
+    else if(state==='time')lockTime();}
+  document.addEventListener('keydown',function(e){var k=e.key.toLowerCase();
+    if(k==='a'){e.preventDefault();action(1);}else if(k==='l'){e.preventDefault();action(2);}
+    else if(k===' '){e.preventDefault();if(state==='idle')startMatch();}});
+  document.getElementById('reset').addEventListener('click',reset);
+
+  // ---- Gamepad support: one controller, L1 = Player 1, R1 = Player 2 ----
+  var padPrev={4:false,5:false};
+  function pollPads(){
+    var pads = navigator.getGamepads ? navigator.getGamepads() : [];
+    var gp=null;
+    for(var i=0;i<pads.length;i++){ if(pads[i]){ gp=pads[i]; break; } } // first connected pad
+    if(gp){
+      var l1 = gp.buttons[4] && gp.buttons[4].pressed;   // L1 bumper -> P1
+      var r1 = gp.buttons[5] && gp.buttons[5].pressed;   // R1 bumper -> P2
+      if(l1 && !padPrev[4]){ if(state==='idle'){startMatch();} else {action(1);} }
+      if(r1 && !padPrev[5]){ if(state==='idle'){startMatch();} else {action(2);} }
+      padPrev[4]=l1; padPrev[5]=r1;
+    }
+    requestAnimationFrame(pollPads);
+  }
+  window.addEventListener('gamepadconnected', function(){ /* pad ready */ });
+  pollPads();
+
+  reset();frame();
+})();
+</script>
+</body>
+</html>
