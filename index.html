@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Orion Project — Class 10S4</title>
+<link rel="icon" type="image/png" href="LogoWhiteNoText.png">
 <meta name="description" content="The Orion Project — Grade 10 students from class 10S4 building engineering and tech projects.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -75,6 +76,7 @@
     letter-spacing:.05em; font-size:1.05rem; text-decoration:none; color:var(--ink);
   }
   .brand .dot{ width:10px; height:10px; border-radius:50%; background:var(--amber); box-shadow:0 0 14px 2px var(--amber); }
+  .brand-mark{ width:30px; height:30px; object-fit:contain; display:block; }
   .navlinks{ display:flex; gap:30px; list-style:none; }
   .navlinks a{
     color:var(--ink-dim); text-decoration:none;
@@ -330,6 +332,7 @@
   /* ---------- FOOTER ---------- */
   footer{ border-top:1px solid var(--rule); padding:56px 0 50px; }
   .foot-grid{ display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:30px; }
+  .foot-logo{ width:90px; height:auto; display:block; margin-bottom:14px; opacity:.92; }
   .foot-brand{ font-family:'Syne',sans-serif; font-weight:800; font-size:1.6rem; letter-spacing:.04em; }
   .foot-brand .glow{ background:linear-gradient(115deg, var(--amber-soft), var(--blue)); -webkit-background-clip:text; background-clip:text; color:transparent; }
   footer p{ color:var(--ink-dim); font-size:.85rem; }
@@ -373,7 +376,7 @@
 <header>
   <div class="wrap">
     <nav>
-      <a href="#top" class="brand"><span class="dot"></span> ORION PROJECT</a>
+      <a href="#top" class="brand"><img src="LogoWhiteNoText.png" class="brand-mark" alt="Orion Project logo"> ORION PROJECT</a>
       <ul class="navlinks">
         <li><a href="#about">About</a></li>
         <li><a href="#projects">Projects</a></li>
@@ -610,6 +613,7 @@
   <div class="wrap">
     <div class="foot-grid">
       <div>
+        <img src="logowhite.png" class="foot-logo" alt="The Orion Project">
         <div class="foot-brand"><span class="glow">ORION</span> PROJECT</div>
         <p>Grade 10 · Class 10S4</p>
       </div>
