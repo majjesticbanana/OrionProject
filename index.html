@@ -348,6 +348,20 @@
     .grid-4{ grid-template-columns:1fr; }
     .team-grid{ grid-template-columns:1fr; }
   }
+
+  /* ---------- VALKYRIE feature blocks ---------- */
+  .val-feats{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin:30px 0 22px; }
+  .val-feats .vf{ background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:20px 18px; }
+  .val-feats .vf-k{ display:block; font-family:'Space Mono',monospace; font-size:.72rem; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--amber); margin-bottom:8px; }
+  .val-feats .vf p{ color:var(--ink-dim); font-size:.92rem; line-height:1.6; }
+  .val-examples{ display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin:6px 0 26px; }
+  .val-examples .ex-label{ font-family:'Space Mono',monospace; font-size:.72rem; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--ink-dim); margin-right:4px; }
+  .val-examples .chip{ font-family:'Space Mono',monospace; font-size:.78rem; color:var(--blue-soft);
+    background:rgba(106,166,255,.08); border:1px solid var(--line); border-radius:999px; padding:7px 14px; }
+  @media (max-width:760px){ .val-feats{ grid-template-columns:1fr; } }
+
 </style>
 </head>
 <body>
@@ -363,7 +377,7 @@
       <ul class="navlinks">
         <li><a href="#about">About</a></li>
         <li><a href="#projects">Projects</a></li>
-        <li><a href="#try">Try it</a></li>
+        <li><a href="#try">Valkyrie</a></li>
         <li><a href="arcade.html">Arcade</a></li>
         <li><a href="#team">Team</a></li>
       </ul>
@@ -496,9 +510,9 @@
             <path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/>
           </svg>
         </div>
-        <h3>AI Agent</h3>
-        <p>A software project — an AI agent that can carry out tasks on its own.</p>
-        <span class="status">Exploring</span>
+        <h3>Valkyrie AI</h3>
+        <p>Our IGCSE question-answering assistant — grounded in real past-paper mark schemes.</p>
+        <span class="status">Live</span>
       </div>
 
       <!-- More -->
@@ -522,10 +536,31 @@
   <section id="try">
     <div class="sec-head reveal">
       <span class="sec-num">03 / TRY IT</span>
-      <h2>Ask the Orion AI.</h2>
-      <p>Our IGCSE question-answering model. Type a paper reference like
-         <code>0625/42/M/J/23 Q4</code>, or just ask a question in words —
-         it finds the official mark scheme and explains the full answer.</p>
+      <h2>Meet <span class="glow">Valkyrie</span>.</h2>
+      <p>Valkyrie is our IGCSE question-answering assistant. Ask it by paper reference like
+         <code>0625/42/M/J/23 Q4</code>, or just describe a question in plain words —
+         it searches a library of real past papers, finds the matching official mark scheme,
+         and walks you through the full answer, mark by mark.</p>
+    </div>
+
+    <div class="val-feats reveal">
+      <div class="vf">
+        <span class="vf-k">Retrieval, not guessing</span>
+        <p>Every answer is grounded in an actual mark scheme — Valkyrie shows its source, so it explains how marks are really awarded rather than inventing them.</p>
+      </div>
+      <div class="vf">
+        <span class="vf-k">Two ways to ask</span>
+        <p>Look up an exact paper and question by its code, or ask conceptually (“how do I find resultant force?”) and let Valkyrie find the closest match.</p>
+      </div>
+      <div class="vf">
+        <span class="vf-k">Built by us</span>
+        <p>We assembled the question library, the search pipeline and the tutor that turns barebones mark schemes into clear, full explanations.</p>
+      </div>
+    </div>
+
+    <div class="val-examples reveal">
+      <span class="ex-label">Try asking by paper reference:</span>
+      <span class="chip">0625/42/M/J/23 Q4</span>
     </div>
 
     <!-- TODO: confirm this is your exact Hugging Face Space URL once it is "Running".
@@ -533,7 +568,7 @@
     <div class="ai-frame reveal">
       <iframe
         src="https://majjesticb-orion-qa.hf.space"
-        title="Orion AI Q&amp;A"
+        title="Valkyrie — IGCSE Q&amp;A"
         loading="lazy"
         allow="clipboard-write"></iframe>
     </div>
@@ -583,7 +618,7 @@
         <a href="https://github.com/">GitHub</a>
         <a href="#projects">Projects</a>
         <a href="arcade.html">Arcade</a>
-        <a href="#try">Try it</a>
+        <a href="#try">Valkyrie</a>
         <a href="#team">Team</a>
       </div>
     </div>
