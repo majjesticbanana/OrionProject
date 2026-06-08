@@ -3,178 +3,520 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Orion Arcade — The Orion Project</title>
+<title>The Arcade — Nueva</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<meta name="description" content="The Arcade — retro games designed and built by Nueva. Browse the cabinet.">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Spline+Sans+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+
 <style>
   :root{
-    --void:#070a14; --void2:#0c1120; --panel:#111829; --line:#1e2942;
-    --ink:#e8ecf7; --dim:#8a93ab;
-    --amber:#f7a440; --amber-soft:#ffce8f;
-    --blue:#6aa6ff; --blue-soft:#a8c8ff;
+    --paper:    #ece3d2;
+    --paper-2:  #e3d8c3;
+    --coffee:   #4a3526;
+    --coffee-2: #6b513c;
+    --blueprint:#2f5d8a;
+    --blueprint-2:#3d74ab;
+    --ink:      #1c150f;
+    --accent:   #a63a53;
+    --line:     rgba(74,53,38,.22);
+    --grid:     rgba(47,93,138,.10);
+    --maxw: 1140px;
   }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  html{scroll-behavior:smooth;}
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
   body{
-    background:
-      radial-gradient(1100px 600px at 50% -10%, rgba(106,166,255,.10), transparent 60%),
-      linear-gradient(180deg,var(--void),var(--void2));
-    color:var(--ink); font-family:'Space Mono',monospace; min-height:100vh;
-    overflow-x:hidden;
+    background: var(--paper);
+    color: var(--coffee);
+    font-family:'Spline Sans Mono', ui-monospace, monospace;
+    line-height:1.7; overflow-x:hidden; position:relative;
   }
-  #stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
-  .star{position:absolute;background:#fff;border-radius:50%;animation:tw var(--t) ease-in-out infinite alternate;}
-  @keyframes tw{from{opacity:.12}to{opacity:.9}}
+  body::before{
+    content:""; position:fixed; inset:0; z-index:-2;
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+      var(--paper);
+    background-size:120px 120px,120px 120px,24px 24px,24px 24px;
+  }
+  body::after{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+    opacity:.05; mix-blend-mode:multiply;
+  }
 
-  /* nav — matches the homepage exactly so it feels like one site */
-  header{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);
-    background:rgba(7,10,20,.55);border-bottom:1px solid rgba(255,255,255,.07);}
-  .navwrap{max-width:1140px;margin:0 auto;padding:0 28px;}
-  nav{display:flex;align-items:center;justify-content:space-between;height:70px;}
-  .brand{display:flex;align-items:center;gap:11px;font-family:'Syne',sans-serif;font-weight:800;
-    letter-spacing:.05em;font-size:1.05rem;text-decoration:none;color:var(--ink);}
-  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--amber);box-shadow:0 0 14px 2px var(--amber);}
-  .navlinks{display:flex;gap:30px;list-style:none;}
-  .navlinks a{color:var(--dim);text-decoration:none;font-family:'Space Mono',monospace;font-size:.78rem;
-    letter-spacing:.08em;text-transform:uppercase;transition:color .25s;}
-  .navlinks a:hover{color:var(--ink);}
-  .navlinks a.active{color:var(--amber);}
-  @media(max-width:640px){.navlinks{display:none;}}
+  #progress{ position:fixed; top:0; left:0; height:3px; width:0; background:var(--blueprint); z-index:100; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 28px; }
 
-  .wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:60px 32px 80px;}
+  /* ---------- NAV (matches homepage) ---------- */
+  nav{ position:sticky; top:0; z-index:50; backdrop-filter:blur(6px);
+    background:rgba(236,227,210,.82); border-bottom:1px solid var(--line); }
+  .nav-inner{ display:flex; align-items:center; justify-content:space-between;
+    padding-top:16px; padding-bottom:16px; }
+  .brand{ display:flex; align-items:center; gap:12px; font-family:'Space Grotesk',sans-serif;
+    font-weight:700; letter-spacing:.18em; font-size:1.15rem; text-decoration:none;
+    color:var(--ink); text-transform:uppercase; }
+  .brand .mark{ width:34px; height:34px; object-fit:contain; display:block; flex:0 0 auto; }
+  .navlinks{ display:flex; gap:26px; list-style:none; flex-wrap:wrap; justify-content:flex-end; }
+  .navlinks a{ font-size:.82rem; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--coffee-2); text-decoration:none; transition:color .2s; }
+  .navlinks a:hover, .navlinks a.active{ color:var(--blueprint); }
 
-  .hero{text-align:center;margin-bottom:56px;}
-  .hero .kicker{font-size:13px;letter-spacing:.3em;color:var(--amber);text-transform:uppercase;margin-bottom:14px;}
-  .hero h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(34px,6vw,60px);line-height:1.05;
-    background:linear-gradient(115deg,var(--amber-soft),var(--amber) 45%,var(--blue));
-    -webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:16px;}
-  .hero p{color:var(--dim);font-size:15px;max-width:540px;margin:0 auto;line-height:1.7;}
+  /* ---------- HERO ---------- */
+  .ahero{ display:grid; grid-template-columns:1.08fr .92fr; gap:44px; align-items:center;
+    min-height:70vh; padding:6vh 0 3vh; }
+  .eyebrow{ font-size:.78rem; letter-spacing:.28em; text-transform:uppercase; color:var(--blueprint);
+    margin-bottom:18px; display:flex; align-items:center; gap:12px; }
+  .eyebrow::before{ content:""; width:34px; height:1px; background:var(--blueprint); }
+  .ahero h1{ font-family:'Fraunces',serif; font-weight:600; font-size:clamp(3rem,9vw,6rem);
+    line-height:.92; color:var(--ink); letter-spacing:-.01em; }
+  .htag{ display:inline-flex; align-items:center; gap:14px; font-size:.8rem; letter-spacing:.4em;
+    text-transform:uppercase; color:var(--coffee-2); margin-top:8px; }
+  .htag::before,.htag::after{ content:""; width:36px; height:1px; background:var(--coffee-2); opacity:.5; }
+  .lead{ max-width:46ch; color:var(--coffee); font-size:1.02rem; margin-top:26px; line-height:1.75; }
+  .lead b{ color:var(--ink); font-weight:600; }
+  .hstats{ display:flex; gap:22px; margin-top:26px; flex-wrap:wrap; }
+  .hstat{ font-family:'Spline Sans Mono',monospace; }
+  .hstat .n{ font-family:'Fraunces',serif; font-size:1.9rem; color:var(--blueprint); line-height:1; }
+  .hstat .l{ font-size:.68rem; letter-spacing:.16em; text-transform:uppercase; color:var(--coffee-2); margin-top:4px; }
+  .cta-row{ display:flex; gap:14px; margin-top:30px; flex-wrap:wrap; }
+  .btn{ padding:13px 24px; border-radius:3px; font-family:'Space Grotesk',sans-serif; font-weight:600;
+    font-size:.86rem; letter-spacing:.04em; text-decoration:none; transition:transform .12s, background .2s, color .2s, border-color .2s;
+    border:1.5px solid var(--ink); }
+  .btn-primary{ background:var(--ink); color:var(--paper); }
+  .btn-primary:hover{ transform:translateY(-2px); background:var(--blueprint); border-color:var(--blueprint); }
+  .btn-ghost{ color:var(--ink); background:transparent; }
+  .btn-ghost:hover{ border-color:var(--blueprint); color:var(--blueprint); transform:translateY(-2px); }
 
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;}
+  /* ---------- HERO CABINET SCHEMATIC ---------- */
+  .cabwrap{ position:relative; width:100%; max-width:360px; margin:0 auto; perspective:1100px; }
+  .cab-stage{ width:100%; transform-style:preserve-3d; will-change:transform; }
+  .cab svg{ width:100%; height:auto; overflow:visible; display:block; }
+  .bp-line{ fill:none; stroke:var(--blueprint); stroke-width:1.5; stroke-linejoin:round; stroke-linecap:round; }
+  .bp-line-2{ fill:none; stroke:var(--blueprint-2); stroke-width:1.1; opacity:.8; stroke-linejoin:round; }
+  .bp-thin{ fill:none; stroke:var(--blueprint); stroke-width:.8; opacity:.5; stroke-linecap:round; }
+  .bp-fill{ fill:var(--blueprint); opacity:.07; }
+  .bp-dash{ fill:none; stroke:var(--blueprint); stroke-width:1; stroke-dasharray:4 4; opacity:.55; }
+  .bp-accent{ fill:none; stroke:var(--accent); stroke-width:2.2; stroke-linecap:round; }
+  .bp-dot{ fill:var(--accent); }
+  .bp-label{ font-family:'Spline Sans Mono',monospace; font-size:7px; fill:var(--coffee-2); letter-spacing:.12em; }
+  .cab .draw{ stroke-dasharray:1600; stroke-dashoffset:1600; animation:cabDraw 1.9s cubic-bezier(.6,.02,.1,1) forwards; }
+  @keyframes cabDraw{ to{ stroke-dashoffset:0; } }
+  .cab .d2{ animation-delay:.45s } .cab .d3{ animation-delay:.85s } .cab .d4{ animation-delay:1.2s }
+  .cab .fade{ opacity:0; animation:cabFade .7s ease forwards 1.4s; }
+  @keyframes cabFade{ to{ opacity:1 } }
+  /* idle "it's alive" animations */
+  .cab .anim{ transform-box:fill-box; }
+  .scanline{ animation:scan 2.8s linear infinite; opacity:.5; }
+  @keyframes scan{ from{ transform:translateY(0) } to{ transform:translateY(40px) } }
+  .ball{ animation:ball 3.6s ease-in-out infinite; }
+  @keyframes ball{ 0%{transform:translate(0,0)} 25%{transform:translate(24px,15px)}
+    50%{transform:translate(6px,24px)} 75%{transform:translate(-12px,9px)} 100%{transform:translate(0,0)} }
+  .paddle{ animation:padmove 3.6s ease-in-out infinite; }
+  @keyframes padmove{ 0%,100%{transform:translateX(-11px)} 50%{transform:translateX(11px)} }
+  .jb1{ animation:jb 2.2s ease-in-out infinite; }
+  .jb2{ animation:jb 2.2s ease-in-out infinite .6s; }
+  @keyframes jb{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2.5px)} }
+  .led{ animation:led 1.5s steps(1,end) infinite; }
+  @keyframes led{ 0%,55%{opacity:1} 56%,100%{opacity:.12} }
+  .mqglow{ animation:mqg 3.2s ease-in-out infinite; }
+  @keyframes mqg{ 0%,100%{opacity:.05} 50%{opacity:.16} }
+  .cue{ text-align:center; margin:6px 0 0; font-size:.7rem; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--coffee-2); }
+  .cue span{ display:inline-block; animation:bob 1.8s ease-in-out infinite; }
+  @keyframes bob{ 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(4px) } }
 
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;
-    display:flex;flex-direction:column;transition:transform .25s,border-color .25s,box-shadow .25s;}
-  .card:hover{transform:translateY(-4px);border-color:var(--amber);box-shadow:0 16px 40px -18px rgba(247,164,64,.4);}
-  .card .thumb{height:160px;position:relative;overflow:hidden;
-    background:linear-gradient(180deg,#0b1f12,#15351f);display:flex;align-items:center;justify-content:center;}
-  .card .thumb.soon{background:linear-gradient(180deg,#0c1120,#141a2e);}
-  .card .body{padding:18px 20px 22px;display:flex;flex-direction:column;flex:1;}
-  .card h3{font-family:'Syne',sans-serif;font-weight:700;font-size:20px;margin-bottom:6px;color:var(--ink);}
-  .card .tag{font-size:12px;color:var(--amber);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;}
-  .card p{color:var(--dim);font-size:13px;line-height:1.6;flex:1;margin-bottom:16px;}
-  .play{display:inline-block;text-align:center;text-decoration:none;font-weight:700;font-size:13px;
-    letter-spacing:.05em;text-transform:uppercase;padding:11px 0;border-radius:6px;
-    background:var(--amber);color:#1a1205;transition:filter .2s;}
-  .play:hover{filter:brightness(1.1);}
-  .play.disabled{background:transparent;border:1px solid var(--line);color:var(--dim);cursor:not-allowed;}
+  /* ---------- FILTER DECK ---------- */
+  .deck{ position:sticky; top:61px; z-index:40; background:rgba(236,227,210,.92); backdrop-filter:blur(6px);
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .deck-inner{ display:flex; align-items:center; gap:20px 26px; flex-wrap:wrap; padding:13px 0; }
+  .fgroup{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+  .flabel{ font-size:.64rem; letter-spacing:.18em; text-transform:uppercase; color:var(--coffee-2); }
+  .fchip{ font-family:'Spline Sans Mono',monospace; font-size:.74rem; color:var(--coffee);
+    background:transparent; border:1px solid var(--line); border-radius:99px; padding:6px 14px;
+    cursor:pointer; transition:all .15s; }
+  .fchip:hover{ border-color:var(--blueprint); color:var(--blueprint); }
+  .fchip.on{ background:var(--blueprint); border-color:var(--blueprint); color:var(--paper); }
+  .readout{ margin-left:auto; font-size:.72rem; letter-spacing:.12em; color:var(--accent); white-space:nowrap; }
 
-  /* mini pixel art inside thumbnails (pure CSS/SVG, on-brand) */
-  .pitch-mini{width:100%;height:100%;}
+  /* ---------- GAMES GRID ---------- */
+  section{ padding:30px 0; }
+  .sec-head{ margin-bottom:26px; }
+  .sec-num{ font-size:.76rem; letter-spacing:.22em; text-transform:uppercase; color:var(--blueprint); }
+  .sec-head h2{ font-family:'Fraunces',serif; font-weight:600; color:var(--ink);
+    font-size:clamp(1.8rem,4vw,2.6rem); line-height:1.05; margin:10px 0 12px; }
+  .sec-head p{ color:var(--coffee); max-width:60ch; }
 
-  .badge{position:absolute;top:10px;right:10px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
-    background:rgba(7,10,20,.7);border:1px solid var(--line);color:var(--blue-soft);padding:4px 8px;border-radius:4px;}
+  .games{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:18px; }
+  .game{ background:rgba(255,255,255,.3); border:1px solid var(--line); border-radius:6px; overflow:hidden;
+    display:flex; flex-direction:column; transition:transform .18s, border-color .2s, box-shadow .2s; }
+  .game:hover{ transform:translateY(-4px); border-color:var(--blueprint); box-shadow:7px 9px 0 rgba(47,93,138,.12); }
+  .plate{ position:relative; background:rgba(47,93,138,.05); border-bottom:1px solid var(--line);
+    aspect-ratio:16/8; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .plate svg{ width:64%; height:auto; }
+  .fig{ position:absolute; top:9px; left:12px; font-size:.62rem; letter-spacing:.14em;
+    color:var(--blueprint); opacity:.7; }
+  .gpill{ position:absolute; top:9px; right:11px; font-size:.58rem; letter-spacing:.12em; text-transform:uppercase;
+    padding:3px 9px; border-radius:99px; border:1px solid var(--line); color:var(--coffee-2);
+    background:rgba(236,227,210,.72); }
+  .gpill.live{ color:var(--accent); border-color:var(--accent); }
+  .gpill.dev{ color:var(--blueprint); border-color:var(--blueprint); }
+  .gbody{ padding:16px 18px 18px; display:flex; flex-direction:column; flex:1; }
+  .gtag{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--blueprint); margin-bottom:6px; }
+  .game h3{ font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--ink);
+    font-size:1.12rem; margin-bottom:14px; }
+  .spec{ display:grid; gap:0; margin-bottom:16px; }
+  .spec > div{ display:flex; justify-content:space-between; align-items:baseline;
+    border-bottom:1px dashed var(--line); padding:6px 0; }
+  .spec dt{ font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color:var(--coffee-2); }
+  .spec dd{ font-size:.78rem; color:var(--ink); }
+  .gbtn{ margin-top:auto; text-align:center; text-decoration:none; font-family:'Space Grotesk',sans-serif;
+    font-weight:600; font-size:.82rem; letter-spacing:.04em; padding:11px 0; border-radius:3px;
+    border:1.5px solid var(--ink); background:var(--ink); color:var(--paper);
+    transition:transform .12s, background .2s, border-color .2s; }
+  .gbtn:hover{ background:var(--blueprint); border-color:var(--blueprint); transform:translateY(-2px); }
+  .gbtn.dis{ background:transparent; color:var(--coffee-2); border-style:dashed; border-color:var(--line); cursor:default; }
+  .gbtn.dis:hover{ transform:none; background:transparent; border-color:var(--line); }
+  .empty{ grid-column:1/-1; text-align:center; color:var(--coffee-2); font-size:.85rem; padding:30px 0; }
 
-  footer{position:relative;z-index:1;text-align:center;padding:30px;color:var(--dim);font-size:12px;border-top:1px solid var(--line);}
-  footer a{color:var(--amber);text-decoration:none;}
+  /* ---------- FOOTER ---------- */
+  footer{ border-top:1px solid var(--line); margin-top:30px; padding:40px 0 30px; background:rgba(227,216,195,.5); }
+  .foot-grid{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:24px; }
+  .foot-brand{ font-family:'Fraunces',serif; font-weight:600; font-size:1.7rem; color:var(--ink); }
+  .foot-mark{ width:60px; height:60px; object-fit:contain; display:block; margin-bottom:10px; }
+  .foot-links{ display:flex; flex-wrap:wrap; gap:18px; align-items:flex-start; }
+  .foot-links a{ font-size:.82rem; color:var(--coffee-2); text-decoration:none; letter-spacing:.06em; }
+  .foot-links a:hover{ color:var(--blueprint); }
+  .copyr{ margin-top:26px; font-size:.74rem; color:var(--coffee-2); }
+
+  /* reveal */
+  .reveal{ opacity:0; transform:translateY(18px); transition:opacity .6s, transform .6s; }
+  .reveal.in{ opacity:1; transform:none; }
+
+  @media (max-width:860px){
+    .ahero{ grid-template-columns:1fr; min-height:auto; padding:5vh 0 3vh; gap:30px; }
+    .cabwrap{ max-width:260px; order:-1; }
+    .deck{ position:static; }
+  }
+  @media (max-width:560px){
+    .wrap{ padding:0 18px; }
+    .nav-inner{ flex-direction:column; gap:10px; }
+    .navlinks{ justify-content:center; gap:14px; }
+    .games{ grid-template-columns:1fr; }
+    .foot-grid{ flex-direction:column; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .cab .draw{ animation:none; stroke-dashoffset:0; }
+    .cab .fade{ animation:none; opacity:1; }
+    .cue span{ animation:none; }
+    .scanline,.ball,.paddle,.jb1,.jb2,.led,.mqglow{ animation:none; }
+    .scanline,.ball{ opacity:0; }
+  }
 </style>
 </head>
 <body>
-<div id="stars"></div>
+<div id="progress"></div>
 
-<header>
-  <div class="navwrap">
-    <nav>
-      <a href="index.html#top" class="brand"><span class="dot"></span> ORION PROJECT</a>
-      <ul class="navlinks">
-        <li><a href="index.html#about">About</a></li>
-        <li><a href="index.html#projects">Projects</a></li>
-        <li><a href="index.html#try">Try it</a></li>
-        <li><a href="arcade.html" class="active">Arcade</a></li>
-        <li><a href="index.html#team">Team</a></li>
-      </ul>
-    </nav>
+<nav>
+  <div class="wrap nav-inner">
+    <a href="index.html#top" class="brand">
+      <img class="mark" src="nueva-logo.png" alt="Nueva logo">
+      Nueva
+    </a>
+    <ul class="navlinks">
+      <li><a href="index.html#about">About</a></li>
+      <li><a href="index.html#projects">Workshop</a></li>
+      <li><a href="index.html#try">Valkyrie</a></li>
+      <li><a href="arcade.html" class="active">Arcade</a></li>
+      <li><a href="index.html#team">Team</a></li>
+    </ul>
   </div>
-</header>
+</nav>
 
-<div class="wrap">
-  <div class="hero">
-    <div class="kicker">Engineering Division · Games</div>
-    <h1>Orion Arcade</h1>
-    <p>Two-player games built from scratch by our team — pixel-crafted, button-mashing, and best played head-to-head. Pick a game and challenge a friend.</p>
-  </div>
-
-  <div class="grid">
-
-    <div class="card">
-      <div class="thumb">
-        <svg class="pitch-mini" viewBox="0 0 300 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-          <rect width="300" height="160" fill="#15351f"/>
-          <rect y="0" width="300" height="40" fill="#1c4527" opacity=".5"/>
-          <rect x="90" y="34" width="120" height="70" fill="none" stroke="#f3f5ff" stroke-width="5"/>
-          <rect x="140" y="70" width="20" height="26" rx="4" fill="#2bd46a" stroke="#0c5630" stroke-width="2"/>
-          <circle cx="150" cy="128" r="7" fill="#fff"/>
-        </svg>
-        <span class="badge">2 Player</span>
+<!-- ===================== HERO ===================== -->
+<div class="wrap" id="top">
+  <section class="ahero">
+    <div>
+      <div class="eyebrow">Welcome to</div>
+      <h1>The Arcade</h1>
+      <div class="htag">Built · Pixel · Head-to-head</div>
+      <p class="lead">Retro games we <b>designed and built ourselves</b>, played on modern controllers. Old soul, new tech — and the engine that keeps the café buzzing. Browse the cabinet below.</p>
+      <div class="hstats">
+        <div class="hstat"><div class="n" id="statPlay">00</div><div class="l">Playable now</div></div>
+        <div class="hstat"><div class="n" id="statWip">00</div><div class="l">On the bench</div></div>
+        <div class="hstat"><div class="n" id="statTotal">00</div><div class="l">Total cabinet</div></div>
       </div>
-      <div class="body">
-        <div class="tag">Sports · Skill</div>
-        <h3>Orion Penalty</h3>
-        <p>A retro penalty shootout. Lock your aim, your height, then nail the timing bar to beat the keeper. Five rounds each — tied games go to sudden death.</p>
-        <a class="play" href="orion_penalty.html">Play ▸</a>
+      <div class="cta-row">
+        <a href="#cabinet" class="btn btn-primary">Browse games</a>
+        <a href="index.html#top" class="btn btn-ghost">← Back to Nueva</a>
       </div>
     </div>
 
-    <div class="card">
-      <div class="thumb soon">
-        <svg class="pitch-mini" viewBox="0 0 300 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-          <rect width="300" height="160" fill="#0c1120"/>
-          <rect x="120" y="120" width="24" height="30" fill="#f7a440"/>
-          <rect x="156" y="120" width="24" height="30" fill="#6aa6ff"/>
-          <polygon points="132,40 126,70 138,70" fill="#ffce8f"/>
-          <polygon points="168,40 162,70 174,70" fill="#a8c8ff"/>
-        </svg>
-        <span class="badge">2 Player</span>
-      </div>
-      <div class="body">
-        <div class="tag">Race · Mash</div>
-        <h3>Orion Surge</h3>
-        <p>A button-mash rocket race. First to fuel their rocket and launch to orbit wins. Pure reflex — mash faster than your rival.</p>
-        <a class="play" href="orion_surge.html">Play ▸</a>
-      </div>
-    </div>
+    <!-- Blueprint arcade cabinet — draws in, tilts on hover -->
+    <div class="cabwrap">
+      <div class="cab-stage" id="cabStage">
+      <div class="cab">
+      <svg viewBox="0 0 200 264" aria-hidden="true">
+        <defs><clipPath id="scr"><rect x="72" y="68" width="56" height="40" rx="1"/></clipPath></defs>
+        <path class="bp-thin" d="M16 16h14M16 16v14 M184 16h-14M184 16v14 M16 248h14M16 248v-14 M184 248h-14M184 248v-14"/>
 
-    <div class="card">
-      <div class="thumb soon">
-        <svg class="pitch-mini" viewBox="0 0 300 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-          <rect width="300" height="160" fill="#0c1120"/>
-          <circle cx="150" cy="80" r="26" fill="none" stroke="#1e2942" stroke-width="3"/>
-          <text x="150" y="92" text-anchor="middle" font-family="monospace" font-size="30" fill="#2a3350">?</text>
-        </svg>
-        <span class="badge">Coming Soon</span>
-      </div>
-      <div class="body">
-        <div class="tag">In Development</div>
-        <h3>More incoming</h3>
-        <p>Our engineering division is building more games. Check back — the arcade is growing.</p>
-        <span class="play disabled">Soon</span>
-      </div>
-    </div>
+        <!-- body -->
+        <rect class="bp-fill" x="62" y="30" width="76" height="200" rx="6"/>
+        <rect class="bp-line draw" x="62" y="30" width="76" height="200" rx="6"/>
 
+        <!-- marquee -->
+        <rect class="bp-fill mqglow anim" x="70" y="37" width="60" height="18" rx="2"/>
+        <rect class="bp-line-2 draw d2" x="70" y="37" width="60" height="18" rx="2"/>
+        <text class="bp-label fade" x="100" y="49" text-anchor="middle" style="font-size:8px; fill:var(--blueprint); letter-spacing:.3em;">NUEVA</text>
+
+        <!-- screen + the game playing on it -->
+        <rect class="bp-line draw d2" x="66" y="62" width="68" height="52" rx="3"/>
+        <rect class="bp-line-2 draw d2" x="72" y="68" width="56" height="40" rx="1"/>
+        <g class="fade" clip-path="url(#scr)">
+          <rect class="bp-fill" x="72" y="68" width="56" height="40"/>
+          <path class="bp-thin" d="M72 78h56 M72 88h56 M72 98h56" opacity=".35"/>
+          <rect class="scanline anim" x="72" y="68" width="56" height="2" fill="#2f5d8a" opacity=".35"/>
+          <rect class="ball anim" x="84" y="74" width="7" height="7" fill="#2f5d8a"/>
+          <rect class="paddle anim" x="91" y="102" width="18" height="3" rx="1.5" fill="#f1dfcc"/>
+        </g>
+
+        <!-- control deck (overhangs the body, symmetric) -->
+        <path class="bp-fill" d="M58 128 H142 L148 152 H52 Z"/>
+        <path class="bp-line draw d3" d="M58 128 H142 L148 152 H52 Z"/>
+        <circle class="bp-line-2 draw d3" cx="82" cy="144" r="7"/>
+        <circle class="bp-line-2 draw d3" cx="118" cy="144" r="7"/>
+        <g class="jb1 anim"><path class="bp-line-2" d="M82 144v-13"/><circle class="bp-dot" cx="82" cy="129" r="3"/></g>
+        <g class="jb2 anim"><path class="bp-line-2" d="M118 144v-13"/><circle class="bp-dot" cx="118" cy="129" r="3"/></g>
+        <circle class="bp-line-2 fade" cx="98" cy="147" r="2.4"/>
+        <circle class="bp-line-2 fade" cx="105" cy="147" r="2.4"/>
+        <circle class="bp-dot led anim" cx="138" cy="146" r="2.4"/>
+
+        <!-- lower body + coin door -->
+        <path class="bp-line-2 draw d4" d="M64 162 H136"/>
+        <rect class="bp-line draw d4" x="86" y="190" width="28" height="24" rx="1"/>
+        <path class="bp-thin fade" d="M100 195v5 M94 207h12"/>
+        <path class="bp-line-2 draw d4" d="M64 222 H136"/>
+
+        <!-- dimension + title block -->
+        <path class="bp-dash fade" d="M158 30 V230"/>
+        <path class="bp-line-2 fade" d="M154 30h8 M154 230h8"/>
+        <text class="bp-label fade" x="163" y="130" transform="rotate(90 163 130)">H 200</text>
+        <text class="bp-label fade" x="22" y="246">NUEVA / ARCADE</text>
+        <text class="bp-label fade" x="150" y="246">FIG.01</text>
+      </svg>
+      </div>
+      <p class="cue"><span>▾ Scroll</span></p>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== FILTER DECK ===================== -->
+<div class="deck">
+  <div class="wrap">
+    <div class="deck-inner">
+      <div class="fgroup">
+        <span class="flabel">Status</span>
+        <button class="fchip on" data-grp="status" data-val="all">All</button>
+        <button class="fchip" data-grp="status" data-val="live">Playable</button>
+        <button class="fchip" data-grp="status" data-val="wip">In progress</button>
+      </div>
+      <div class="fgroup">
+        <span class="flabel">Players</span>
+        <button class="fchip on" data-grp="players" data-val="all">All</button>
+        <button class="fchip" data-grp="players" data-val="1">1P</button>
+        <button class="fchip" data-grp="players" data-val="2">2P</button>
+      </div>
+      <span class="readout" id="readout">SHOWING 00 / 00</span>
+    </div>
   </div>
 </div>
 
+<!-- ===================== GAMES ===================== -->
+<div class="wrap">
+  <section id="cabinet">
+    <div class="sec-head reveal">
+      <span class="sec-num">01 / The Cabinet</span>
+      <h2>Pick a game.</h2>
+      <p>Every title below is built by us. Playable ones launch in your browser; the rest are on the workbench.</p>
+    </div>
+    <div class="games" id="games"></div>
+  </section>
+</div>
+
+<!-- ===================== FOOTER ===================== -->
 <footer>
-  Built by The Orion Project · 10S4 &nbsp;·&nbsp; <a href="index.html">← Back to home</a>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <img class="foot-mark" src="nueva-logo.png" alt="Nueva logo">
+        <div class="foot-brand">Nueva</div>
+        <p>The Arcade</p>
+      </div>
+      <div class="foot-links">
+        <a href="index.html#about">About</a>
+        <a href="index.html#projects">Workshop</a>
+        <a href="index.html#try">Valkyrie</a>
+        <a href="arcade.html">Arcade</a>
+        <a href="index.html">← Home</a>
+      </div>
+    </div>
+    <div class="copyr">© <span id="yr"></span> Nueva · Built in cardboard &amp; blueprint blue.</div>
+  </div>
 </footer>
 
 <script>
-  var sky=document.getElementById('stars');
-  for(var i=0;i<90;i++){var s=document.createElement('div');s.className='star';
-    var z=Math.random()*2+0.5;s.style.width=z+'px';s.style.height=z+'px';
-    s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';
-    s.style.setProperty('--t',(Math.random()*3+1.5)+'s');s.style.animationDelay=(Math.random()*4)+'s';
-    sky.appendChild(s);}
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  /* scroll progress */
+  const prog = document.getElementById('progress');
+  addEventListener('scroll', ()=>{
+    const h = document.documentElement;
+    prog.style.width = (h.scrollTop/(h.scrollHeight - h.clientHeight)*100)+'%';
+  }, {passive:true});
+
+  /* ---- blueprint icons (line art, on-theme) ---- */
+  const ICONS = {
+    ball:'<rect x="24" y="12" width="72" height="34" class="bp-line-2"/><path class="bp-thin" d="M24 23h72 M24 35h72 M42 12v34 M60 12v34 M78 12v34"/><circle cx="60" cy="58" r="7" class="bp-line"/><path class="bp-thin" d="M60 53l5 4-2 6h-6l-2-6z"/>',
+    rocket:'<path class="bp-line" d="M60 12c9 8 11 23 9 36h-18c-2-13 0-28 9-36z"/><circle cx="60" cy="30" r="5" class="bp-line-2"/><path class="bp-line-2" d="M51 46l-9 13 13-5 M69 46l9 13-13-5"/><path class="bp-dash" d="M60 52v12 M54 52v8 M66 52v8"/>',
+    boss:'<circle cx="60" cy="34" r="20" class="bp-line"/><circle cx="60" cy="34" r="11" class="bp-line-2"/><path class="bp-thin" d="M60 6v12 M60 50v12 M32 34h12 M76 34h12"/><rect x="55" y="29" width="10" height="10" class="bp-fill"/>',
+    pad:'<rect x="22" y="22" width="76" height="32" rx="14" class="bp-line"/><path class="bp-line-2" d="M38 30v16 M30 38h16"/><circle cx="78" cy="34" r="3.4" class="bp-line-2"/><circle cx="86" cy="42" r="3.4" class="bp-line-2"/>',
+    puzzle:'<rect x="32" y="18" width="30" height="30" class="bp-line"/><rect x="56" y="30" width="30" height="30" class="bp-line-2"/><circle cx="62" cy="34" r="4" class="bp-fill"/>',
+    bolt:'<path class="bp-line" d="M66 10l-20 30h15l-7 22 24-32h-15z"/>',
+    pong:'<rect x="22" y="20" width="6" height="22" class="bp-line"/><rect x="92" y="34" width="6" height="22" class="bp-line"/><circle cx="60" cy="38" r="4" class="bp-line"/><path class="bp-dash" d="M60 12v52"/>'
+  };
+  function thumb(icon){
+    const frame='<path class="bp-thin" d="M6 6h8M6 6v8 M114 6h-8M114 6v8 M6 64h8M6 64v-8 M114 64h-8M114 64v-8"/>';
+    return '<svg viewBox="0 0 120 70" xmlns="http://www.w3.org/2000/svg">'+frame+(ICONS[icon]||ICONS.pad)+'</svg>';
+  }
+
+  /* ---- THE CABINET — edit this list to add / rename games ---- */
+  /* status: 'live' (playable, needs href) · 'dev' (in build) · 'soon' (planned) */
+  const GAMES = [
+    { title:'Nueva Penalty',  genre:'Sports · Skill',   players:'2', status:'live', href:'orion_penalty.html',           icon:'ball'   },
+    { title:'Nueva Showdown', genre:'Action · Boss',    players:'1', status:'live', href:'OrionShowdownSingleFile.html', icon:'boss'   },
+    { title:'Nueva Rider',    genre:'Race · Reflex',    players:'1', status:'live', href:'orion_rider.html',             icon:'rocket' },
+    { title:'Nueva Hoops',    genre:'Sports · Versus',  players:'2', status:'live', href:'orion_hoops.html',             icon:'pong'   },
+    { title:'Nueva Depot',    genre:'Co-op · Sorting',  players:'2', status:'live', href:'orion_depot.html',             icon:'pad'    }
+  ];
+
+  const META = {
+    live:{ pill:'Playable', cls:'live', build:'v1.0' },
+    dev :{ pill:'In dev',   cls:'dev',  build:'WIP'  },
+    soon:{ pill:'Planned',  cls:'',     build:'—'    }
+  };
+  const playersLabel = p => p==='1'?'1P':p==='2'?'2P':p+'P';
+
+  const grid = document.getElementById('games');
+  GAMES.forEach((g,i)=>{
+    const m = META[g.status] || META.soon;
+    const fig = 'FIG.'+String(i+1).padStart(2,'0');
+    const btn = g.status==='live' && g.href
+      ? '<a class="gbtn" href="'+g.href+'">Play ▸</a>'
+      : '<span class="gbtn dis">'+(g.status==='soon'?'Planned':'In progress')+'</span>';
+    const el = document.createElement('article');
+    el.className = 'game reveal';
+    el.dataset.status = g.status;
+    el.dataset.players = g.players;
+    el.style.transitionDelay = (i%3)*70 + 'ms';
+    el.innerHTML =
+      '<div class="plate">'+
+        '<span class="fig">'+fig+'</span>'+
+        '<span class="gpill '+m.cls+'">'+m.pill+'</span>'+
+        thumb(g.icon)+
+      '</div>'+
+      '<div class="gbody">'+
+        '<div class="gtag">'+g.genre+'</div>'+
+        '<h3>'+g.title+'</h3>'+
+        '<dl class="spec">'+
+          '<div><dt>Players</dt><dd>'+playersLabel(g.players)+'</dd></div>'+
+          '<div><dt>Genre</dt><dd>'+g.genre.split(' · ')[0]+'</dd></div>'+
+          '<div><dt>Build</dt><dd>'+m.build+'</dd></div>'+
+        '</div>'+
+        btn+
+      '</div>';
+    grid.appendChild(el);
+  });
+
+  /* hero stats */
+  const nLive = GAMES.filter(g=>g.status==='live').length;
+  document.getElementById('statPlay').textContent  = String(nLive).padStart(2,'0');
+  document.getElementById('statWip').textContent   = String(GAMES.length-nLive).padStart(2,'0');
+  document.getElementById('statTotal').textContent = String(GAMES.length).padStart(2,'0');
+
+  /* ---- reveal on scroll (stagger) ---- */
+  const io = new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{ threshold:.1 });
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  /* ---- live filtering ---- */
+  let fStatus='all', fPlayers='all';
+  const cards = [...grid.querySelectorAll('.game')];
+  const readout = document.getElementById('readout');
+  const total = String(cards.length).padStart(2,'0');
+
+  function applyFilter(){
+    let shown=0;
+    cards.forEach(c=>{
+      const st=c.dataset.status;
+      const okS = fStatus==='all' || (fStatus==='live' ? st==='live' : st!=='live');
+      const okP = fPlayers==='all' || c.dataset.players===fPlayers;
+      const ok = okS && okP;
+      c.style.display = ok ? '' : 'none';
+      if(ok) shown++;
+    });
+    readout.textContent = 'SHOWING '+String(shown).padStart(2,'0')+' / '+total;
+    let empty = grid.querySelector('.empty');
+    if(shown===0){
+      if(!empty){ empty=document.createElement('p'); empty.className='empty';
+        empty.textContent='No games match that filter — try widening it.'; grid.appendChild(empty); }
+    } else if(empty){ empty.remove(); }
+  }
+
+  document.querySelectorAll('.fchip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const grp=chip.dataset.grp;
+      document.querySelectorAll('.fchip[data-grp="'+grp+'"]').forEach(c=>c.classList.remove('on'));
+      chip.classList.add('on');
+      if(grp==='status') fStatus=chip.dataset.val; else fPlayers=chip.dataset.val;
+      applyFilter();
+    });
+  });
+  applyFilter();
+
+  /* ---- hero cabinet: pointer tilt + slight scroll parallax ---- */
+  (function(){
+    const wrap=document.querySelector('.cabwrap'), stage=document.getElementById('cabStage');
+    if(!wrap || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const hero=wrap.closest('.ahero');
+    let tx=0,ty=0,txT=0,tyT=0, py=0,pyT=0, sx=0,sxT=0, raf=0;
+
+    function onScroll(){
+      const h = hero ? hero.offsetHeight : innerHeight;
+      const p = Math.max(0, Math.min(1, (scrollY||0)/(h*0.9)));  // 0..1 through hero
+      pyT = p * -16;        // drifts up slightly
+      sxT = p * 3.5;        // leans back a touch
+      kick();
+    }
+    function frame(){ raf=0;
+      tx+=(txT-tx)*.1; ty+=(tyT-ty)*.1; py+=(pyT-py)*.12; sx+=(sxT-sx)*.12;
+      stage.style.transform =
+        'translateY('+py.toFixed(2)+'px) rotateX('+(tx+sx).toFixed(2)+'deg) rotateY('+ty.toFixed(2)+'deg)';
+      if(Math.abs(txT-tx)>.02||Math.abs(tyT-ty)>.02||Math.abs(pyT-py)>.1||Math.abs(sxT-sx)>.02) kick();
+    }
+    function kick(){ if(!raf) raf=requestAnimationFrame(frame); }
+
+    wrap.addEventListener('pointermove', e=>{ const r=wrap.getBoundingClientRect();
+      tyT=((e.clientX-r.left)/r.width-.5)*12; txT=-((e.clientY-r.top)/r.height-.5)*12; kick(); });
+    wrap.addEventListener('pointerleave', ()=>{ txT=0; tyT=0; kick(); });
+    addEventListener('scroll', onScroll, {passive:true});
+    onScroll();
+  })();
 </script>
 </body>
 </html>

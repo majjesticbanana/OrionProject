@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nueva Hoops</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Spline+Sans+Mono:wght@400;500;600&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{ --paper:#ece3d2; --paper-2:#e3d8c3; --coffee:#4a3526; --coffee-2:#6b513c;
+    --blueprint:#2f5d8a; --blueprint-2:#3d74ab; --ink:#1c150f; --accent:#a63a53;
+    --line:rgba(74,53,38,.22); --grid:rgba(47,93,138,.10); --maxw:1140px; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{ background:var(--paper); color:var(--coffee); font-family:'Press Start 2P', ui-monospace, monospace;
+    line-height:1.7; min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden; position:relative; user-select:none; }
+  body::before{ content:""; position:fixed; inset:0; z-index:-2;
+    background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),
+      linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),var(--paper);
+    background-size:120px 120px,120px 120px,24px 24px,24px 24px; }
+  body::after{ content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+    opacity:.05; mix-blend-mode:multiply; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 28px; }
+  header{ backdrop-filter:blur(6px); background:rgba(236,227,210,.82); border-bottom:1px solid var(--line); }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:14px 0; }
+  .brand{ display:flex; align-items:center; gap:12px; font-family:'Space Grotesk',sans-serif; font-weight:700;
+    letter-spacing:.18em; font-size:1.05rem; text-decoration:none; color:var(--ink); text-transform:uppercase; }
+  .brand .mark{ width:34px; height:34px; object-fit:contain; display:block; flex:0 0 auto; }
+  .back{ font-family:'Spline Sans Mono',monospace; font-size:.8rem; letter-spacing:.08em; text-transform:uppercase; color:var(--coffee-2); text-decoration:none; }
+  .back:hover{ color:var(--blueprint); }
+  .stage{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:34px 20px 40px; }
+  .console{ position:relative; width:720px; max-width:96vw; background:rgba(255,255,255,.32); border:1px solid var(--line);
+    border-radius:8px; padding:20px 22px 22px; box-shadow:8px 10px 0 rgba(47,93,138,.10); }
+  .hud{ display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin-bottom:12px; }
+  .gtitle{ font-family:'Press Start 2P',monospace; font-size:14px; color:var(--ink); line-height:1.4; letter-spacing:1px; }
+  .tag{ font-size:8px; line-height:1.6; letter-spacing:1px; color:var(--coffee-2); }
+  .tag b{ color:var(--accent); }
+  .score{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:12px;
+    background:rgba(47,93,138,.06); border:1px solid var(--line); border-radius:5px; padding:10px 14px; }
+  .cell{ display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; }
+  .cell .c{ font-size:7px; letter-spacing:1px; color:var(--coffee-2); }
+  .cell .v{ font-size:16px; color:var(--ink); }
+  .cell .u{ font-size:7px; color:var(--coffee-2); }
+  .cell.score-c .v{ color:var(--blueprint); }
+  .cell.spd-c .v{ color:var(--accent); }
+  .p{ display:flex; align-items:center; gap:10px; }
+  .p.right{ flex-direction:row-reverse; }
+  .p .lbl{ font-size:8px; letter-spacing:1px; }
+  .p1 .lbl{ color:var(--blueprint); } .p2 .lbl{ color:var(--accent); }
+  .p .n{ font-size:20px; }
+  .p1 .n{ color:var(--blueprint); } .p2 .n{ color:var(--accent); }
+  .clock{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .clock .c{ font-size:7px; letter-spacing:1px; color:var(--coffee-2); }
+  .clock span:not(.c){ font-size:13px; color:var(--ink); }
+  .low, .low span:not(.c){ color:var(--accent) !important; }
+  .screen{ position:relative; width:100%; border:3px solid var(--ink); border-radius:4px; overflow:hidden;
+    background:#0a0a18; box-shadow:inset 0 0 0 1px rgba(47,93,138,.35); }
+  canvas{ display:block; width:100%; height:auto; image-rendering:pixelated; background:#0a0a18; }
+  .screen::after{ content:""; position:absolute; inset:0; pointer-events:none; z-index:5;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 2px, transparent 2px 4px); mix-blend-mode:multiply; }
+  .prompt{ margin-top:12px; text-align:center; font-size:9px; line-height:1.9; color:var(--coffee); min-height:16px; }
+  .prompt b{ color:var(--blueprint); }
+  .foot{ margin-top:14px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .keys{ font-size:7.5px; color:var(--coffee-2); line-height:1.9; }
+  .keys b{ color:var(--ink); }
+  button{ font-family:'Press Start 2P',monospace; font-size:8px; letter-spacing:.04em; color:var(--paper);
+    background:var(--ink); border:1.5px solid var(--ink); border-radius:3px; padding:10px 14px; cursor:pointer;
+    transition:transform .12s, background .2s, border-color .2s; }
+  button:hover{ background:var(--blueprint); border-color:var(--blueprint); transform:translateY(-2px); }
+  button:active{ transform:translateY(0); }
+  .ov{ position:absolute; inset:0; z-index:25; display:none; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; background:rgba(236,227,210,.94); padding:22px; }
+  .ov h1{ font-family:'Press Start 2P',monospace; font-size:17px; color:var(--ink); line-height:1.7; margin-bottom:16px; }
+  .ov p{ font-size:9px; color:var(--coffee); line-height:2.1; margin-bottom:16px; max-width:560px; }
+  .k{ font-family:'Press Start 2P',monospace; font-size:8px; color:var(--paper); background:var(--ink);
+    padding:2px 6px; border-radius:3px; display:inline-block; margin:0 1px; }
+  .ov .a{ color:var(--blueprint); }
+  .ov .b{ color:var(--accent); }
+  .ov .g{ color:#3b8f57; }
+  .ov .pad{ display:flex; align-items:center; justify-content:center; gap:8px; font-size:9px; margin-bottom:14px; }
+  .ov .dot{ width:9px; height:9px; border-radius:50%; background:var(--coffee-2); display:inline-block; }
+  .ov .dot.ok{ background:#3b8f57; }
+  .ov .sub{ color:var(--coffee-2); }
+  .tagline{ margin-top:16px; font-size:8px; letter-spacing:1px; line-height:1.8; text-transform:uppercase; color:var(--coffee-2); }
+  @media (max-width:560px){ .wrap{padding:0 16px;} .gtitle{font-size:12px;} .hud{flex-direction:column; align-items:flex-start; gap:6px;} .keys{font-size:7px;} }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap topbar">
+    <a href="index.html#top" class="brand">
+      <img class="mark" src="nueva-logo.png" alt="Nueva logo">
+      Nueva
+    </a>
+    <a href="arcade.html" class="back">&larr; Arcade</a>
+  </div>
+</header>
+<main class="stage">
+  <div class="console">
+    <div class="hud">
+      <div class="gtitle">Nueva Hoops</div>
+      <div class="tag">SPLIT-SCREEN &middot; <b>60 SEC SHOOTOUT</b></div>
+    </div>
+    <div class="score">
+      <div class="p p1"><span class="lbl">P1</span><span class="n" id="n1">0</span></div>
+      <div class="clock" id="clockbox"><span class="c">TIME</span><span id="clock">1:00</span></div>
+      <div class="p p2 right"><span class="lbl">P2</span><span class="n" id="n2">0</span></div>
+    </div>
+    <div class="screen">
+      <canvas id="game" width="480" height="240"></canvas>
+      <div class="ov" id="ov"></div>
+    </div>
+    <div class="prompt" id="prompt"></div>
+    <div class="foot">
+      <div class="keys"><b>P1</b> lock <b style="color:#2f5d8a">W</b> &middot; steer <b style="color:#2f5d8a">A</b>/<b style="color:#2f5d8a">D</b> &middot; shoot <b style="color:#2f5d8a">S</b> &nbsp; <b>P2</b> lock <b style="color:#a63a53">I</b> &middot; steer <b style="color:#a63a53">J</b>/<b style="color:#a63a53">L</b> &middot; shoot <b style="color:#a63a53">K</b><br>pad: L3 / R3 = lock &middot; stick = aim &middot; L1 / R1 = shoot</div>
+      <button id="reset">RESET</button>
+    </div>
+  </div>
+  <p class="tagline">FIG.04 &middot; A Nueva arcade build</p>
+</main>
+<script>
+(function(){
+  var cv=document.getElementById('game'), ctx=cv.getContext('2d');
+  var W=cv.width,H=cv.height; ctx.imageSmoothingEnabled=false;
+  var HW=W/2;                         // half width (one player's court)
+  var GROUND=200;                     // floor line (feet)
+
+  var C={skyTop:'#1a1c4a',skyBot:'#2a2d66',crowd1:'#3a3e7a',crowd2:'#4a4e9a',
+    woodA:'#b5762f',woodB:'#9c651f',woodLine:'#e0b46a',
+    board:'#eef0ff',boardShade:'#c8ccee',boardRed:'#e2433a',
+    rim:'#ff7a1e',rimShade:'#c75c10',net:'#cfd6f0',
+    skin:'#ffcf9c',outline:'#06210f',
+    ball:'#ff8a3c',ballShade:'#ffb277',ballSeam:'#7a3a12',
+    kitA:'#ffb13b',kitAS:'#c97f10',kitB:'#5ab0ff',kitBS:'#2f7fc7'};
+  function px(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x|0,y|0,w|0,h|0);}
+
+  // ---------- geometry (local to a half) ----------
+  var RIMX=HW/2, RIMY=66, RIMR=16;     // rim centre + radius
+  var LAUNCHY=160;                     // ball release height
+  var GLOFT=56;                        // shot arc height: how far the ball peaks above the straight line
+
+  // ---------- match / player state ----------
+  var ROUNDLEN=60;                     // seconds
+  var AIMR=56;                         // shooter auto-drift range from centre
+  var DRIFTSPD=0.05;                   // shooter side-to-side speed (px/ms)
+  var HOOPR=44;                        // hoop slide range from centre
+  var HOOPSPD=0.034;                   // hoop slide speed (px/ms)
+  var CURVEMAX=72;                     // max horizontal bend you can put on a shot
+  var CURVERATE=0.10;                  // how fast the line curves while steering (px/ms at full input)
+  var RIDEAL=56;                       // the apex/reach that drops the ball cleanly into the hoop
+  var RMIN=18, RMAX=94;                // the arc's reach pulses between these after you lock
+  var HRATE=0.0022;                    // how fast the arc height oscillates (rad/ms)
+  var KQ=0.03;                         // tip strays off the rim ~quadratically: gentle near it, dramatic when you over/under-shoot
+  var MAXOFF=80;                       // max aim offset shown on the aim bar
+  var FLY=470;                         // ball flight ms
+  var CD=1000;                         // cooldown between shots (ms)
+  var state, matchEnd, countStart, last;
+  var players;
+  var held={a:false,d:false,j:false,l:false};   // keyboard steer keys held
+  var padAim={1:0,2:0};                          // analog stick steer (-1..1)
+
+  function freshPlayer(id,ox){
+    return {id:id,ox:ox,score:0,state:'ready',
+      px:RIMX, pdir:Math.random()<0.5?1:-1,
+      hoopX:RIMX, hdir:Math.random()<0.5?1:-1,
+      curve:0, R:RIDEAL, hphase:0,
+      ball:{x:ox+RIMX,y:LAUNCHY,s:1},
+      traj:{x0:ox+RIMX,y0:LAUNCHY,x1:ox+RIMX,y1:RIMY,loft:GLOFT},
+      outcome:null,shotT:0,cdStart:0,flashT:0,flashTxt:'',flashCol:'#49e06b',netT:0,missVx:0};
+  }
+
+  var ov=document.getElementById('ov'),promptEl=document.getElementById('prompt');
+  var n1=document.getElementById('n1'),n2=document.getElementById('n2');
+  var clockEl=document.getElementById('clock'),clockBox=document.getElementById('clockbox');
+
+  // ============================================================
+  //  DRAWING
+  // ============================================================
+  function drawCourt(ox,pl){
+    // sky
+    for(var i=0;i<18;i++){px(ox,i*2,HW,2,i<9?C.skyTop:C.skyBot);}
+    // crowd specks
+    for(var cx=0;cx<HW;cx+=6){for(var cy=2;cy<26;cy+=6){
+      var on=((cx+cy)%12===0)||(Math.floor(cx*7+cy*13)%5===0);px(ox+cx,cy,4,4,on?C.crowd2:C.crowd1);}}
+    // hardwood floor
+    for(var gy=GROUND-8;gy<H;gy+=8){var band=((gy-(GROUND-8))/8)|0;px(ox,gy,HW,8,band%2?C.woodA:C.woodB);}
+    px(ox,GROUND-8,HW,2,C.woodLine);
+    // key / paint arc on floor
+    for(var a=-1;a<=1;a+=0.2){px(ox+RIMX+a*30,GROUND+2+Math.abs(a)*6,2,2,C.woodLine);}
+  }
+  function drawBoardAndNet(ox,pl){
+    var bx=ox+pl.hoopX;
+    // pole behind
+    px(bx-2,28,4,RIMY-28,'#3a3e7a');
+    // backboard
+    px(bx-22,38,44,30,C.board); px(bx-22,38,44,2,C.boardShade); px(bx+20,38,2,30,C.boardShade);
+    px(bx-10,46,20,14,C.boardRed); px(bx-9,47,18,2,'#ff7d74');
+    // back rim line
+    px(bx-RIMR,RIMY,RIMR*2,2,C.rimShade);
+    // net
+    var sway=(pl.netT>0)?Math.sin(pl.netT*0.9)*2:0;
+    ctx.strokeStyle=C.net; ctx.lineWidth=1;
+    for(var s=-RIMR+3;s<=RIMR-3;s+=4){
+      ctx.beginPath();
+      ctx.moveTo(bx+s+0.5, RIMY+2);
+      ctx.lineTo(bx+s*0.45+sway+0.5, RIMY+18);
+      ctx.stroke();
+    }
+    ctx.beginPath();ctx.moveTo(bx-RIMR+3+0.5,RIMY+9);ctx.lineTo(bx+RIMR-3+0.5,RIMY+9);ctx.stroke();
+    if(pl.netT>0)pl.netT--;
+  }
+  function drawFrontRim(ox,pl){
+    var bx=ox+pl.hoopX;
+    px(bx-RIMR,RIMY+2,RIMR*2,3,C.rim);
+    px(bx-RIMR,RIMY+2,3,3,'#ffd23e'); px(bx+RIMR-3,RIMY+2,3,3,'#ffd23e');
+  }
+  function trajX(p,x0,x1){ return x0+(x1-x0)*p; }                      // horizontal travel (straight)
+  function trajY(p,y0,y1,loft){ return y0+(y1-y0)*p - Math.sin(p*Math.PI)*loft; }  // up, then down into the rim
+  function tipDy(R){                                                   // where the tip lands vs the rim (+down/short, -up/over)
+    var d=R-RIDEAL, dy=-Math.sign(d)*d*d*KQ;                           // quadratic: small near ideal, big at the extremes
+    return Math.max(-46, Math.min(20, dy));                            // way up = clears the board; way down = drops short
+  }
+  function drawAim(ox,pl){
+    if(pl.state!=='ready' && pl.state!=='power') return;
+    var endX=pl.px+pl.curve, x0=ox+pl.px, x1=ox+endX, y0=LAUNCHY-2;
+    if(pl.state==='ready'){                                        // horizontal aim — colour shows alignment
+      var err=Math.abs(endX-pl.hoopX);
+      var col=err<18?'#49e06b':(err<26?'#e0a800':'#ff5b5b');
+      for(var t=0.04;t<1;t+=0.05){ px(trajX(t,x0,x1)-1, trajY(t,y0,RIMY+2,RIDEAL)-1, 3,3, col); }
+      px((ox+endX)-4,RIMY-3,8,2,col); px((ox+endX)-1,RIMY-7,2,8,col);
+    } else {                                                       // locked — arc reach pulses up/down, no colour
+      var y1=RIMY+tipDy(pl.R);
+      for(var t=0.04;t<1;t+=0.045){ px(trajX(t,x0,x1)-1, trajY(t,y0,y1,pl.R)-1, 3,3, '#eef0ff'); }
+      px((ox+endX)-3,y1-1,6,2,'#ffffff'); px((ox+endX)-1,y1-3,2,6,'#ffffff');   // tip — line it up with the rim
+    }
+  }
+  function drawAimBar(ox,pl){                                // readout: where the shot lands vs the hoop
+    var bx=ox+RIMX-82, by=216, bw=164, bh=8, c=bx+bw/2, sc=(bw/2)/MAXOFF;
+    px(bx-2,by-2,bw+4,bh+4,'#000');
+    px(bx,by,bw,bh,'#c0392b');                               // red field
+    var ok=Math.round(26*sc), mk=Math.round(18*sc);
+    px(c-ok,by,ok*2,bh,'#e0a800');                           // amber 50/50
+    px(c-mk,by,mk*2,bh,'#2faa3c');                           // green make
+    px(c-3,by,6,bh,'#7CFC9A');                               // perfect centre
+    var off=(pl.px+pl.curve-pl.hoopX)*sc, mx=Math.max(bx,Math.min(bx+bw,c+off));
+    px(mx-1,by-3,3,bh+6,'#ffffff');                          // marker = aim vs hoop
+  }
+  function drawCooldown(ox,pl){
+    var bx=ox+RIMX-82, by=216, bw=164, bh=8;
+    px(bx-2,by-2,bw+4,bh+4,'#000'); px(bx,by,bw,bh,'#11132e');
+    var p=Math.min((performance.now()-pl.cdStart)/CD,1);
+    px(bx,by,Math.round(bw*p),bh,p<1?'#5566aa':'#49e06b');
+  }
+  function drawShooter(x,pl,shooting){
+    var y=GROUND;
+    var kit=pl.id===1?C.kitA:C.kitB, kitS=pl.id===1?C.kitAS:C.kitBS;
+    px(x-5,y-8,4,8,kit); px(x+1,y-8,4,8,kit);              // legs
+    px(x-6,y-22,12,15,kit); px(x-5,y-21,10,3,kitS);        // torso
+    px(x-4,y-31,8,8,C.skin); px(x-4,y-31,8,1,'#e0a877');   // head
+    if(shooting){                                          // arms up (shoot pose)
+      px(x-9,y-35,4,12,kit); px(x+5,y-35,4,12,kit);
+      px(x-10,y-39,5,5,C.skin); px(x+5,y-39,5,5,C.skin);
+    } else {                                               // arms ready
+      px(x-9,y-20,3,9,kit); px(x+6,y-20,3,9,kit);
+      px(x-10,y-12,4,4,C.skin); px(x+6,y-12,4,4,C.skin);
+    }
+  }
+  function drawBall(bx,by,s){
+    var r=Math.max(3,Math.round(6*s));
+    px(bx-r,by-r,r*2,r*2,C.ball);
+    px(bx-r,by-r,r*2,2,C.ballShade);
+    px(bx-1,by-r,2,r*2,C.ballSeam);
+    px(bx-r,by-1,r*2,2,C.ballSeam);
+  }
+  function flashText(ox,pl){
+    if(pl.flashT<=0)return;
+    ctx.fillStyle=pl.flashCol; ctx.font='13px "Press Start 2P"'; ctx.textAlign='center';
+    ctx.fillText(pl.flashTxt, ox+RIMX, 116);
+  }
+
+  function drawHalf(pl){
+    var ox=pl.ox;
+    drawCourt(ox,pl);
+    drawBoardAndNet(ox,pl);
+    drawAim(ox,pl);
+    var shooting=(pl.state==='fly');
+    drawShooter(ox+pl.px,pl,shooting);
+    if(pl.state==='fly' || (pl.state==='cooldown' && pl.outcome==='miss' && pl.flashT>0)){
+      var sw=Math.round(7*pl.ball.s);
+      px(pl.ball.x-sw, GROUND-2, sw*2, 2, 'rgba(0,0,0,0.25)');
+      drawBall(pl.ball.x, pl.ball.y, pl.ball.s);
+    }
+    drawFrontRim(ox,pl);
+    if(state==='play'){
+      if(pl.state==='ready') drawAimBar(ox,pl);
+      else if(pl.state==='cooldown') drawCooldown(ox,pl);
+    }
+    flashText(ox,pl);
+  }
+
+  function frame(now){
+    if(last==null)last=now;
+    var dt=Math.min(now-last,40); last=now;
+    px(0,0,W,H,'#0a0c22');             // full clear every frame (no trails)
+
+    if(state==='count'){
+      var el=now-countStart;
+      drawHalf(players[1]); drawHalf(players[2]); divider();
+      var n=el<600?'3':el<1200?'2':el<1800?'1':'GO!';
+      ctx.fillStyle=el<1800?'#ffd98a':'#49e06b';
+      ctx.font='34px "Press Start 2P"'; ctx.textAlign='center';
+      ctx.fillText(n, W/2, H/2+10);
+      if(el>=2400){ state='play'; matchEnd=now+ROUNDLEN*1000; }
+    }
+    else if(state==='play'){
+      var left=Math.max(0,(matchEnd-now)/1000);
+      var secs=Math.ceil(left), m=Math.floor(secs/60), s=secs%60;
+      clockEl.textContent=m+':'+(s<10?'0'+s:s);
+      clockBox.classList.toggle('low', secs<=10);
+      updatePlayer(players[1],dt); updatePlayer(players[2],dt);
+      drawHalf(players[1]); drawHalf(players[2]); divider();
+      if(left<=0){ endMatch(); }
+    }
+    else { // idle / over: draw static courts behind overlay
+      drawHalf(players[1]); drawHalf(players[2]); divider();
+    }
+    requestAnimationFrame(frame);
+  }
+  function divider(){ px(HW-1,0,2,H,'#000'); px(HW-1,0,2,30,'#3a3e7a'); }
+
+  // ============================================================
+  //  GAME LOGIC
+  // ============================================================
+  function updatePlayer(pl,dt){
+    if(pl.state==='ready'){                  // shooter stays put; the hoop slides while you aim
+      pl.hoopX+=pl.hdir*HOOPSPD*dt;          // hoop slides
+      if(pl.hoopX>=RIMX+HOOPR){pl.hoopX=RIMX+HOOPR;pl.hdir=-1;}
+      if(pl.hoopX<=RIMX-HOOPR){pl.hoopX=RIMX-HOOPR;pl.hdir=1;}
+      var kmv = pl.id===1 ? ((held.d?1:0)-(held.a?1:0)) : ((held.l?1:0)-(held.j?1:0));
+      var mv = kmv!==0 ? kmv : padAim[pl.id];
+      pl.curve += mv*CURVERATE*dt;           // steer the curved aim line
+      if(pl.curve>CURVEMAX)pl.curve=CURVEMAX;
+      if(pl.curve<-CURVEMAX)pl.curve=-CURVEMAX;
+    }
+    else if(pl.state==='power'){             // locked: the arc's reach pulses up then down
+      pl.hphase += HRATE*dt;
+      pl.R = (RMIN+RMAX)/2 + (RMAX-RMIN)/2*Math.sin(pl.hphase);
+    }
+    else if(pl.state==='fly'){
+      var p=Math.min((performance.now()-pl.shotT)/FLY,1), T=pl.traj;
+      pl.ball.x=trajX(p,T.x0,T.x1);
+      pl.ball.y=trajY(p,T.y0,T.y1,T.loft);
+      pl.ball.s=1-0.18*p;
+      if(p>=1) resolveShot(pl);
+    }
+    else if(pl.state==='cooldown'){
+      if(pl.flashT>0){ pl.flashT--; if(pl.outcome==='miss'){ pl.ball.y+=7; pl.ball.x+=pl.missVx; } }
+      if(performance.now()-pl.cdStart>=CD){ pl.state='ready'; pl.ball.s=1; }
+    }
+  }
+
+  function lock(id){                         // L3 / R3  or  W / I : freeze it all, set the power
+    if(state!=='play')return;
+    var pl=players[id]; if(pl.state!=='ready')return;
+    pl.state='power'; pl.hphase=Math.random()*Math.PI*2;
+  }
+  function shoot(id){                        // L1 / R1  or  S / K : release when the arc drops into the hoop
+    if(state!=='play')return;
+    var pl=players[id]; if(pl.state!=='power')return;
+    var endpoint=pl.px+pl.curve, e=Math.abs(endpoint-pl.hoopX), dR=Math.abs(pl.R-RIDEAL), outcome;
+    if(e>=26) outcome='miss';                                    // off line -> brick
+    else if(dR<7 && e<9) outcome='swish';                        // perfect height + dead-on -> 3
+    else if(dR<16 && e<18) outcome='make';                       // right height + aligned -> 2
+    else if(dR<24 && e<26) outcome=(Math.random()<0.5?'make':'miss');  // close -> 50/50
+    else outcome='miss';                                         // wrong height -> short or over
+    startShot(pl,outcome,endpoint,e);
+  }
+  function startShot(pl,outcome,endpoint,e){
+    pl.state='fly'; pl.outcome=outcome; pl.shotT=performance.now();
+    var x0=pl.ox+pl.px, y0=LAUNCHY-2, hoopAbs=pl.ox+pl.hoopX, x1, y1, loft;
+    if(outcome==='make'||outcome==='swish'){ x1=hoopAbs; y1=RIMY+2; loft=RIDEAL; }   // clean arc into the hoop
+    else {
+      loft=pl.R; y1=RIMY+tipDy(pl.R);                                    // honest arc: short stays low, high sails over
+      x1 = (e>=18) ? pl.ox+endpoint : hoopAbs;                            // off-line lands aside; else short/over
+    }
+    pl.traj={x0:x0,y0:y0,x1:x1,y1:y1,loft:loft};
+    pl.ball.x=x0; pl.ball.y=y0; pl.ball.s=1;
+    pl.missVx=(outcome==='miss' && e>=15) ? ((endpoint<pl.hoopX)?-2:2) : 0;
+  }
+  function resolveShot(pl){
+    pl.state='cooldown'; pl.cdStart=performance.now(); pl.flashT=18;
+    if(pl.outcome==='swish'){ pl.score+=3; pl.flashTxt='SWISH +3'; pl.flashCol='#49e06b'; pl.netT=14; }
+    else if(pl.outcome==='make'){ pl.score+=2; pl.flashTxt='+2'; pl.flashCol='#49e06b'; pl.netT=11; }
+    else { pl.flashTxt='MISS'; pl.flashCol='#ff5b5b'; }
+    n1.textContent=players[1].score; n2.textContent=players[2].score;
+  }
+
+  function pressShoot(id){ if(state==='idle'){startMatch();return;} shoot(id); }
+  function pressLock(id){ if(state==='idle'){startMatch();return;} lock(id); }
+
+  function startMatch(){
+    players={1:freshPlayer(1,0),2:freshPlayer(2,HW)};
+    n1.textContent='0'; n2.textContent='0';
+    clockEl.textContent='1:00'; clockBox.classList.remove('low');
+    ov.style.display='none'; promptEl.innerHTML='bend the line onto the moving hoop &middot; <b>LOCK</b> &middot; <b>SHOOT</b> as the arc drops to the rim';
+    state='count'; countStart=performance.now(); last=null;
+  }
+  function endMatch(){
+    state='over';
+    var a=players[1].score, b=players[2].score;
+    var cls,h,sub;
+    if(a>b){ cls='amberwin'; h='P1 WINS!'; }
+    else if(b>a){ cls='bluewin'; h='P2 WINS!'; }
+    else { cls='win'; h='TIE GAME!'; }
+    ov.style.display='flex';
+    ov.innerHTML='<h1 class="'+cls+'">'+h+'</h1>'+
+      '<p>FINAL SCORE<br><br><span class="a">P1 '+a+'</span> &nbsp;&mdash;&nbsp; <span class="b">'+b+' P2</span></p>'+
+      '<button id="again">PLAY AGAIN</button>';
+    document.getElementById('again').addEventListener('click',startMatch);
+    promptEl.textContent='';
+  }
+  function showStart(){
+    ov.style.display='flex';
+    ov.innerHTML='<h1>Nueva<br>Hoops</h1>'+
+      '<p>2 PLAYERS &mdash; 60 SECOND SHOOTOUT<br><br>'+
+      'STEP 1 &mdash; <span class="a">AIM</span>: the hoop slides and your shooter drifts. Bend the curved line with the stick (or <span class="k">A</span>/<span class="k">D</span> &middot; <span class="k">J</span>/<span class="k">L</span>) so the reticle sits on the hoop.<br><br>'+
+      'STEP 2 &mdash; <span class="a">LOCK</span> (<span class="k">W</span>/<span class="k">I</span> &middot; L3/R3): freezes your aim. Now the arc&rsquo;s height pulses &mdash; up, then back down.<br><br>'+
+      'STEP 3 &mdash; <span class="a">SHOOT</span> (<span class="k">S</span>/<span class="k">K</span> &middot; L1/R1) when the arc&rsquo;s tip drops level with the rim: <span class="g">+2</span> &middot; dead-centre = <span class="g">SWISH +3</span>. Too low falls short, too high sails over.<br>'+
+      '1 SEC BETWEEN SHOTS &middot; MOST POINTS AT THE BUZZER WINS!</p>'+
+      '<button id="go">START</button>';
+    document.getElementById('go').addEventListener('click',startMatch);
+  }
+  function reset(){
+    state='idle';
+    players={1:freshPlayer(1,0),2:freshPlayer(2,HW)};
+    n1.textContent='0'; n2.textContent='0';
+    clockEl.textContent='1:00'; clockBox.classList.remove('low');
+    promptEl.textContent=''; showStart();
+  }
+
+  // ---------- input ----------
+  document.addEventListener('keydown',function(e){
+    var k=e.key.toLowerCase();
+    if(k==='w'){e.preventDefault();if(!e.repeat)pressLock(1);}        // P1 lock
+    else if(k==='a'){e.preventDefault();held.a=true;}                 // P1 steer left
+    else if(k==='d'){e.preventDefault();held.d=true;}                 // P1 steer right
+    else if(k==='s'){e.preventDefault();if(!e.repeat)pressShoot(1);}  // P1 shoot
+    else if(k==='i'){e.preventDefault();if(!e.repeat)pressLock(2);}   // P2 lock
+    else if(k==='j'){e.preventDefault();held.j=true;}                 // P2 steer left
+    else if(k==='l'){e.preventDefault();held.l=true;}                 // P2 steer right
+    else if(k==='k'){e.preventDefault();if(!e.repeat)pressShoot(2);}  // P2 shoot
+    else if(k===' '){e.preventDefault();if(state==='idle')startMatch();}
+  });
+  document.addEventListener('keyup',function(e){
+    var k=e.key.toLowerCase();
+    if(k==='a')held.a=false; else if(k==='d')held.d=false;
+    else if(k==='j')held.j=false; else if(k==='l')held.l=false;
+  });
+  document.getElementById('reset').addEventListener('click',reset);
+
+  // ---------- gamepad: L3/R3 = lock, sticks = steer curve, L1/R1 = shoot ----------
+  var padPrev={4:false,5:false,10:false,11:false};
+  function btn(gp,i){ return gp.buttons[i] && gp.buttons[i].pressed; }
+  function dz(v){ return Math.abs(v)<0.18?0:v; }   // stick deadzone
+  function pollPads(){
+    var pads=navigator.getGamepads?navigator.getGamepads():[]; var gp=null;
+    for(var i=0;i<pads.length;i++){ if(pads[i]){ gp=pads[i]; break; } }
+    if(gp){
+      padAim[1]=dz(gp.axes[0]||0);                                  // P1 left-stick X (steer)
+      padAim[2]=dz(gp.axes[2]!==undefined?gp.axes[2]:0);            // P2 right-stick X (steer)
+      var l1=btn(gp,4), r1=btn(gp,5), l3=btn(gp,10), r3=btn(gp,11);
+      if(l1&&!padPrev[4])  pressShoot(1);
+      if(r1&&!padPrev[5])  pressShoot(2);
+      if(l3&&!padPrev[10]) pressLock(1);
+      if(r3&&!padPrev[11]) pressLock(2);
+      padPrev[4]=l1; padPrev[5]=r1; padPrev[10]=l3; padPrev[11]=r3;
+    } else { padAim[1]=0; padAim[2]=0; }
+    requestAnimationFrame(pollPads);
+  }
+  pollPads();
+
+  reset();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

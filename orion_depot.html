@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nueva Depot</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Spline+Sans+Mono:wght@400;500;600&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{ --paper:#ece3d2; --paper-2:#e3d8c3; --coffee:#4a3526; --coffee-2:#6b513c;
+    --blueprint:#2f5d8a; --blueprint-2:#3d74ab; --ink:#1c150f; --accent:#a63a53;
+    --line:rgba(74,53,38,.22); --grid:rgba(47,93,138,.10); --maxw:1140px; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{ background:var(--paper); color:var(--coffee); font-family:'Press Start 2P', ui-monospace, monospace;
+    line-height:1.7; min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden; position:relative; user-select:none; }
+  body::before{ content:""; position:fixed; inset:0; z-index:-2;
+    background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),
+      linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),var(--paper);
+    background-size:120px 120px,120px 120px,24px 24px,24px 24px; }
+  body::after{ content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+    opacity:.05; mix-blend-mode:multiply; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 28px; }
+  header{ backdrop-filter:blur(6px); background:rgba(236,227,210,.82); border-bottom:1px solid var(--line); }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:14px 0; }
+  .brand{ display:flex; align-items:center; gap:12px; font-family:'Space Grotesk',sans-serif; font-weight:700;
+    letter-spacing:.18em; font-size:1.05rem; text-decoration:none; color:var(--ink); text-transform:uppercase; }
+  .brand .mark{ width:34px; height:34px; object-fit:contain; display:block; flex:0 0 auto; }
+  .back{ font-family:'Spline Sans Mono',monospace; font-size:.8rem; letter-spacing:.08em; text-transform:uppercase; color:var(--coffee-2); text-decoration:none; }
+  .back:hover{ color:var(--blueprint); }
+  .stage{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:34px 20px 40px; }
+  .console{ position:relative; width:720px; max-width:96vw; background:rgba(255,255,255,.32); border:1px solid var(--line);
+    border-radius:8px; padding:20px 22px 22px; box-shadow:8px 10px 0 rgba(47,93,138,.10); }
+  .hud{ display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin-bottom:12px; }
+  .gtitle{ font-family:'Press Start 2P',monospace; font-size:14px; color:var(--ink); line-height:1.4; letter-spacing:1px; }
+  .tag{ font-size:8px; line-height:1.6; letter-spacing:1px; color:var(--coffee-2); }
+  .tag b{ color:var(--accent); }
+  .score{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:12px;
+    background:rgba(47,93,138,.06); border:1px solid var(--line); border-radius:5px; padding:10px 14px; }
+  .cell{ display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; }
+  .cell .c{ font-size:7px; letter-spacing:1px; color:var(--coffee-2); }
+  .cell .v{ font-size:16px; color:var(--ink); }
+  .cell .u{ font-size:7px; color:var(--coffee-2); }
+  .cell.score-c .v{ color:var(--blueprint); }
+  .cell.spd-c .v{ color:var(--accent); }
+  .p{ display:flex; align-items:center; gap:10px; }
+  .p.right{ flex-direction:row-reverse; }
+  .p .lbl{ font-size:8px; letter-spacing:1px; }
+  .p1 .lbl{ color:var(--blueprint); } .p2 .lbl{ color:var(--accent); }
+  .p .n{ font-size:20px; }
+  .p1 .n{ color:var(--blueprint); } .p2 .n{ color:var(--accent); }
+  .clock{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .clock .c{ font-size:7px; letter-spacing:1px; color:var(--coffee-2); }
+  .clock span:not(.c){ font-size:13px; color:var(--ink); }
+  .low, .low span:not(.c){ color:var(--accent) !important; }
+  .screen{ position:relative; width:100%; border:3px solid var(--ink); border-radius:4px; overflow:hidden;
+    background:#0a0a18; box-shadow:inset 0 0 0 1px rgba(47,93,138,.35); }
+  canvas{ display:block; width:100%; height:auto; image-rendering:pixelated; background:#0a0a18; }
+  .screen::after{ content:""; position:absolute; inset:0; pointer-events:none; z-index:5;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 2px, transparent 2px 4px); mix-blend-mode:multiply; }
+  .prompt{ margin-top:12px; text-align:center; font-size:9px; line-height:1.9; color:var(--coffee); min-height:16px; }
+  .prompt b{ color:var(--blueprint); }
+  .foot{ margin-top:14px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .keys{ font-size:7.5px; color:var(--coffee-2); line-height:1.9; }
+  .keys b{ color:var(--ink); }
+  button{ font-family:'Press Start 2P',monospace; font-size:8px; letter-spacing:.04em; color:var(--paper);
+    background:var(--ink); border:1.5px solid var(--ink); border-radius:3px; padding:10px 14px; cursor:pointer;
+    transition:transform .12s, background .2s, border-color .2s; }
+  button:hover{ background:var(--blueprint); border-color:var(--blueprint); transform:translateY(-2px); }
+  button:active{ transform:translateY(0); }
+  .ov{ position:absolute; inset:0; z-index:25; display:none; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; background:rgba(236,227,210,.94); padding:22px; }
+  .ov h1{ font-family:'Press Start 2P',monospace; font-size:17px; color:var(--ink); line-height:1.7; margin-bottom:16px; }
+  .ov p{ font-size:9px; color:var(--coffee); line-height:2.1; margin-bottom:16px; max-width:560px; }
+  .k{ font-family:'Press Start 2P',monospace; font-size:8px; color:var(--paper); background:var(--ink);
+    padding:2px 6px; border-radius:3px; display:inline-block; margin:0 1px; }
+  .ov .a{ color:var(--blueprint); }
+  .ov .b{ color:var(--accent); }
+  .ov .g{ color:#3b8f57; }
+  .ov .pad{ display:flex; align-items:center; justify-content:center; gap:8px; font-size:9px; margin-bottom:14px; }
+  .ov .dot{ width:9px; height:9px; border-radius:50%; background:var(--coffee-2); display:inline-block; }
+  .ov .dot.ok{ background:#3b8f57; }
+  .ov .sub{ color:var(--coffee-2); }
+  .tagline{ margin-top:16px; font-size:8px; letter-spacing:1px; line-height:1.8; text-transform:uppercase; color:var(--coffee-2); }
+  @media (max-width:560px){ .wrap{padding:0 16px;} .gtitle{font-size:12px;} .hud{flex-direction:column; align-items:flex-start; gap:6px;} .keys{font-size:7px;} }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap topbar">
+    <a href="index.html#top" class="brand">
+      <img class="mark" src="nueva-logo.png" alt="Nueva logo">
+      Nueva
+    </a>
+    <a href="arcade.html" class="back">&larr; Arcade</a>
+  </div>
+</header>
+<main class="stage">
+  <div class="console">
+    <div class="hud">
+      <div class="gtitle">Nueva Depot</div>
+      <div class="tag">2P STICK-FLICK <b>SORTING RUSH</b></div>
+    </div>
+    <div class="score">
+      <div class="p p1"><span class="lbl">P1</span><span class="n" id="p1s">0</span></div>
+      <div class="clock"><span class="c">INCOMING</span><span id="mids">&mdash;</span></div>
+      <div class="p p2 right"><span class="lbl">P2</span><span class="n" id="p2s">0</span></div>
+    </div>
+    <div class="screen">
+      <canvas id="game" width="480" height="240"></canvas>
+      <div class="ov" id="ov"></div>
+    </div>
+    <div class="prompt" id="prompt"></div>
+    <div class="foot">
+      <div class="keys"><b>DIR</b> <span class="k">&uarr;</span>LIFT <span class="k">&darr;</span>STAMP <span class="k">&larr;</span>SORT <span class="k">&rarr;</span>SHIP<br>P1 left stick / <span class="k">W A S D</span> &middot; P2 right stick / <span class="k">ARROWS</span></div>
+      <button id="reset">RESET</button>
+    </div>
+  </div>
+  <p class="tagline">FIG.05 &middot; A Nueva arcade build</p>
+</main>
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('game'), ctx=cv.getContext('2d');
+  ctx.imageSmoothingEnabled=false;
+  var W=480, H=240, HW=240;
+  function px(x,y,w,h,c){ ctx.fillStyle=c; ctx.fillRect(x|0,y|0,w,h); }
+
+  var ovEl=document.getElementById('ov'), promptEl=document.getElementById('prompt');
+  var p1sEl=document.getElementById('p1s'), p2sEl=document.getElementById('p2s'), midEl=document.getElementById('mids');
+
+  // ---- layout ----
+  var BELTY=150;                          // belt line (item centre)
+  function stationX(ox){ return ox+58; }  // where the hand cooks
+  var SPAWNX=232;                         // item spawn x within a half (ox + SPAWNX)
+  var BELTSPD=0.108;                      // base belt speed (px/ms)
+  var SPD_ADD=1.05;                       // how much faster the belt gets by the end (x2.05 peak)
+  var SPD_RAMP=34000;                     // ms of play to reach top speed
+  // timing windows (px from station)
+  var PERF=9, GOOD=26, OKAY=42;
+  // scoring
+  var SC_PERF=100, SC_GOOD=55, SC_OKAY=20;
+
+  var DIR={
+    up:   {col:'#5ab0ff', verb:'LIFT'},
+    down: {col:'#ff5b6e', verb:'STAMP'},
+    left: {col:'#7CFC9A', verb:'SORT'},
+    right:{col:'#ffb13b', verb:'SHIP'}
+  };
+  var DKEYS=['up','down','left','right'];
+
+  // ---- audio (tiny, optional) ----
+  var AC=null;
+  function beep(freq,dur,type,vol){
+    try{ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)();
+      var o=AC.createOscillator(), g=AC.createGain();
+      o.type=type||'square'; o.frequency.value=freq; g.gain.value=vol||0.04;
+      o.connect(g); g.connect(AC.destination); o.start();
+      g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime+(dur||0.08));
+      o.stop(AC.currentTime+(dur||0.09));
+    }catch(e){}
+  }
+
+  // ============================================================
+  //  STATE
+  // ============================================================
+  var state='menu';            // menu / count / play / over
+  var chefs={}, schedule=[], schedIdx=0, gameTime=0, countStart=0, last=null, total=0, endDelay=0, curSpd=1;
+
+  function freshChef(id, ox){
+    return { id:id, ox:ox, score:0, combo:0, maxCombo:0, dishes:0, miss:0,
+      items:[], flash:{t:0,txt:'',col:'#fff'}, act:{t:0,dir:null}, ready:true, judged:0 };
+  }
+
+  // build a shared chart: steady beat that speeds up, with rush bursts
+  function buildChart(){
+    schedule=[]; var t=1400, n=0, last=null;
+    while(n<46){
+      var dir; do{ dir=DKEYS[(Math.random()*4)|0]; }while(dir===last && Math.random()<0.6); last=dir;
+      schedule.push({t:t, dir:dir});
+      // interval shrinks over the run (tempo ramp)
+      var base = 760 - Math.min(150, n*4);
+      var gap = base;
+      if(Math.random()<0.16){ gap = 320; }            // rush note
+      t += gap; n++;
+    }
+    total=schedule.length;
+  }
+
+  function startGame(){
+    chefs={ 1:freshChef(1,0), 2:freshChef(2,HW) };
+    buildChart(); schedIdx=0; gameTime=0; endDelay=0; curSpd=1;
+    p1sEl.textContent='0'; p2sEl.textContent='0'; midEl.textContent=total;
+    ovEl.style.display='none';
+    promptEl.innerHTML='flick each box as it hits the gantry · <b>↑</b>lift <b>↓</b>stamp <b>←</b>sort <b>→</b>ship';
+    state='count'; countStart=performance.now(); last=null;
+    beep(440,0.05);
+  }
+
+  // ============================================================
+  //  INPUT
+  // ============================================================
+  var held={};
+  function pads(){ var gs=navigator.getGamepads?navigator.getGamepads():[]; var a=[]; for(var i=0;i<gs.length;i++) if(gs[i]) a.push(gs[i]); return a; }
+  function anyPad(){ return pads().length>0; }
+
+  addEventListener('keydown', function(e){
+    var k=e.key.toLowerCase();
+    if(['arrowup','arrowdown','arrowleft','arrowright',' '].indexOf(k)>=0) e.preventDefault();
+    if(state==='menu' && (k==='enter'||k===' ')){ startGame(); return; }
+    if(state==='over' && (k==='enter'||k===' ')){ showMenu(); return; }
+    if(held[k]) return; held[k]=true;
+    if(state!=='play') return;
+    // P1 = WASD, P2 = arrows
+    if(k==='w') action(1,'up'); else if(k==='s') action(1,'down'); else if(k==='a') action(1,'left'); else if(k==='d') action(1,'right');
+    else if(k==='arrowup') action(2,'up'); else if(k==='arrowdown') action(2,'down'); else if(k==='arrowleft') action(2,'left'); else if(k==='arrowright') action(2,'right');
+  });
+  addEventListener('keyup', function(e){ held[e.key.toLowerCase()]=false; });
+
+  // read a stick (returns dominant flick dir or null) with a return-to-centre gate
+  function stickDir(vx,vy){
+    var m=Math.hypot(vx,vy); if(m<0.55) return null;
+    if(Math.abs(vx)>Math.abs(vy)) return vx<0?'left':'right';
+    return vy<0?'up':'down';
+  }
+  function pollSticks(){
+    var ps=pads(); if(!ps.length) return;
+    var p0=ps[0];
+    // P1 left stick (axes 0,1); P2 right stick (axes 2,3) or 2nd pad's left stick
+    var p1=stickDir(p0.axes[0]||0, p0.axes[1]||0);
+    var p2v = [ (p0.axes[2]||0),(p0.axes[3]||0) ];
+    if(ps[1]){ if(Math.hypot(p2v[0],p2v[1])<0.4){ p2v=[ps[1].axes[0]||0, ps[1].axes[1]||0]; } }
+    var p2=stickDir(p2v[0],p2v[1]);
+    handleStick(1,p1); handleStick(2,p2);
+  }
+  function handleStick(id, dir){
+    var c=chefs[id]; if(!c) return;
+    if(dir===null){ c.ready=true; return; }
+    if(c.ready){ c.ready=false; if(state==='play') action(id,dir); }
+  }
+  function startBtnDown(){ var ps=pads(); for(var i=0;i<ps.length;i++){ var b=ps[i].buttons; if((b[9]&&b[9].pressed)||(b[0]&&b[0].pressed)) return true; } return false; }
+  var startPrev=false;
+
+  // ============================================================
+  //  CORE: judge a flick
+  // ============================================================
+  function action(id, dir){
+    var c=chefs[id]; if(!c) return;
+    c.act={t:240, dir:dir};                       // animate the hand
+    // nearest un-judged item within reach
+    var sx=stationX(c.ox), best=null, bd=1e9;
+    for(var i=0;i<c.items.length;i++){ var it=c.items[i];
+      if(it.judged) continue; var d=Math.abs(it.x-sx);
+      if(d<bd){ bd=d; best=it; } }
+    if(!best || bd>OKAY){ beep(180,0.05,'sine',0.02); return; }   // whiff into empty air, harmless
+    if(dir!==best.dir){                            // wrong action
+      best.judged=true; best.result='wrong'; best.fall=1.2;
+      c.combo=0; flash(c,'WRONG!','#ff5b6e'); beep(150,0.13,'sawtooth'); return;
+    }
+    // correct direction -> judge timing
+    best.judged=true; best.pop=1; best.pdir=dir;
+    var pts, txt, col;
+    if(bd<PERF){ pts=SC_PERF; txt='PERFECT!'; col='#7CFC9A'; beep(960,0.08); }
+    else if(bd<GOOD){ pts=SC_GOOD; txt='GOOD'; col='#ffd98a'; beep(720,0.07); }
+    else { pts=SC_OKAY; txt='OK'; col='#a8d4ff'; beep(560,0.06); }
+    c.combo++; if(c.combo>c.maxCombo) c.maxCombo=c.combo;
+    var mult=Math.min(4, 1+Math.floor(c.combo/8));
+    c.score += pts*mult; c.dishes++;
+    flash(c, txt+(mult>1?' x'+mult:''), col);
+  }
+  function flash(c, txt, col){ c.flash={t:520, txt:txt, col:col}; }
+
+  // ============================================================
+  //  UPDATE
+  // ============================================================
+  function update(dt){
+    gameTime+=dt;
+    curSpd = 1 + Math.min(SPD_ADD, gameTime/SPD_RAMP*SPD_ADD);   // belt accelerates over the run
+    var bs = BELTSPD*curSpd;
+    // spawn due items into BOTH chefs (shared chart)
+    while(schedIdx<schedule.length && schedule[schedIdx].t<=gameTime){
+      var s=schedule[schedIdx];
+      chefs[1].items.push({x:chefs[1].ox+SPAWNX, dir:s.dir, judged:false, pop:0, fall:0, result:null});
+      chefs[2].items.push({x:chefs[2].ox+SPAWNX, dir:s.dir, judged:false, pop:0, fall:0, result:null});
+      schedIdx++;
+    }
+    var activeLeft=0;
+    for(var id=1; id<=2; id++){
+      var c=chefs[id], sx=stationX(c.ox);
+      if(c.act.t>0) c.act.t-=dt;
+      if(c.flash.t>0) c.flash.t-=dt;
+      for(var i=c.items.length-1;i>=0;i--){ var it=c.items[i];
+        if(!it.judged){ it.x-=bs*dt;
+          if(it.x < sx-OKAY){ it.judged=true; it.result='miss'; it.fall=1.2; c.combo=0; c.miss++; flash(c,'MISS','#ff5b6e'); beep(140,0.12,'sawtooth'); }
+        }
+        if(it.pop>0){ it.pop-=dt/260; if(it.pop<=0){ c.items.splice(i,1); continue; } }
+        if(it.fall>0){ it.fall-=dt/600; it.x-=bs*0.5*dt; if(it.fall<=0){ c.items.splice(i,1); continue; } }
+        if(!it.judged) activeLeft++;
+      }
+      c.judged = c.dishes+c.miss;
+    }
+    midEl.textContent = Math.max(0, total - schedIdx + 0) + (schedIdx>=total?'' : '');
+    // end when chart exhausted and nothing left on either belt
+    if(schedIdx>=schedule.length && activeLeft===0){ endDelay+=dt; if(endDelay>700) endGame(); }
+    p1sEl.textContent=chefs[1].score; p2sEl.textContent=chefs[2].score;
+  }
+
+  // ============================================================
+  //  RENDER
+  // ============================================================
+  function tile(c){ return ctx.fillStyle=c; }
+  function drawWarehouse(ox){
+    px(ox,0,HW,132,'#13163a');                                  // back wall
+    // shelving racks with stacked decor boxes
+    for(var sy=16; sy<116; sy+=34){
+      px(ox+8, sy+20, HW-16, 3, '#2a2e58');                     // shelf plank
+      px(ox+8, sy-6, 3, 30, '#23264f'); px(ox+HW-11, sy-6, 3, 30, '#23264f'); // uprights
+      for(var bx=20; bx<HW-30; bx+=28){
+        var bw=16+((bx+sy)%3)*4, bh=10+((bx*sy)%2)*3;
+        px(ox+bx, sy+20-bh, bw, bh, '#352c52'); px(ox+bx, sy+20-bh, bw,2,'#46406a');
+        px(ox+bx+(bw>>1)-1, sy+20-bh, 2, bh, '#2a2340');
+      }
+    }
+    // conveyor belt
+    px(ox, BELTY-22, HW, 44, '#2a2e58');
+    px(ox, BELTY-22, HW, 2, '#3a3e7a'); px(ox, BELTY+20, HW, 2, '#15173a');
+    for(var r=0;r<HW;r+=18){ px(ox+r+((gameTime*0.05*curSpd)%18|0), BELTY-19, 2, 38, '#21254a'); } // rollers scroll
+    // floor + hazard stripe
+    px(ox, BELTY+22, HW, H-(BELTY+22), '#0e1030');
+    px(ox, BELTY+22, HW, 2, '#3a3e7a');
+    for(var hzx=-14; hzx<HW; hzx+=14){ px(ox+hzx+8, BELTY+25, 7, 3, '#33375f'); }
+  }
+  function arrow(cx,cy,dir,col,s){
+    s=s||5; ctx.fillStyle=col; ctx.beginPath();
+    if(dir==='up'){ ctx.moveTo(cx,cy-s); ctx.lineTo(cx-s,cy+s-1); ctx.lineTo(cx+s,cy+s-1); }
+    else if(dir==='down'){ ctx.moveTo(cx,cy+s); ctx.lineTo(cx-s,cy-s+1); ctx.lineTo(cx+s,cy-s+1); }
+    else if(dir==='left'){ ctx.moveTo(cx-s,cy); ctx.lineTo(cx+s-1,cy-s); ctx.lineTo(cx+s-1,cy+s); }
+    else { ctx.moveTo(cx+s,cy); ctx.lineTo(cx-s+1,cy-s); ctx.lineTo(cx-s+1,cy+s); }
+    ctx.closePath(); ctx.fill();
+  }
+  function drawBox(x,y,col,squash){
+    var sq=squash?Math.round(squash*9):0, top=y-11+sq, h=22-sq;
+    px(x-13,top,26,h,'#c89456');                                // cardboard body
+    px(x-13,top,26,2,'#dca768');                                // top light
+    px(x-13,top+h-2,26,2,'#a9763c');                            // bottom shade
+    px(x-13,top,2,h,'#b07e44'); px(x+11,top,2,h,'#a9763c');     // side shades
+    px(x-13,top+Math.max(2,h>>1),26,1,'#a9763c');               // flap seam
+    px(x-3,top,5,h,col); px(x-3,top,5,1,'#ffffff');             // dir-coloured packing tape
+    px(x-11,top+3,9,7,'#eef0ff'); px(x-11,top+3,9,1,'#ffffff'); // shipping label
+    px(x-10,top+5,7,1,'#8a8fd0'); px(x-10,top+7,5,1,'#8a8fd0');
+  }
+  function drawChip(x,y,dir,col){
+    px(x-9,y-7,18,14,'#0b0d24');
+    ctx.strokeStyle=col; ctx.lineWidth=2; ctx.strokeRect(x-9,y-7,18,14);
+    arrow(x,y,dir,col,5);
+  }
+  function drawItem(ox, it){
+    var d=DIR[it.dir], dx=0, dy=0, a=1, squash=0;
+    if(it.pop>0){ var k=1-it.pop; a=it.pop;
+      if(it.pdir==='up') dy=-k*48; else if(it.pdir==='left') dx=-k*48; else if(it.pdir==='right') dx=k*48; else squash=k; }
+    if(it.fall>0){ a=it.fall/1.2; dy=(1.2-it.fall)*26; }
+    var x=it.x+dx, y=BELTY+dy;
+    ctx.globalAlpha=Math.max(0,Math.min(1,a));
+    px(x-12, y+12, 24, 3, 'rgba(0,0,0,.35)');                   // belt shadow
+    drawBox(x,y,d.col,squash);
+    if(!it.judged) drawChip(x, y-22, it.dir, d.col);            // direction prompt above the box
+    ctx.globalAlpha=1;
+  }
+  function drawGantry(ox){
+    var sx=stationX(ox), pulse=(Math.sin(gameTime/120)+1)/2;
+    px(sx-22, BELTY-36, 4, 36, '#5a6488'); px(sx+18, BELTY-36, 4, 36, '#5a6488');   // posts
+    px(sx-24, BELTY-40, 50, 5, '#6a74a0'); px(sx-24, BELTY-40, 50, 1, '#8a94c0');   // top bar
+    ctx.strokeStyle='rgba(255,255,255,'+(0.3+0.4*pulse)+')'; ctx.lineWidth=2;
+    ctx.strokeRect(sx-13, BELTY-13, 26, 26);                                        // sort zone
+    px(sx-12, BELTY-12+((gameTime*0.06)%24), 24, 2, 'rgba(90,200,120,'+(0.35+0.4*pulse)+')'); // scan sweep
+  }
+  function drawStampEffect(ox,c){
+    var sx=stationX(ox), dir=c.act.dir, t=c.act.t;
+    var sd=0; if(t>0 && dir==='down'){ sd=Math.sin((1-t/240)*Math.PI)*15; }          // stamper slams on STAMP
+    px(sx-9, BELTY-30+sd, 18, 9, '#9aa0c8'); px(sx-9, BELTY-30+sd, 18, 2, '#c2c8e8');
+    px(sx-4, BELTY-36+sd, 8, 7, '#6a74a0');
+    if(t>0 && dir && dir!=='down'){ var f=t/240;                                     // dispatch flash
+      if(dir==='left') px(sx-26,BELTY-7,5,14,'rgba(124,252,154,'+(0.6*f)+')');
+      else if(dir==='right') px(sx+22,BELTY-7,5,14,'rgba(255,177,59,'+(0.6*f)+')');
+      else if(dir==='up') px(sx-3,BELTY-50,6,10,'rgba(90,176,255,'+(0.6*f)+')');
+    }
+  }
+  function drawChef(c){
+    var ox=c.ox;
+    drawWarehouse(ox);
+    drawGantry(ox);
+    for(var i=0;i<c.items.length;i++) drawItem(ox, c.items[i]);
+    drawStampEffect(ox,c);
+    if(c.combo>=2){ ctx.font='9px "Press Start 2P"'; ctx.textAlign='center';
+      ctx.fillStyle=c.id===1?'#ffd98a':'#a8d4ff'; ctx.fillText(c.combo+' COMBO', ox+HW/2, 22); }
+    ctx.font='6px "Press Start 2P"'; ctx.textAlign='left';
+    ctx.fillStyle='#8a8fd0'; ctx.fillText('PACKED '+c.dishes, ox+6, 36);
+    if(c.flash.t>0){ ctx.font='12px "Press Start 2P"'; ctx.textAlign='center';
+      ctx.globalAlpha=Math.min(1,c.flash.t/300);
+      ctx.fillStyle=c.flash.col; ctx.fillText(c.flash.txt, stationX(ox), BELTY+40); ctx.globalAlpha=1; }
+  }
+  function divider(){ px(HW-1,0,2,H,'#000'); px(HW-1,0,2,30,'#3a3e7a'); }
+
+  // ============================================================
+  //  LOOP
+  // ============================================================
+  function frame(now){
+    if(!last) last=now; var dt=Math.min(50, now-last); last=now;
+    px(0,0,W,H,'#05061a');
+
+    // gamepad start on menu/over
+    var sb=startBtnDown();
+    if(sb && !startPrev){ if(state==='menu') startGame(); else if(state==='over') showMenu(); }
+    startPrev=sb;
+
+    if(state==='menu'){ drawChef(freshChef(1,0)); drawChef(freshChef(2,HW)); divider(); requestAnimationFrame(frame); return; }
+
+    if(state==='count'){
+      gameTime=0; schedIdx=0;
+      drawChef(chefs[1]); drawChef(chefs[2]); divider();
+      var el=now-countStart, n=el<800?'3':el<1600?'2':el<2400?'1':'GO!';
+      ctx.fillStyle=el<2400?'#ffd98a':'#7CFC9A'; ctx.font='34px "Press Start 2P"'; ctx.textAlign='center';
+      ctx.fillText(n, W/2, H/2+12);
+      if(el>=2900){ state='play'; last=now; gameTime=0; }
+      requestAnimationFrame(frame); return;
+    }
+
+    if(state==='play'){
+      pollSticks();
+      update(dt);
+      drawChef(chefs[1]); drawChef(chefs[2]); divider();
+      // belt-speed readout (shared) at the top centre
+      ctx.font='6px "Press Start 2P"'; ctx.textAlign='center';
+      ctx.fillStyle = curSpd>1.7?'#ff5b6e':(curSpd>1.3?'#ffd98a':'#8a8fd0');
+      ctx.fillText('BELT x'+curSpd.toFixed(1), W/2, 9);
+      requestAnimationFrame(frame); return;
+    }
+    // over
+    drawChef(chefs[1]); drawChef(chefs[2]); divider();
+    requestAnimationFrame(frame);
+  }
+
+  function endGame(){
+    state='over';
+    var a=chefs[1], b=chefs[2];
+    var win = a.score>b.score?1:(b.score>a.score?2:0);
+    var h = win===1?'<h1 class="amberwin">P1 WINS!</h1>':win===2?'<h1 class="bluewin">P2 WINS!</h1>':'<h1 class="tie">DEAD HEAT!</h1>';
+    ovEl.style.display='flex';
+    ovEl.innerHTML=h+
+      '<p><span class="a">P1</span> '+a.score+' &nbsp; ('+a.dishes+' packed · best combo '+a.maxCombo+')</p>'+
+      '<p><span class="b">P2</span> '+b.score+' &nbsp; ('+b.dishes+' packed · best combo '+b.maxCombo+')</p>'+
+      '<button id="again">RUN IT BACK</button>';
+    document.getElementById('again').addEventListener('click', startGame);
+    promptEl.textContent='';
+    beep(660,0.1); setTimeout(function(){beep(880,0.14);},120);
+  }
+
+  // ============================================================
+  //  MENU
+  // ============================================================
+  function showMenu(){
+    state='menu'; last=null;
+    p1sEl.textContent='0'; p2sEl.textContent='0'; midEl.textContent='—';
+    var conn=anyPad();
+    ovEl.style.display='flex';
+    ovEl.innerHTML='<h1>Nueva<br>Depot</h1>'+
+      '<div class="pad"><span class="dot'+(conn?' ok':'')+'"></span>'+
+        (conn?'<span class="g">CONTROLLER READY</span> <span class="sub">· L-stick P1 · R-stick P2</span>'
+             :'<span class="b">KEYBOARD READY</span> <span class="sub">· or plug in a pad</span>')+'</div>'+
+      '<p>parcels ride the belt to the sorting gantry. <span class="a">flick your stick</span> the right way as each one lands:</p>'+
+      '<p class="sub"><span class="b">↑ LIFT</span> &nbsp; <span class="r">↓ STAMP</span> &nbsp; <span class="g">← SORT</span> &nbsp; <span class="a">→ SHIP</span></p>'+
+      '<div class="duo"><div><b>PLAYER 1</b>left stick<br>or <span class="k">W A S D</span></div>'+
+        '<div><b>PLAYER 2</b>right stick<br>or <span class="k">ARROWS</span></div></div>'+
+      '<p class="sub">nail the timing for PERFECT · keep a combo for big multipliers · the belt speeds up!</p>'+
+      '<button id="go">'+(conn?'PRESS Ⓐ / ENTER':'PRESS ENTER TO SORT')+'</button>';
+    document.getElementById('go').addEventListener('click', startGame);
+  }
+
+  document.getElementById('reset').addEventListener('click', showMenu);
+  addEventListener('gamepadconnected', function(){ if(state==='menu') showMenu(); });
+  addEventListener('gamepaddisconnected', function(){ if(state==='menu') showMenu(); });
+
+  showMenu();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
