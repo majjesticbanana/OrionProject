@@ -1,0 +1,117 @@
+/* ---------- HERO ---------- */
+.ahero{ display:grid; grid-template-columns:1.08fr .92fr; gap:44px; align-items:center;
+  min-height:70vh; padding:6vh 0 3vh; }
+.eyebrow{ font-size:.78rem; letter-spacing:.28em; text-transform:uppercase; color:var(--blueprint);
+  margin-bottom:18px; display:flex; align-items:center; gap:12px; }
+.eyebrow::before{ content:""; width:34px; height:1px; background:var(--blueprint); }
+.ahero h1{ font-family:'Fraunces',serif; font-weight:600; font-size:clamp(3rem,9vw,6rem);
+  line-height:.92; color:var(--ink); letter-spacing:-.01em; }
+.htag{ display:inline-flex; align-items:center; gap:14px; font-size:.8rem; letter-spacing:.4em;
+  text-transform:uppercase; color:var(--coffee-2); margin-top:8px; }
+.htag::before,.htag::after{ content:""; width:36px; height:1px; background:var(--coffee-2); opacity:.5; }
+.lead{ max-width:46ch; color:var(--coffee); font-size:1.02rem; margin-top:26px; line-height:1.75; }
+.lead b{ color:var(--ink); font-weight:600; }
+.hstats{ display:flex; gap:22px; margin-top:26px; flex-wrap:wrap; }
+.hstat{ font-family:'Spline Sans Mono',monospace; }
+.hstat .n{ font-family:'Fraunces',serif; font-size:1.9rem; color:var(--blueprint); line-height:1; }
+.hstat .l{ font-size:.68rem; letter-spacing:.16em; text-transform:uppercase; color:var(--coffee-2); margin-top:4px; }
+.cta-row{ display:flex; gap:14px; margin-top:30px; flex-wrap:wrap; }
+
+/* ---------- HERO CABINET SCHEMATIC ---------- */
+.cabwrap{ position:relative; width:100%; max-width:360px; margin:0 auto; perspective:1100px; }
+.cab-stage{ width:100%; transform-style:preserve-3d; will-change:transform; }
+.cab svg{ width:100%; height:auto; overflow:visible; display:block; }
+.bp-line{ fill:none; stroke:var(--blueprint); stroke-width:1.5; stroke-linejoin:round; stroke-linecap:round; }
+.bp-line-2{ fill:none; stroke:var(--blueprint-2); stroke-width:1.1; opacity:.8; stroke-linejoin:round; }
+.bp-thin{ fill:none; stroke:var(--blueprint); stroke-width:.8; opacity:.5; stroke-linecap:round; }
+.bp-fill{ fill:var(--blueprint); opacity:.07; }
+.bp-dash{ fill:none; stroke:var(--blueprint); stroke-width:1; stroke-dasharray:4 4; opacity:.55; }
+.bp-accent{ fill:none; stroke:var(--accent); stroke-width:2.2; stroke-linecap:round; }
+.bp-dot{ fill:var(--accent); }
+.bp-label{ font-family:'Spline Sans Mono',monospace; font-size:7px; fill:var(--coffee-2); letter-spacing:.12em; }
+.cab .draw{ stroke-dasharray:1600; stroke-dashoffset:1600; animation:cabDraw 1.9s cubic-bezier(.6,.02,.1,1) forwards; }
+@keyframes cabDraw{ to{ stroke-dashoffset:0; } }
+.cab .d2{ animation-delay:.45s } .cab .d3{ animation-delay:.85s } .cab .d4{ animation-delay:1.2s }
+.cab .fade{ opacity:0; animation:cabFade .7s ease forwards 1.4s; }
+@keyframes cabFade{ to{ opacity:1 } }
+.cab .anim{ transform-box:fill-box; }
+.scanline{ animation:scan 2.8s linear infinite; opacity:.5; }
+@keyframes scan{ from{ transform:translateY(0) } to{ transform:translateY(40px) } }
+.ball{ animation:ball 3.6s ease-in-out infinite; }
+@keyframes ball{ 0%{transform:translate(0,0)} 25%{transform:translate(24px,15px)}
+  50%{transform:translate(6px,24px)} 75%{transform:translate(-12px,9px)} 100%{transform:translate(0,0)} }
+.paddle{ animation:padmove 3.6s ease-in-out infinite; }
+@keyframes padmove{ 0%,100%{transform:translateX(-11px)} 50%{transform:translateX(11px)} }
+.jb1{ animation:jb 2.2s ease-in-out infinite; }
+.jb2{ animation:jb 2.2s ease-in-out infinite .6s; }
+@keyframes jb{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2.5px)} }
+.led{ animation:led 1.5s steps(1,end) infinite; }
+@keyframes led{ 0%,55%{opacity:1} 56%,100%{opacity:.12} }
+.mqglow{ animation:mqg 3.2s ease-in-out infinite; }
+@keyframes mqg{ 0%,100%{opacity:.05} 50%{opacity:.16} }
+.cue{ text-align:center; margin:6px 0 0; font-size:.7rem; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--coffee-2); }
+.cue span{ display:inline-block; animation:bob 1.8s ease-in-out infinite; }
+@keyframes bob{ 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(4px) } }
+
+/* ---------- FILTER DECK ---------- */
+.deck{ position:sticky; top:61px; z-index:40; background:rgba(236,227,210,.92); backdrop-filter:blur(6px);
+  border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+.deck-inner{ display:flex; align-items:center; gap:20px 26px; flex-wrap:wrap; padding:13px 0; }
+.fgroup{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+.flabel{ font-size:.64rem; letter-spacing:.18em; text-transform:uppercase; color:var(--coffee-2); }
+.fchip{ font-family:'Spline Sans Mono',monospace; font-size:.74rem; color:var(--coffee);
+  background:transparent; border:1px solid var(--line); border-radius:99px; padding:6px 14px;
+  cursor:pointer; transition:all .15s; }
+.fchip:hover{ border-color:var(--blueprint); color:var(--blueprint); }
+.fchip.on{ background:var(--blueprint); border-color:var(--blueprint); color:var(--paper); }
+.readout{ margin-left:auto; font-size:.72rem; letter-spacing:.12em; color:var(--accent); white-space:nowrap; }
+
+/* ---------- GAMES GRID ---------- */
+.games{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:18px; }
+.game{ background:rgba(255,255,255,.3); border:1px solid var(--line); border-radius:6px; overflow:hidden;
+  display:flex; flex-direction:column; transition:transform .18s, border-color .2s, box-shadow .2s; }
+.game:hover{ transform:translateY(-4px); border-color:var(--blueprint); box-shadow:7px 9px 0 rgba(47,93,138,.12); }
+.plate{ position:relative; background:rgba(47,93,138,.05); border-bottom:1px solid var(--line);
+  aspect-ratio:16/8; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.plate svg{ width:64%; height:auto; }
+.fig{ position:absolute; top:9px; left:12px; font-size:.62rem; letter-spacing:.14em;
+  color:var(--blueprint); opacity:.7; }
+.gpill{ position:absolute; top:9px; right:11px; font-size:.58rem; letter-spacing:.12em; text-transform:uppercase;
+  padding:3px 9px; border-radius:99px; border:1px solid var(--line); color:var(--coffee-2);
+  background:rgba(236,227,210,.72); }
+.gpill.live{ color:var(--accent); border-color:var(--accent); }
+.gpill.dev{ color:var(--blueprint); border-color:var(--blueprint); }
+.gbody{ padding:16px 18px 18px; display:flex; flex-direction:column; flex:1; }
+.gtag{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--blueprint); margin-bottom:6px; }
+.game h3{ font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--ink);
+  font-size:1.12rem; margin-bottom:14px; }
+.spec{ display:grid; gap:0; margin-bottom:16px; }
+.spec > div{ display:flex; justify-content:space-between; align-items:baseline;
+  border-bottom:1px dashed var(--line); padding:6px 0; }
+.spec dt{ font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color:var(--coffee-2); }
+.spec dd{ font-size:.78rem; color:var(--ink); }
+.gbtn{ display:block; margin-top:auto; text-align:center; text-decoration:none; font-family:'Space Grotesk',sans-serif;
+  font-weight:600; font-size:.82rem; letter-spacing:.04em; padding:11px 0; border-radius:3px;
+  border:1.5px solid var(--ink); background:var(--ink); color:var(--paper);
+  transition:transform .12s, background .2s, border-color .2s; }
+.gbtn:hover{ background:var(--blueprint); border-color:var(--blueprint); transform:translateY(-2px); }
+.gbtn.dis{ background:transparent; color:var(--coffee-2); border-style:dashed; border-color:var(--line); cursor:default; }
+.gbtn.dis:hover{ transform:none; background:transparent; border-color:var(--line); }
+.empty{ grid-column:1/-1; text-align:center; color:var(--coffee-2); font-size:.85rem; padding:30px 0; }
+
+@media (max-width:860px){
+  .ahero{ grid-template-columns:1fr; min-height:auto; padding:5vh 0 3vh; gap:30px; }
+  .cabwrap{ max-width:260px; order:-1; }
+  .deck{ position:static; }
+}
+@media (max-width:560px){
+  .games{ grid-template-columns:1fr; }
+}
+@media (prefers-reduced-motion: reduce){
+  .cab .draw{ animation:none; stroke-dashoffset:0; }
+  .cab .fade{ animation:none; opacity:1; }
+  .cue span{ animation:none; }
+  .scanline,.ball,.paddle,.jb1,.jb2,.led,.mqglow{ animation:none; }
+  .scanline,.ball{ opacity:0; }
+}
