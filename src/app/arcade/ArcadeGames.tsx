@@ -17,6 +17,8 @@ const GAMES: Game[] = [
   { title: "Nueva Rider", genre: "Race \u00b7 Reflex", players: "1", status: "live", href: "/games/orion_rider.html", icon: "rocket" },
   { title: "Nueva Hoops", genre: "Sports \u00b7 Versus", players: "2", status: "live", href: "/games/orion_hoops.html", icon: "pong" },
   { title: "Nueva Depot", genre: "Co-op \u00b7 Sorting", players: "2", status: "live", href: "/games/orion_depot.html", icon: "pad" },
+  { title: "Nueva Squadron", genre: "Co-op \u00b7 Shmup", players: "2", status: "live", href: "/games/orion_squadron.html", icon: "ship" },
+  { title: "Nueva Crosser", genre: "Race \u00b7 Arcade", players: "2", status: "live", href: "/games/orion_crosser.html", icon: "cross" },
 ];
 
 const ICONS: Record<string, string> = {
@@ -25,6 +27,8 @@ const ICONS: Record<string, string> = {
   boss: '<circle cx="60" cy="34" r="20" class="bp-line"/><circle cx="60" cy="34" r="11" class="bp-line-2"/><path class="bp-thin" d="M60 6v12 M60 50v12 M32 34h12 M76 34h12"/><rect x="55" y="29" width="10" height="10" class="bp-fill"/>',
   pad: '<rect x="22" y="22" width="76" height="32" rx="14" class="bp-line"/><path class="bp-line-2" d="M38 30v16 M30 38h16"/><circle cx="78" cy="34" r="3.4" class="bp-line-2"/><circle cx="86" cy="42" r="3.4" class="bp-line-2"/>',
   pong: '<rect x="22" y="20" width="6" height="22" class="bp-line"/><rect x="92" y="34" width="6" height="22" class="bp-line"/><circle cx="60" cy="38" r="4" class="bp-line"/><path class="bp-dash" d="M60 12v52"/>',
+  ship: '<path class="bp-line" d="M60 10l10 24-10 8-10-8z"/><path class="bp-line-2" d="M50 30l-12 14 12-2 M70 30l12 14-12-2"/><circle cx="60" cy="24" r="4" class="bp-line-2"/><path class="bp-dash" d="M60 44v16 M48 50v8 M72 50v8"/>',
+  cross: '<path class="bp-thin" d="M22 18h76 M22 34h76 M22 50h76"/><path class="bp-dash" d="M60 12v52"/><rect x="34" y="22" width="14" height="8" rx="2" class="bp-line"/><rect x="74" y="38" width="14" height="8" rx="2" class="bp-line-2"/>',
 };
 
 const META: Record<string, { pill: string; cls: string; build: string }> = {

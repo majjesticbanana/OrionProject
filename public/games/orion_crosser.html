@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nueva Crosser</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Spline+Sans+Mono:wght@400;500;600&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{ --paper:#ece3d2; --paper-2:#e3d8c3; --coffee:#4a3526; --coffee-2:#6b513c;
+    --blueprint:#2f5d8a; --blueprint-2:#3d74ab; --ink:#1c150f; --accent:#a63a53;
+    --line:rgba(74,53,38,.22); --grid:rgba(47,93,138,.10); --maxw:1140px; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{ background:var(--paper); color:var(--coffee); font-family:'Press Start 2P', ui-monospace, monospace;
+    line-height:1.7; min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden; position:relative; user-select:none; }
+  body::before{ content:""; position:fixed; inset:0; z-index:-2;
+    background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),
+      linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),var(--paper);
+    background-size:120px 120px,120px 120px,24px 24px,24px 24px; }
+  body::after{ content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+    opacity:.05; mix-blend-mode:multiply; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 28px; }
+  header{ backdrop-filter:blur(6px); background:rgba(236,227,210,.82); border-bottom:1px solid var(--line); }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:14px 0; }
+  .brand{ display:flex; align-items:center; gap:12px; font-family:'Space Grotesk',sans-serif; font-weight:700;
+    letter-spacing:.18em; font-size:1.05rem; text-decoration:none; color:var(--ink); text-transform:uppercase; }
+  .brand .mark{ width:34px; height:34px; object-fit:contain; display:block; flex:0 0 auto; }
+  .back{ font-family:'Spline Sans Mono',monospace; font-size:.8rem; letter-spacing:.08em; text-transform:uppercase; color:var(--coffee-2); text-decoration:none; }
+  .back:hover{ color:var(--blueprint); }
+  .stage{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:34px 20px 40px; }
+  .console{ position:relative; width:720px; max-width:96vw; background:rgba(255,255,255,.32); border:1px solid var(--line);
+    border-radius:8px; padding:20px 22px 22px; box-shadow:8px 10px 0 rgba(47,93,138,.10); }
+  .hud{ display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin-bottom:12px; }
+  .gtitle{ font-family:'Press Start 2P',monospace; font-size:14px; color:var(--ink); line-height:1.4; letter-spacing:1px; }
+  .tag{ font-size:8px; line-height:1.6; letter-spacing:1px; color:var(--coffee-2); }
+  .tag b{ color:var(--accent); }
+  .score{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:12px;
+    background:rgba(47,93,138,.06); border:1px solid var(--line); border-radius:5px; padding:10px 14px; }
+  .p{ display:flex; align-items:center; gap:10px; }
+  .p.right{ flex-direction:row-reverse; }
+  .p .lbl{ font-size:8px; letter-spacing:1px; }
+  .p1 .lbl{ color:var(--blueprint); } .p2 .lbl{ color:var(--accent); }
+  .p .n{ font-size:20px; }
+  .p1 .n{ color:var(--blueprint); } .p2 .n{ color:var(--accent); }
+  .clock{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .clock .c{ font-size:7px; letter-spacing:1px; color:var(--coffee-2); }
+  .clock span:not(.c){ font-size:15px; color:var(--ink); }
+  .low, .low span:not(.c){ color:var(--accent) !important; }
+  .screen{ position:relative; width:100%; border:3px solid var(--ink); border-radius:4px; overflow:hidden;
+    background:#0a0a18; box-shadow:inset 0 0 0 1px rgba(47,93,138,.35); }
+  canvas{ display:block; width:100%; height:auto; image-rendering:pixelated; background:#0a0a18; }
+  .screen::after{ content:""; position:absolute; inset:0; pointer-events:none; z-index:5;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 2px, transparent 2px 4px); mix-blend-mode:multiply; }
+  .prompt{ margin-top:12px; text-align:center; font-size:9px; line-height:1.9; color:var(--coffee); min-height:16px; }
+  .prompt b{ color:var(--blueprint); }
+  .foot{ margin-top:14px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .keys{ font-size:7.5px; color:var(--coffee-2); line-height:1.9; }
+  .keys b{ color:var(--ink); }
+  button{ font-family:'Press Start 2P',monospace; font-size:8px; letter-spacing:.04em; color:var(--paper);
+    background:var(--ink); border:1.5px solid var(--ink); border-radius:3px; padding:10px 14px; cursor:pointer;
+    transition:transform .12s, background .2s, border-color .2s; }
+  button:hover{ background:var(--blueprint); border-color:var(--blueprint); transform:translateY(-2px); }
+  button:active{ transform:translateY(0); }
+  .ov{ position:absolute; inset:0; z-index:25; display:none; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; background:rgba(236,227,210,.94); padding:22px; }
+  .ov h1{ font-family:'Press Start 2P',monospace; font-size:clamp(11px,5.2vw,17px); color:var(--ink); line-height:1.7;
+    margin-bottom:16px; max-width:100%; word-break:break-word; overflow-wrap:anywhere; }
+  .ov h1.win{ color:#3b8f57; } .ov h1.lose{ color:var(--accent); }
+  .ov p{ font-size:9px; color:var(--coffee); line-height:2.1; margin-bottom:16px; max-width:560px; }
+  .k{ font-family:'Press Start 2P',monospace; font-size:8px; color:var(--paper); background:var(--ink);
+    padding:2px 6px; border-radius:3px; display:inline-block; margin:0 1px; }
+  .ov .a{ color:var(--blueprint); } .ov .b{ color:var(--accent); } .ov .g{ color:#3b8f57; } .ov .r{ color:var(--accent); }
+  .ov .pad{ display:flex; align-items:center; justify-content:center; gap:8px; font-size:9px; margin-bottom:14px; }
+  .ov .dot{ width:9px; height:9px; border-radius:50%; background:var(--coffee-2); display:inline-block; }
+  .ov .dot.ok{ background:#3b8f57; }
+  .ov .sub{ color:var(--coffee-2); font-size:8px; line-height:1.9; }
+  .ov .duo{ display:flex; gap:26px; justify-content:center; font-size:8px; color:var(--coffee-2); line-height:1.9; margin-bottom:14px; flex-wrap:wrap; }
+  .ov .duo b{ color:var(--ink); display:block; margin-bottom:4px; }
+  .tagline{ margin-top:16px; font-size:8px; letter-spacing:1px; line-height:1.8; text-transform:uppercase; color:var(--coffee-2); }
+  @media (max-width:560px){ .wrap{padding:0 16px;} .gtitle{font-size:12px;} .hud{flex-direction:column; align-items:flex-start; gap:6px;} .keys{font-size:7px;} }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap topbar">
+    <a href="/#top" class="brand">
+      <img class="mark" src="/nueva-logo.png" alt="Nueva logo">
+      Nueva
+    </a>
+    <a href="/arcade" class="back">&larr; Arcade</a>
+  </div>
+</header>
+<main class="stage">
+  <div class="console">
+    <div class="hud">
+      <div class="gtitle">Nueva Crosser</div>
+      <div class="tag">2P RACE &middot; <b>FIRST CAT ACROSS WINS</b></div>
+    </div>
+    <div class="score">
+      <div class="p p1"><span class="lbl">P1</span><span class="n" id="p1s">0</span></div>
+      <div class="clock" id="clockbox"><span class="c">TIME</span><span id="clock">1:15</span></div>
+      <div class="p p2 right"><span class="lbl">P2</span><span class="n" id="p2s">0</span></div>
+    </div>
+    <div class="screen">
+      <canvas id="game" width="480" height="240"></canvas>
+      <div class="ov" id="ov"></div>
+    </div>
+    <div class="prompt" id="prompt"></div>
+    <div class="foot">
+      <div class="keys"><b>P1</b> hop <b style="color:#2f5d8a">W A S D</b> &nbsp; <b>P2</b> hop <b style="color:#a63a53">ARROWS</b><br>pad: left stick / d-pad = P1 &middot; right stick = P2</div>
+      <button id="reset">RESET</button>
+    </div>
+  </div>
+  <p class="tagline">FIG.07 &middot; A Nueva arcade build</p>
+</main>
+<script>
+(function(){
+  "use strict";
+  var cv=document.getElementById('game'), ctx=cv.getContext('2d');
+  ctx.imageSmoothingEnabled=false;
+  var W=480, H=240;
+  function px(x,y,w,h,c){ ctx.fillStyle=c; ctx.fillRect(x|0,y|0,w|0,h|0); }
+
+  var ovEl=document.getElementById('ov'), promptEl=document.getElementById('prompt');
+  var p1sEl=document.getElementById('p1s'), p2sEl=document.getElementById('p2s');
+  var clockEl=document.getElementById('clock'), clockBox=document.getElementById('clockbox');
+
+  var TILE=24, COLS=20;
+  var ROUND_MS=75000;          // 1:15 fallback, always ends before 1:30
+
+  var COL={
+    grassA:'#3f7a43', grassB:'#46894a', grassEdge:'#2f5d34', hedge:'#27502c',
+    road:'#33384f', road2:'#3a4059', lane:'#d9c47a',
+    water:'#2f6db0', water2:'#356fb6', logc:'#7a4a25', logTop:'#9a6238',
+    bank:'#caa35a', bankTop:'#dcb877',
+    bridge:'#8a6a44', bridgeTop:'#a8855a', bridgeRail:'#5e4426',
+    floor:'#c9c2b0', floorB:'#bdb6a3', wall:'#6b6f86', wallTop:'#878ca6', deskc:'#7a5a36',
+    p1:'#5ab0ff', p1b:'#a8d4ff', p1d:'#2f7fc7',
+    p2:'#ff7da0', p2b:'#ffc2d2', p2d:'#c75c84',
+    carCols:[['#ff5b6e','#ffb9c1'],['#ffb13b','#ffd98a'],['#46e0d0','#b6fff7'],['#c08bff','#e6d4ff']],
+    ink:'#0a0a18', shadow:'rgba(0,0,0,0.25)'
+  };
+
+  // ===================== THE SIGNATURE TRACK =====================
+  // row 0 = start bank (bottom); climbs to the finish at the top.
+  // grid model: cars/logs occupy whole cells and step one column every stepMs.
+  // bigger stepMs = slower. gap = integer cells between vehicles.
+  var SPEC=[
+    {t:'bank'},                                                        // 0
+    {t:'grass'},                                                       // 1
+    {t:'road', dir: 1, stepMs:380, gap:6, len:1},                    // 2  slow, single cars
+    {t:'road', dir:-1, stepMs:300, gap:6, len:2},                    // 3  medium, long trucks
+    {t:'grass', blocked:[3,4,15,16]},                                 // 4 asymmetric hedges
+    {t:'water', dir: 1, stepMs:420, gap:4, len:3},                    // 5
+    {t:'water', dir:-1, stepMs:460, gap:5, len:3},                    // 6
+    {t:'bridge', rail:[0,1,18,19]},                                   // 7 BRIDGE
+    {t:'water', dir: 1, stepMs:400, gap:4, len:2},                    // 8
+    {t:'grass'},                                                      // 9
+    {t:'office', wall:[0,1,2,17,18,19], desk:[8,9,12]},               // 10 OFFICE
+    {t:'office', wall:[0,1,18,19], desk:[5,6,13,14]},                 // 11
+    {t:'office', wall:[0,1,2,3,4,5,6,7,8,11,12,13,14,15,16,17,18,19], door:[9,10]}, // 12 far wall, doorway at 9-10
+    {t:'road', dir:-1, stepMs:330, gap:7, len:2},                    // 13 medium, long cars, wide gaps
+    {t:'grass', blocked:[7,8,11,12]},                                 // 14
+    {t:'finish'}                                                       // 15
+  ];
+  var GOAL_ROW=SPEC.length-1;
+
+  function isBlockedCell(row,col){
+    var s=SPEC[row]; if(!s) return false;
+    if(s.t==='grass' && s.blocked && s.blocked.indexOf(col)>=0) return true;
+    if(s.t==='bridge' && s.rail && s.rail.indexOf(col)>=0) return true;
+    if(s.t==='office'){ if(s.wall && s.wall.indexOf(col)>=0) return true; if(s.desk && s.desk.indexOf(col)>=0) return true; }
+    return false;
+  }
+
+  var rows=[];
+  function buildTrack(){
+    rows=[];
+    for(var r=0;r<SPEC.length;r++){ var s=SPEC[r], row={t:s.t, spec:s};
+      if(s.t==='road'){ row.dir=s.dir; row.stepMs=s.stepMs; row.gap=s.gap; row.len=s.len||1; row.col=COL.carCols[r%COL.carCols.length];
+        // cars at integer columns, spaced by gap; cell = logical column (can be <0 or >=COLS while wrapping)
+        row.cars=[]; var n=Math.ceil((COLS+row.len+2)/s.gap)+1; var ph=(r*3)%s.gap;
+        for(var i=0;i<n;i++) row.cars.push({ cell:i*s.gap - ph }); // logical cell (leftmost cell of the car)
+        row.stepT=row.stepMs; row.frac=0; }
+      else if(s.t==='water'){ row.dir=s.dir; row.stepMs=s.stepMs; row.gap=s.gap; row.len=s.len||2;
+        row.logs=[]; var m=Math.ceil((COLS+row.len+2)/s.gap)+1; var ph2=(r*2)%s.gap;
+        for(var j=0;j<m;j++) row.logs.push({ cell:j*s.gap - ph2 });
+        row.stepT=row.stepMs; row.frac=0; }
+      rows.push(row);
+    }
+  }
+  // logical wrap helpers (keep cars cycling across the visible columns)
+  function wrapCell(cell, dir, span){
+    // span = total logical width before repeat
+    while(cell> COLS+1) cell-=span; while(cell< -2) cell+=span; return cell;
+  }
+
+  function freshCat(id){ return { id:id, col:(id===0?COL.p1:COL.p2), colb:(id===0?COL.p1b:COL.p2b), cold:(id===0?COL.p1d:COL.p2d),
+    cx:id===0?8:11, row:0, hopT:0, fromX:0, fromR:0, toX:0, toR:0, best:0, score:0, dead:0, deadT:0, onLog:null, face:1, splash:0, done:0 }; }
+  var cats=[], state='menu', last=null, t0=0, elapsed=0, camRow=0, winner=0;
+
+  function newGame(){ buildTrack(); cats=[freshCat(0),freshCat(1)]; elapsed=0; camRow=0; winner=0;
+    p1sEl.textContent='0'; p2sEl.textContent='0'; clockEl.textContent='1:15'; clockBox.classList.remove('low'); }
+  function startGame(){ newGame(); ovEl.style.display='none';
+    promptEl.innerHTML='cross the road, the river by <b>bridge</b>, and the <b>office</b> &middot; first cat to the finish wins';
+    state='count'; t0=performance.now(); last=null; beep(440,0.05); }
+
+  var AC=null;
+  function beep(f,d,t,v){ try{ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)();
+    var o=AC.createOscillator(), g=AC.createGain(); o.type=t||'square'; o.frequency.value=f; g.gain.value=v||0.025;
+    o.connect(g); g.connect(AC.destination); o.start();
+    g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime+(d||0.06)); o.stop(AC.currentTime+(d||0.07)); }catch(e){} }
+
+  // ---- input ----
+  var keys={};
+  addEventListener('keydown', function(e){ var k=e.key.toLowerCase();
+    if(['arrowup','arrowdown','arrowleft','arrowright',' '].indexOf(k)>=0) e.preventDefault();
+    if(state==='menu' && (k==='enter'||k===' ')){ startGame(); return; }
+    if(state==='over' && (k==='enter'||k===' ')){ showMenu(); return; }
+    if(!keys[k]){ keys[k]=true; onPress(k); } });
+  addEventListener('keyup', function(e){ keys[e.key.toLowerCase()]=false; });
+  function onPress(k){ if(state!=='play') return;
+    if(k==='w') hop(cats[0],0,1); else if(k==='s') hop(cats[0],0,-1);
+    else if(k==='a') hop(cats[0],-1,0); else if(k==='d') hop(cats[0],1,0);
+    else if(k==='arrowup') hop(cats[1],0,1); else if(k==='arrowdown') hop(cats[1],0,-1);
+    else if(k==='arrowleft') hop(cats[1],-1,0); else if(k==='arrowright') hop(cats[1],1,0); }
+  function pads(){ var gs=navigator.getGamepads?navigator.getGamepads():[]; var a=[]; for(var i=0;i<gs.length;i++) if(gs[i]) a.push(gs[i]); return a; }
+  function anyPad(){ return pads().length>0; }
+  function btn(g,i){ return !!(g.buttons[i] && g.buttons[i].pressed); }
+  var padPrev={};
+  function padDir(g,useRight){ var ax=useRight?(g.axes[2]||0):(g.axes[0]||0), ay=useRight?(g.axes[3]||0):(g.axes[1]||0);
+    var up=ay<-0.5,dn=ay>0.5,lf=ax<-0.5,rt=ax>0.5;
+    if(!useRight){ up=up||btn(g,12); dn=dn||btn(g,13); lf=lf||btn(g,14); rt=rt||btn(g,15); }
+    return {up:up,dn:dn,lf:lf,rt:rt}; }
+  function pollPads(){ if(state!=='play') return; var ps=pads();
+    if(ps[0]){ handlePad('p1',cats[0],padDir(ps[0],false)); handlePad('p2',cats[1],padDir(ps[0],true)); }
+    if(ps[1]){ handlePad('p2',cats[1],padDir(ps[1],false)); } }
+  function handlePad(tag,cat,d){ var pv=padPrev[tag]||{}; padPrev[tag]={up:d.up,dn:d.dn,lf:d.lf,rt:d.rt};
+    if(d.up&&!pv.up) hop(cat,0,1); else if(d.dn&&!pv.dn) hop(cat,0,-1);
+    else if(d.lf&&!pv.lf) hop(cat,-1,0); else if(d.rt&&!pv.rt) hop(cat,1,0); }
+  function padStart(){ var ps=pads(); for(var i=0;i<ps.length;i++){ if(btn(ps[i],9)||btn(ps[i],0)) return true; } return false; }
+  var startPrev=false;
+
+  // ---- hop ----
+  var HOP_MS=120;
+  function hop(cat,dx,dr){ if(state!=='play'||cat.dead||cat.done) return; if(cat.hopT>0) return;
+    var nr=cat.row+dr, nx=cat.cx+dx;
+    if(nr<0) nr=0; if(nr>GOAL_ROW) nr=GOAL_ROW; if(nx<0) nx=0; if(nx>COLS-1) nx=COLS-1;
+    if(isBlockedCell(nr,nx)){ beep(150,0.04,'square',0.02); return; }
+    if(dx!==0) cat.face=dx>0?1:-1;
+    cat.fromX=cat.cx; cat.fromR=cat.row; cat.toX=nx; cat.toR=nr; cat.hopT=HOP_MS;
+    cat.cx=nx; cat.row=nr; cat.onLog=null; beep(dr>0?720:540,0.03,'square',0.014);
+    if(cat.row>cat.best){ cat.best=cat.row; cat.score=cat.row*100; (cat.id===0?p1sEl:p2sEl).textContent=cat.score; } }
+  function killCat(cat,how){ if(cat.dead) return; cat.dead=1; cat.deadT=850; cat.splash=(how==='water')?1:0; beep(160,0.18,'sawtooth',0.04); }
+  function safeRow(r){ var s=SPEC[r]; return s && (s.t==='grass'||s.t==='bank'||s.t==='bridge'||s.t==='office'||s.t==='finish'); }
+  // a row is "visible" if its whole cell is on screen for the current camera
+  function rowVisible(r){ var top=H-TILE-(r-camRow)*TILE; return top>=0 && top+TILE<=H; }
+  function freeColNear(r,c){ if(!isBlockedCell(r,c)) return c;
+    for(var off=1;off<COLS;off++){ if(c-off>=0&&!isBlockedCell(r,c-off)) return c-off; if(c+off<COLS&&!isBlockedCell(r,c+off)) return c+off; }
+    return Math.max(0,Math.min(COLS-1,c)); }
+  function respawn(cat){
+    // take the CLOSEST safe row that is currently visible on screen, searching outward from the cat
+    var here=Math.round(cat.row), best=-1;
+    for(var d=0; d<SPEC.length; d++){
+      var down=here-d, up=here+d;
+      if(down>=0 && safeRow(down) && rowVisible(down)){ best=down; break; }   // prefer retreating (down) at equal distance
+      if(up<=GOAL_ROW && safeRow(up) && rowVisible(up)){ best=up; break; }
+    }
+    if(best<0){ // fallback: nearest safe row at all (clamped), even if just offscreen
+      var r=here; while(r>0 && !safeRow(r)) r--; best=Math.max(0,r);
+    }
+    cat.row=best; cat.cx=freeColNear(best,Math.round(cat.cx));
+    cat.dead=0; cat.hopT=0; cat.onLog=null;
+  }
+
+  // ---- update ----
+  function update(dt){ elapsed+=dt;
+    var left=Math.max(0,ROUND_MS-elapsed), sec=Math.ceil(left/1000);
+    clockEl.textContent=(sec>=60?'1:':'0:')+(function(){var s=sec%60;return (s<10?'0':'')+s;})();
+    if(sec<=10) clockBox.classList.add('low');
+    if(left<=0){ endByTime(); return; }
+
+    // ---- discrete grid stepping: every stepMs, all cars/logs move one whole cell ----
+    for(var i=0;i<rows.length;i++){ var ln=rows[i];
+      if(ln.t==='road'){ var span=ln.gap*ln.cars.length;
+        ln.stepT-=dt;
+        if(ln.stepT<=0){ ln.stepT+=ln.stepMs;
+          for(var c=0;c<ln.cars.length;c++){ ln.cars[c].cell=wrapCell(ln.cars[c].cell+ln.dir, ln.dir, span); }
+        }
+        ln.frac = 1 - Math.max(0, ln.stepT)/ln.stepMs;     // 0..1 between cells, for smooth draw
+      }
+      else if(ln.t==='water'){ var span2=ln.gap*ln.logs.length;
+        ln.stepT-=dt; var stepped=false;
+        if(ln.stepT<=0){ ln.stepT+=ln.stepMs; stepped=true;
+          for(var l=0;l<ln.logs.length;l++){ ln.logs[l].cell=wrapCell(ln.logs[l].cell+ln.dir, ln.dir, span2); }
+        }
+        ln.frac = 1 - Math.max(0, ln.stepT)/ln.stepMs;
+        ln._stepped = stepped;                              // flag: carry riders this frame
+      }
+    }
+
+    for(var k=0;k<2;k++){ var cat=cats[k];
+      if(cat.done) continue;
+      if(cat.dead){ cat.deadT-=dt; if(cat.deadT<=0) respawn(cat); continue; }
+      if(cat.hopT>0){ cat.hopT-=dt; if(cat.hopT<0) cat.hopT=0; }
+      var ln=rows[cat.row];
+      if(ln && cat.hopT<=0){
+        if(ln.t==='road'){
+          // EXACT whole-cell collision across the car's length
+          for(var ci=0;ci<ln.cars.length;ci++){ var base=ln.cars[ci].cell, hit=false;
+            for(var seg=0;seg<ln.len;seg++){ if(base+seg===cat.cx){ hit=true; break; } }
+            if(hit){ killCat(cat,'road'); break; } }
+        }
+        else if(ln.t==='water'){
+          // riding: a log covers cat.cx if any of its `len` cells equals cat.cx
+          var riding=null;
+          for(var li=0;li<ln.logs.length;li++){ var base=ln.logs[li].cell;
+            for(var seg=0;seg<ln.len;seg++){ if(base+seg===cat.cx){ riding=ln.logs[li]; break; } }
+            if(riding) break;
+          }
+          if(!riding){ killCat(cat,'water'); }
+          else { cat.onLog=riding;
+            // when the log steps a whole cell, carry the cat one cell in the same dir
+            if(ln._stepped){ cat.cx+=ln.dir; if(cat.cx<0||cat.cx>COLS-1){ killCat(cat,'water'); } }
+          }
+        }
+      }
+      if(cat.row>=GOAL_ROW && !cat.done){ cat.done=1; winRound(cat.id); return; }
+    }
+    // camera tracks the FURTHEST cat; keep it ~6 rows up so retreat rows stay visible below
+    var lead=Math.max(cats[0].row,cats[1].row);
+    var target=Math.max(0, Math.min(GOAL_ROW-9, lead-6));
+    camRow += (target-camRow)*Math.min(1,dt*0.007);
+    pollPads();
+  }
+
+  // ---- render ----
+  function rowScreenY(row){ return H - TILE - (row - camRow)*TILE + (TILE*0.5); }
+  function rowTopY(row){ return rowScreenY(row) - TILE*0.5; }   // cell top-left Y (matches lane bg)
+  function cellX(col){ return col*TILE; }
+  function drawHedge(col,y){ var x=cellX(col); px(x+1,y+2,TILE-2,TILE-4,COL.hedge); px(x+1,y+2,TILE-2,2,'#356b39');
+    for(var i=2;i<TILE-2;i+=5) px(x+3,y+i,TILE-6,1,'#1f3f23'); }
+  function drawRail(col,y){ var x=cellX(col); px(x+2,y+3,TILE-4,TILE-6,COL.bridgeRail); px(x+2,y+3,TILE-4,2,'#7a5a32'); }
+  function drawWall(col,y){ var x=cellX(col); px(x,y,TILE,TILE,COL.wall); px(x,y,TILE,3,COL.wallTop);
+    px(x+2,y+5,TILE-4,2,'rgba(0,0,0,0.18)'); px(x+2,y+13,TILE-4,2,'rgba(0,0,0,0.18)'); }
+  function drawDesk(col,y){ var x=cellX(col); px(x+2,y+6,TILE-4,TILE-12,COL.deskc); px(x+2,y+6,TILE-4,2,'#9a774a'); px(x+5,y+9,5,4,'#cfd6f0'); }
+  function drawLaneBg(row,y){ var s=SPEC[row]; if(!s){ px(0,y,W,TILE,'#101225'); return; }
+    if(s.t==='bank'||s.t==='finish'){ var goal=s.t==='finish';
+      px(0,y,W,TILE, goal?'#3b8f57':COL.bank); px(0,y,W,3, goal?'#5fb87c':COL.bankTop);
+      if(goal){ for(var fx=0;fx<W;fx+=12){ ctx.fillStyle=((fx/12)|0)%2?'#0a0a18':'#eef0ff'; ctx.fillRect(fx,y+TILE-7,12,4); }
+        ctx.fillStyle='#0a0a18'; ctx.font='7px "Press Start 2P"'; ctx.textAlign='center'; ctx.fillText('FINISH', W/2, y+TILE*0.5); } }
+    else if(s.t==='grass'){ px(0,y,W,TILE,(row%2)?COL.grassA:COL.grassB); px(0,y,W,2,COL.grassEdge);
+      for(var t=0;t<W;t+=TILE){ if(((t/TILE)+row)%3===0) px(t+6,y+TILE-6,3,3,COL.grassEdge); }
+      if(s.blocked) for(var b=0;b<s.blocked.length;b++) drawHedge(s.blocked[b],y); }
+    else if(s.t==='road'){ px(0,y,W,TILE,COL.road); px(0,y,W,2,'rgba(0,0,0,0.18)'); px(0,y+TILE-2,W,2,'rgba(0,0,0,0.18)');
+      for(var d=0;d<W;d+=16) px(d+((row*3)%16),y+TILE/2-1,9,2,COL.lane); }
+    else if(s.t==='water'){ px(0,y,W,TILE,(row%2)?COL.water:COL.water2);
+      var sh=(elapsed*0.03 + row*7);
+      for(var w=0;w<W;w+=18){ ctx.fillStyle='rgba(255,255,255,0.14)';
+        ctx.fillRect((w+sh)%W,y+6,6,1); ctx.fillRect((w+9+sh*0.6)%W,y+TILE-8,5,1); }
+      px(0,y,W,1,'rgba(0,0,0,0.16)'); }
+    else if(s.t==='bridge'){ px(0,y,W,TILE,COL.bridge); for(var pk=0;pk<W;pk+=8) px(pk,y+2,1,TILE-4,'#6e5436');
+      px(0,y+2,W,2,COL.bridgeTop); px(0,y+TILE-3,W,2,'#5e4426'); if(s.rail) for(var ri=0;ri<s.rail.length;ri++) drawRail(s.rail[ri],y); }
+    else if(s.t==='office'){ for(var ox=0;ox<W;ox+=TILE){ ctx.fillStyle=((ox/TILE)+row)%2?COL.floor:COL.floorB; ctx.fillRect(ox,y,TILE,TILE); }
+      px(0,y,W,1,'rgba(0,0,0,0.12)');
+      if(s.door){ ctx.fillStyle='rgba(60,180,110,0.22)'; ctx.fillRect(s.door[0]*TILE,y,(s.door.length)*TILE,TILE); }
+      if(s.wall) for(var wi=0;wi<s.wall.length;wi++) drawWall(s.wall[wi],y);
+      if(s.desk) for(var di=0;di<s.desk.length;di++) drawDesk(s.desk[di],y); }
+  }
+  function drawCar(x,y,len,colpair,dir){ var w=len*TILE-4,h=TILE-8;
+    px(x+3,y+TILE-4,w,2,'rgba(0,0,0,0.28)');                    // ground shadow under car
+    px(x+2,y+5,w,h,colpair[0]);                                 // body
+    px(x+2,y+5,w,3,colpair[1]);                                 // roof highlight
+    px(x+2,y+5+h-2,w,2,'rgba(0,0,0,0.22)');                     // lower body shade
+    // windshield at the leading end
+    px(x+(dir>0?w-7:5),y+8,5,5,'#bfe6ff'); px(x+(dir>0?w-7:5),y+8,5,2,'#e8f6ff');
+    // wheels
+    px(x+5,y+TILE-5,5,3,'#101010'); px(x+w-6,y+TILE-5,5,3,'#101010'); }
+  function drawLog(x,y,len){ var w=len*TILE,h=TILE-7; px(x,y+5,w,h,COL.logc); px(x,y+5,w,3,COL.logTop);
+    for(var s=TILE;s<w;s+=TILE) px(x+s,y+5,1,h,'#5e371c'); }
+  function drawCat(cat){ var tx=cat.cx, tr=cat.row, lift=0;
+    if(cat.hopT>0){ var k=1-(cat.hopT/HOP_MS); tx=cat.fromX+(cat.toX-cat.fromX)*k; tr=cat.fromR+(cat.toR-cat.fromR)*k; lift=Math.sin(k*Math.PI)*8; }
+    else { var ln=rows[cat.row]; if(ln && ln.t==='water' && cat.onLog && !cat.dead) tx=cat.cx+ln.dir*ln.frac; }   // glide with the log
+    // sprite is 14w x 18h with no negative coords; center it in the 24px cell
+    var f=cat.face;
+    var ax = (TILE-14)/2 + (f>0 ? 0 : 0);          // horizontal inset (sprite 14 wide)
+    var x = tx*TILE + ax;
+    var topY = rowTopY(tr);
+    var y = topY + (TILE-18)/2 - lift;             // vertical inset (sprite 18 tall) -> centered in cell
+    // ground shadow sits on the cell floor, shrinking as the cat lifts during a hop
+    var sw = 14 - Math.round(lift*0.6);
+    ctx.fillStyle=COL.shadow; ctx.fillRect(tx*TILE+(TILE-sw)/2, topY+TILE-5, Math.max(6,sw), 3);
+    if(cat.dead){
+      if(cat.splash){ ctx.fillStyle='rgba(180,220,255,0.85)';
+        for(var s=0;s<7;s++){ var a=s/7*Math.PI*2, rr=6+(cat.deadT<500?4:0); ctx.fillRect(x+7+Math.cos(a)*rr, y+9+Math.sin(a)*rr,2,2);} return; }
+      else { px(x-1,y+13,16,3,cat.cold); px(x+1,y+11,12,2,cat.col); return; }   // squashed splat
+    }
+    // ===== reworked cat sprite (fits 14w x 18h box; (x,y)=box top-left) =====
+    var dark = 'rgba(10,10,24,0.5)';                       // outline
+    var hopping = lift>1.5;
+    // --- tail (behind body), curls up; flicks while hopping ---
+    var txl = (f>0? -1 : 13);
+    px(x+txl, y+11, 3,2, cat.cold);
+    px(x+txl+(f>0?0:1), y+ (hopping?7:9), 2, 4, cat.cold);
+    px(x+txl+(f>0?0:1), y+ (hopping?7:9), 2, 1, cat.col);
+    // --- body ---
+    px(x+2, y+8, 11, 9, dark);                              // outline pad
+    px(x+3, y+8, 9, 8, cat.col);                            // body fill
+    px(x+3, y+8, 9, 2, cat.colb);                           // lit top
+    px(x+3, y+14, 9, 2, cat.cold);                          // belly shade
+    // --- head (rounded: corners trimmed) ---
+    var hx = x+(f>0?3:2);
+    px(hx, y+1, 9, 8, dark);                                // outline
+    px(hx+1, y+2, 7, 6, cat.col);                           // face fill
+    px(hx+1, y+2, 7, 1, cat.colb);                          // lit brow
+    px(hx, y+2, 1,1, cat.col); px(hx+8, y+2, 1,1, cat.col); // soften corners
+    // ears (triangular)
+    px(hx+1, y, 2,2, cat.col); px(hx+2, y-0, 1,1, cat.col);
+    px(hx+5, y, 2,2, cat.col); px(hx+5, y-0, 1,1, cat.col);
+    px(hx+1, y, 1,1, cat.colb); px(hx+6, y, 1,1, cat.colb); // ear tips lit
+    // --- face: two eyes, nose, cheeks ---
+    px(hx+2, y+4, 1,2, '#0a0a18'); px(hx+5, y+4, 1,2, '#0a0a18');   // eyes
+    px(hx+2, y+4, 1,1, '#3a3f63'); px(hx+5, y+4, 1,1, '#3a3f63');   // eye glint
+    px(hx+3, y+6, 2,1, cat.cold);                                   // nose
+    px(hx+1, y+5, 1,1, cat.colb); px(hx+6, y+5, 1,1, cat.colb);     // cheeks
+    // --- legs: tucked when hopping, planted when grounded ---
+    if(hopping){ px(x+3, y+15, 2,2, cat.cold); px(x+9, y+15, 2,2, cat.cold); }
+    else { px(x+3, y+16, 3,2, cat.cold); px(x+9, y+16, 3,2, cat.cold); }
+  }
+  function drawProgress(cat,x,leftSide){ var frac=Math.min(1,cat.best/GOAL_ROW), barH=70,barW=4,by=8, bx=leftSide?x:x-barW;
+    px(bx-1,by-1,barW+2,barH+2,'rgba(0,0,0,0.4)'); px(bx,by,barW,barH,'#1c2540');
+    var fillH=Math.round(barH*frac); px(bx,by+barH-fillH,barW,fillH,cat.col); }
+  function drawScene(){ px(0,0,W,H,'#101225');
+    var firstRow=Math.floor(camRow)-1, lastRow=Math.floor(camRow)+12;
+    for(var r=lastRow;r>=firstRow;r--){ if(r<0||r>=SPEC.length) continue; var y=rowScreenY(r)-TILE*0.5;
+      drawLaneBg(r,y); var ln=rows[r]; if(!ln) continue;
+      if(ln.t==='road'){ for(var c=0;c<ln.cars.length;c++){ var cx=(ln.cars[c].cell+ln.dir*ln.frac)*TILE; drawCar(cx,y,ln.len,ln.col,ln.dir); } }
+      else if(ln.t==='water'){ for(var l=0;l<ln.logs.length;l++){ var lx=(ln.logs[l].cell+ln.dir*ln.frac)*TILE; drawLog(lx,y,ln.len); } } }
+    var order=cats[0].row<=cats[1].row?[0,1]:[1,0]; drawCat(cats[order[0]]); drawCat(cats[order[1]]);
+    drawProgress(cats[0],6,true); drawProgress(cats[1],W-6,false); }
+
+  function frame(now){ if(!last) last=now; var dt=Math.min(50,now-last); last=now;
+    var sb=padStart(); if(sb&&!startPrev){ if(state==='menu') startGame(); else if(state==='over') showMenu(); } startPrev=sb;
+    if(state==='menu'){ drawScene(); requestAnimationFrame(frame); return; }
+    if(state==='count'){ drawScene(); var el=now-t0, n=el<800?'3':el<1600?'2':el<2400?'1':'GO!';
+      ctx.fillStyle=el<2400?'#ffd98a':'#7CFC9A'; ctx.font='30px "Press Start 2P"'; ctx.textAlign='center'; ctx.fillText(n,W/2,H/2+10);
+      if(el>=2900){ state='play'; last=now; } requestAnimationFrame(frame); return; }
+    if(state==='play'){ update(dt); drawScene(); requestAnimationFrame(frame); return; }
+    drawScene(); requestAnimationFrame(frame); }
+
+  function winRound(id){ winner=id+1; state='over'; cats[id].score+=1000; (id===0?p1sEl:p2sEl).textContent=cats[id].score;
+    showResult(); beep(660,0.1); setTimeout(function(){beep(880,0.14);},120); setTimeout(function(){beep(1175,0.2);},260); }
+  function endByTime(){ state='over'; if(cats[0].best>cats[1].best) winner=1; else if(cats[1].best>cats[0].best) winner=2; else winner=0;
+    showResult(); beep(440,0.12); setTimeout(function(){beep(330,0.16);},140); }
+  function showResult(){ clockBox.classList.remove('low'); ovEl.style.display='flex'; var head, body;
+    if(winner===0){ head='<h1>DEAD HEAT</h1>'; body='<p>both cats tied. <span class="sub">rematch?</span></p>'; }
+    else { var cls=winner===1?'a':'b', who='P'+winner; head='<h1 class="win">'+who+' CROSSES!</h1>';
+      body='<p>the <span class="'+cls+'">'+(winner===1?'blue':'rose')+' cat</span> reached the finish first.</p>'; }
+    ovEl.innerHTML=head+body+
+      '<p><span class="a">P1</span> row '+cats[0].best+'/'+GOAL_ROW+' &nbsp;&middot;&nbsp; <span class="b">P2</span> row '+cats[1].best+'/'+GOAL_ROW+'</p>'+
+      '<p><span class="a">P1</span> '+cats[0].score+' &nbsp;&middot;&nbsp; <span class="b">P2</span> '+cats[1].score+'</p>'+
+      '<button id="again">RACE AGAIN</button>';
+    document.getElementById('again').addEventListener('click', startGame); promptEl.textContent=''; }
+
+  function showMenu(){ state='menu'; last=null; newGame(); var conn=anyPad(); ovEl.style.display='flex';
+    ovEl.innerHTML='<h1>Nueva<br>Crosser</h1>'+
+      '<div class="pad"><span class="dot'+(conn?' ok':'')+'"></span>'+
+        (conn?'<span class="g">CONTROLLER READY</span>':'<span class="a">KEYBOARD READY</span> <span class="sub">&middot; or plug in a pad</span>')+'</div>'+
+      '<p>one course, two cats. cross the <span class="a">road</span>, take the <span class="a">bridge</span> over the river, weave the <span class="a">office</span> &mdash; first to the finish wins.</p>'+
+      '<div class="duo"><div><b>P1 &middot; BLUE CAT</b><span class="k">W A S D</span><br>or left stick / d-pad</div>'+
+        '<div><b>P2 &middot; ROSE CAT</b><span class="k">ARROWS</span><br>or right stick</div></div>'+
+      '<p class="sub">cars squash &middot; ride logs on water &middot; walls &amp; desks block you &middot; 75s timeout &rarr; furthest wins</p>'+
+      '<button id="go">'+(conn?'PRESS &#9398; / ENTER':'PRESS ENTER TO RACE')+'</button>';
+    document.getElementById('go').addEventListener('click', startGame); }
+
+  document.getElementById('reset').addEventListener('click', showMenu);
+  addEventListener('gamepadconnected', function(){ if(state==='menu') showMenu(); });
+  addEventListener('gamepaddisconnected', function(){ if(state==='menu') showMenu(); });
+
+  showMenu();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

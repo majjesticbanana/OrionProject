@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nueva Showdown</title>
-<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="icon" type="image/png" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Nueva fonts for the chrome + Press Start 2P kept for the in-game canvas text -->
@@ -111,11 +111,11 @@
 
 <header>
   <div class="wrap topbar">
-    <a href="/#top" class="brand">
-      <img class="mark" src="/nueva-logo.png" alt="Nueva logo">
+    <a href="index.html#top" class="brand">
+      <img class="mark" src="nueva-logo.png" alt="Nueva logo">
       Nueva
     </a>
-    <a href="/arcade" class="back">← Arcade</a>
+    <a href="arcade.html" class="back">← Arcade</a>
   </div>
 </header>
 
@@ -315,24 +315,54 @@ var PLAYER_TINT= null;
     ctx.strokeStyle='rgba(90,110,180,0.12)'; ctx.lineWidth=1; ctx.stroke();
   }
 
-  function drawSaturn(){
-    var cx=W*0.80, cy=36, r=14;
-    var g=ctx.createRadialGradient(cx,cy,2,cx,cy,r*2.6);
-    g.addColorStop(0,'rgba(255,200,120,0.42)');
-    g.addColorStop(0.5,'rgba(255,170,90,0.14)');
-    g.addColorStop(1,'rgba(255,170,90,0)');
-    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,r*2.6,0,6.2832); ctx.fill();
-    var pg=ctx.createLinearGradient(cx,cy-r,cx,cy+r);
-    pg.addColorStop(0,'#ffd98a'); pg.addColorStop(0.5,'#ffb13b'); pg.addColorStop(1,'#e0892a');
-    ctx.fillStyle=pg; ctx.beginPath(); ctx.arc(cx,cy,r,0,6.2832); ctx.fill();
-    ctx.fillStyle='rgba(224,137,42,0.5)'; ctx.fillRect(cx-r,cy-2,r*2,2);
-    ctx.fillStyle='rgba(255,217,138,0.5)'; ctx.fillRect(cx-r,cy+4,r*2,1);
-    ctx.save(); ctx.translate(cx,cy); ctx.rotate(-0.42);
-    ctx.strokeStyle='rgba(120,180,255,0.85)'; ctx.lineWidth=2;
-    ctx.beginPath(); ctx.ellipse(0,0,r*2.1,r*0.7,0,0,6.2832); ctx.stroke();
-    ctx.strokeStyle='rgba(168,212,255,0.5)'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.ellipse(0,0,r*2.5,r*0.85,0,0,6.2832); ctx.stroke();
+  // BLACK HOLE: drifts slowly across the sky. Dark lensed core, glowing accretion
+  // disc that spins, and a faint gravitational-lens halo. Replaces the old planet.
+  function drawBlackHole(){
+    // slow horizontal drift (wraps), plus a gentle vertical bob
+    var t   = _bgClock;
+    var driftW = W + 90;
+    var cx  = ((t*0.18 + W*0.62) % driftW) - 45;   // creeps left->right, wraps around
+    var cy  = 34 + Math.sin(t*0.012)*5;            // gentle bob
+    var r   = 9;                                    // event-horizon core radius
+    var spin= t*0.05;
+
+    // 1) gravitational-lens halo: faint cool glow bending light around the hole
+    var halo=ctx.createRadialGradient(cx,cy,r*0.8,cx,cy,r*3.4);
+    halo.addColorStop(0,'rgba(150,120,255,0)');
+    halo.addColorStop(0.55,'rgba(120,150,255,0.10)');
+    halo.addColorStop(0.8,'rgba(170,140,255,0.16)');
+    halo.addColorStop(1,'rgba(120,150,255,0)');
+    ctx.fillStyle=halo; ctx.beginPath(); ctx.arc(cx,cy,r*3.4,0,6.2832); ctx.fill();
+
+    // 2) accretion disc: a hot, tilted ring of glowing matter, drawn as layered
+    //    ellipses with a rotating shimmer so it reads as "spinning".
+    ctx.save();
+    ctx.translate(cx,cy); ctx.rotate(-0.5);
+    // outer cool ring
+    ctx.strokeStyle='rgba(140,170,255,0.40)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.ellipse(0,0,r*2.7,r*0.95,0,0,6.2832); ctx.stroke();
+    // bright inner ring (white-hot -> orange), shimmering
+    var sh=0.7+0.3*Math.sin(spin*2);
+    var ring=ctx.createLinearGradient(-r*2.2,0,r*2.2,0);
+    ring.addColorStop(0,  'rgba(120,160,255,0.85)');
+    ring.addColorStop(0.5,'rgba(255,240,210,'+sh.toFixed(2)+')');
+    ring.addColorStop(1,  'rgba(255,150,90,0.85)');
+    ctx.strokeStyle=ring; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.ellipse(0,0,r*2.1,r*0.66,0,0,6.2832); ctx.stroke();
+    // a couple of rotating hot blobs riding the disc -> sense of motion
+    for(var k=0;k<3;k++){
+      var ang=spin + k*2.0944;
+      var bx=Math.cos(ang)*r*2.0, by=Math.sin(ang)*r*0.62;
+      var bb=0.5+0.5*Math.sin(spin*1.7+k);
+      ctx.fillStyle='rgba(255,225,180,'+(0.5*bb).toFixed(2)+')';
+      ctx.fillRect(Math.round(bx)-1,Math.round(by)-1,2,2);
+    }
     ctx.restore();
+
+    // 3) event horizon: pure black core with a thin glowing photon ring rim
+    ctx.fillStyle='#000'; ctx.beginPath(); ctx.arc(cx,cy,r,0,6.2832); ctx.fill();
+    ctx.strokeStyle='rgba(200,210,255,0.55)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.arc(cx,cy,r+0.5,0,6.2832); ctx.stroke();
   }
 
   function drawBG(){
@@ -351,7 +381,7 @@ var PLAYER_TINT= null;
         ctx.fillRect(st.x-1,st.y,1,1); ctx.fillRect(st.x+st.s,st.y,1,1);
         ctx.fillRect(st.x,st.y-1,1,1); ctx.fillRect(st.x,st.y+st.s,1,1); }
     }
-    drawSaturn();
+    drawBlackHole();
     // GROUND ZONE: lighter neon-purple floor surface.
     var fg=ctx.createLinearGradient(0,HORIZON,0,H);
     fg.addColorStop(0,'#3a2d5a'); fg.addColorStop(1,'#2a2042');
@@ -370,7 +400,7 @@ var PLAYER_TINT= null;
   var HAZARD={active:false,t:0,dur:0,zones:[]};
   function mk(cfg,x,face,tint){ return {cfg:cfg,x:x,face:face,tint:tint,hp:100,anim:'idle',frameT:0,
     animOnce:false,attacking:false,atkType:null,atkHit:false,block:false,vx:0,cool:0,stun:0,
-    recover:0,blockStun:0}; }
+    recover:0,blockStun:0,blockT:0,blockPrev:false}; }
 
   function reset(){
     cancelAnimationFrame(anim);
@@ -436,6 +466,8 @@ var PLAYER_TINT= null;
 
   function update(dt){
     [P,B].forEach(function(f){if(f.cool>0)f.cool-=dt;if(f.stun>0)f.stun-=dt;if(f.recover>0)f.recover-=dt;if(f.blockStun>0)f.blockStun-=dt;});
+    // block-up animation timer: reset on the frame block begins, count up while held
+    [P,B].forEach(function(f){ if(f.block){ if(!f.blockPrev) f.blockT=0; else f.blockT+=dt; } f.blockPrev=f.block; });
     // composure slowly regenerates when boss isn't being blocked
     if(!B.broken && B.composure<100 && B.regenLock<=0) B.composure+=0.02*dt; if(B.regenLock>0)B.regenLock-=dt;
     // COMPOSURE BREAK: fire whenever composure hits 0, no matter how it got there (block or parry)
@@ -694,24 +726,97 @@ var PLAYER_TINT= null;
       }
     });
   }
+  // Draw ONE frame of a fighter's sheet at a given screen position/alpha/tint.
+  // Used by the parry flash to briefly show the heavy-attack pose as a "guard slam".
+  function drawPose(f, animName, frame, alpha, tint){
+    var cfg=f.cfg, a=cfg[animName]||cfg.idle, fn=a[0], n=a[1], im=cache[fn];
+    if(!im) return;
+    var fw=cfg.fw, fh=cfg.fh; frame=Math.min(frame,n-1);
+    off.width=fw; off.height=fh; octx.clearRect(0,0,fw,fh);
+    octx.globalCompositeOperation='source-over'; octx.globalAlpha=1;
+    octx.drawImage(im, frame*fw,0,fw,fh, 0,0,fw,fh);
+    if(tint){ octx.globalCompositeOperation='source-atop'; octx.globalAlpha=0.6;
+      octx.fillStyle=tint; octx.fillRect(0,0,fw,fh);
+      octx.globalAlpha=1; octx.globalCompositeOperation='source-over'; }
+    var DW=fw*cfg.scale, DH=fh*cfg.scale;
+    var dx=Math.round(f.x-DW/2), dy=Math.round(GROUND-DH+cfg.footPad);
+    ctx.save(); ctx.globalAlpha=alpha;
+    if(f.face<0){ ctx.translate(dx+DW,dy); ctx.scale(-1,1); ctx.drawImage(off,0,0,fw,fh,0,0,DW,DH); }
+    else ctx.drawImage(off,0,0,fw,fh,dx,dy,DW,DH);
+    ctx.restore();
+  }
+
   function drawShield(f){
     var parry = (f===P && f.parryFlash>0);
     var active = f.block || parry || (f===P && f.parryT>0);
     if(!active) return;
-    var cfg=f.cfg, DH=cfg.fh*cfg.scale, DW=cfg.fw*cfg.scale;
-    // chest height: a bit above the vertical middle of the drawn sprite
-    var cy = GROUND - DH*0.42;
-    // place the arc IN FRONT of the fighter, on the side they face
-    var cx = f.x + f.face*16;
-    var col = parry ? '120,255,150' : '120,180,255';   // green parry / blue block
-    ctx.save();
-    // arc opens toward the OPPONENT (the side the fighter faces)
+    var cfg=f.cfg, DH=cfg.fh*cfg.scale;
+    var cy = GROUND - DH*0.42;          // chest height
+    var cx = f.x + f.face*16;           // in front, on the facing side
+    // arc opens toward the opponent
     var a0 = f.face>0 ? -Math.PI/2.4 :  Math.PI - Math.PI/2.4;
     var a1 = f.face>0 ?  Math.PI/2.4 :  Math.PI + Math.PI/2.4;
-    ctx.strokeStyle='rgba('+col+',0.9)'; ctx.lineWidth=2;
-    ctx.beginPath(); ctx.arc(cx,cy,16,a0,a1,false); ctx.stroke();
-    ctx.fillStyle='rgba('+col+',0.16)';
-    ctx.beginPath(); ctx.arc(cx,cy,16,a0,a1,false); ctx.fill();
+
+    // On a fresh parry, briefly flash the HEAVY-attack pose (attack2) behind the
+    // shield as a slowed "guard slam" -> reuses the heavy animation at half speed.
+    if(parry){
+      var pf = f.parryFlash;           // counts down 16 -> 0
+      var poseFrame = Math.floor((16-pf)/8);            // advance ~half-speed (0,0,1,1)
+      drawPose(f, 'attack2', poseFrame, Math.min(0.7, pf/14), '#9affc0');
+    }
+
+    var col = parry ? '120,255,160' : '120,180,255';    // green parry / blue block
+    var R   = 16;
+    // --- block animation: pulse out on raise, spring back, settle, then breathe ---
+    var bloom = 0;                       // 1 right as block raises -> 0 settled
+    if(!parry && f.block){
+      var t = f.blockT;                                  // frames since block began
+      var pulse = Math.exp(-t/9) * Math.cos(t*0.42) * 7; // +7px swell, rings down to 0
+      var breathe = Math.sin(t*0.07) * 0.9;              // gentle hold breathing
+      R = 16 + pulse + breathe;
+      bloom = Math.exp(-t/7);
+    }
+    ctx.save();
+    ctx.lineCap='round';
+
+    // soft glow fill inside the arc (brighter/wider briefly on the raise)
+    var glowR = R + (parry?9:4) + bloom*4;
+    var glow=ctx.createRadialGradient(cx,cy,2,cx,cy,glowR);
+    glow.addColorStop(0,'rgba('+col+','+(parry?0.40:(0.22+0.20*bloom))+')');
+    glow.addColorStop(1,'rgba('+col+',0)');
+    ctx.fillStyle=glow;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,glowR,a0,a1,false); ctx.closePath(); ctx.fill();
+
+    // outer soft ring (thickens briefly on the raise)
+    ctx.strokeStyle='rgba('+col+',0.35)'; ctx.lineWidth=4+1.5*bloom;
+    ctx.beginPath(); ctx.arc(cx,cy,R,a0,a1,false); ctx.stroke();
+    // crisp bright rim
+    ctx.strokeStyle='rgba('+col+',0.95)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(cx,cy,R,a0,a1,false); ctx.stroke();
+
+    // hex-tick segments along the arc -> reads as a faceted energy shield
+    var seg=6;
+    for(var i=0;i<=seg;i++){
+      var ang=a0+(a1-a0)*(i/seg);
+      var ix=cx+Math.cos(ang)*(R-3), iy=cy+Math.sin(ang)*(R-3);
+      var ox=cx+Math.cos(ang)*(R+2), oy=cy+Math.sin(ang)*(R+2);
+      ctx.strokeStyle='rgba('+col+',0.8)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(ix,iy); ctx.lineTo(ox,oy); ctx.stroke();
+    }
+
+    // PARRY burst: expanding bright shockwave + spark ring on the deflect
+    if(parry){
+      var prog=(16-f.parryFlash)/16;                    // 0 -> 1
+      var br=R + prog*16;
+      ctx.strokeStyle='rgba(220,255,230,'+(1-prog).toFixed(2)+')'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.arc(cx,cy,br,a0,a1,false); ctx.stroke();
+      for(var s=0;s<4;s++){
+        var sa=a0+(a1-a0)*((s+0.5)/4);
+        var sx=cx+Math.cos(sa)*(br+3), sy=cy+Math.sin(sa)*(br+3);
+        ctx.fillStyle='rgba(255,255,255,'+(1-prog).toFixed(2)+')';
+        ctx.fillRect(Math.round(sx)-1,Math.round(sy)-1,2,2);
+      }
+    }
     ctx.restore();
   }
   function drawAll(){ drawBG(); drawHazards(); drawFighter(P); drawFighter(B); drawShield(P); drawShield(B);

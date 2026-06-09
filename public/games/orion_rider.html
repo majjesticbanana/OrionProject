@@ -156,6 +156,8 @@
   var TRUCKCHANCE=0.26;     // chance a spawned vehicle is a truck
   var LANEDIR=[1,1,-1,-1];  // left 2 lanes = forward (safer), right 2 = oncoming (deadly)
   var STEER_LO=0.40;        // lateral steering is sluggish when slow, full at top speed (realistic)
+  var STEER_ACCEL=0.020;    // how fast lateral velocity builds toward target (momentum feel)
+  var STEER_DAMP=0.010;     // how fast lateral velocity bleeds off when you let go (glide to stop)
   var HLIGHT_Z=58;          // how far your headlight reaches at night (m)
   var DUSK_AT=0.5, NIGHT_BY=0.84;   // dusk begins / full night reached (fraction of the track)
   var FINISH_BONUS=500;     // flat reward for crossing the line
@@ -169,8 +171,10 @@
   // ---------- state ----------
   var state, last, countStart, crashStart, overWin;
   var dist, speed, playerX, lean, score, nextSpawn, cars, pops, runTime;
+  var vx;                   // lateral velocity (steering momentum)
   var combo, comboTimer;
   var lightR=[], lightB=[];   // per-frame buffers so vehicle lights draw on top of the dark
+  var carRects=[];            // per-frame car screen boxes {x,y,w,h,z} so lights are occluded by nearer cars
 
   var ov=document.getElementById('ov'), promptEl=document.getElementById('prompt');
   var scoreEl=document.getElementById('score'), spdEl=document.getElementById('spd'), togoEl=document.getElementById('togo');
@@ -251,17 +255,34 @@
     }
   }
 
-  function beam(hx,hy,half){                                    // headlight cone toward the viewer
-    var len=Math.max(7, half*0.6), sp=Math.max(2, half*0.16);
-    ctx.fillStyle='rgba(255,243,190,0.14)';
+  function beam(hx,hy,half,z){
+    // beams read well at distance but become a big flat wedge up close.
+    // fade + shorten as the car approaches (small z), and widen the fan so it reads as a cone.
+    var near = z==null?1 : Math.max(0, Math.min(1, (z-2)/16));   // 0 when very close, 1 by ~18m out
+    var a = 0.14*near;                                           // fade out completely up close
+    if(a<=0.005) return;
+    var len=Math.max(6, half*0.42*near);                        // shorter when close
+    var sp=Math.max(2, half*0.22);                              // a touch wider -> cone, not a stripe
+    ctx.fillStyle='rgba(255,243,190,'+a.toFixed(3)+')';
     ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(hx-sp,hy+len); ctx.lineTo(hx+sp,hy+len); ctx.closePath(); ctx.fill();
+  }
+  function tagCarLights(rStart,bStart,z,bx,by,bw,bh){
+    for(var i=rStart;i<lightR.length;i++) lightR[i].z=z;
+    for(var j=bStart;j<lightB.length;j++) lightB[j].z=z;
+    carRects.push({x:bx,y:by,w:bw,h:bh,z:z});
   }
   function drawCar(car){
     if(car.z<=-4 || car.z>ZSPAWN+5) return;
-    var scale=project(car.z);
+    var _rStart=lightR.length, _bStart=lightB.length;   // lights pushed below belong to THIS car
+    var scale=project(car.z); if(scale>1.05) scale=1.05;   // cap runaway blowup as a car grazes past; never vanish
     var y=yH+(H-yH)*scale, half=ROADHALF*scale;
     var sx=CX+(car.worldX-playerX)*half;
     var onc=(car.dir<0);                                                // oncoming -> we see its FRONT
+    // a car passing right beside you (very close z) would loom over the handlebars; fade it out as it draws level
+    var _fade = car.z<2.2 ? Math.max(0, (car.z+1)/3.2) : 1;
+    if(_fade<=0.02) return;
+    var _restore = _fade<1;
+    if(_restore) ctx.globalAlpha=_fade;
     var cw,ch,cx0,cy0;                                                  // (kept in scope for the blinker)
 
     if(car.type==='truck'){
@@ -294,6 +315,8 @@
         var tw=Math.max(1,bw*0.14), th=Math.max(1,bh*0.08), tyy=y0+bh-mud-th-1;
         lightR.push([x0+1,tyy,tw,th,C.tail]); lightR.push([x0+bw-1-tw,tyy,tw,th,C.tail]);
       }
+      tagCarLights(_rStart,_bStart,car.z, x0,y0,bw,bh);
+      if(_restore) ctx.globalAlpha=1;
       return;
     }
 
@@ -328,10 +351,25 @@
       var dir=(car.targetX>car.worldX)?1:-1, b=Math.max(2,cw*0.18);
       lightR.push([sx+dir*(cw*0.5), cy0+ch*0.5, b, b, '#ffd23e']);
     }
+    tagCarLights(_rStart,_bStart,car.z, cx0,cy0,cw,ch);
+    if(_restore) ctx.globalAlpha=1;
   }
+  function occluded(ptx,pty,z){
+    // hidden if a NEARER car body (smaller z) covers this point
+    for(var i=0;i<carRects.length;i++){ var r=carRects[i];
+      if(r.z < z-0.5 && ptx>=r.x && ptx<=r.x+r.w && pty>=r.y && pty<=r.y+r.h) return true; }
+    return false;
+  }
+  function zFade(z){ return z==null?1 : (z<2.2 ? Math.max(0,(z+1)/3.2) : 1); }
   function flushLights(){
-    for(var i=0;i<lightB.length;i++){ var L=lightB[i]; beam(L[0],L[1],L[2]); }
-    for(var j=0;j<lightR.length;j++){ var R=lightR[j]; px(R[0],R[1],R[2],R[3],R[4]); }
+    for(var i=0;i<lightB.length;i++){ var L=lightB[i];
+      if(occluded(L[0],L[1],L.z==null?-99:L.z)) continue;
+      var fb=zFade(L.z); if(fb<=0.02) continue;
+      if(fb<1) ctx.globalAlpha=fb; beam(L[0],L[1],L[2],L.z); if(fb<1) ctx.globalAlpha=1; }
+    for(var j=0;j<lightR.length;j++){ var R=lightR[j];
+      if(occluded(R[0]+R[2]/2,R[1]+R[3]/2,R.z==null?-99:R.z)) continue;
+      var fr=zFade(R.z); if(fr<=0.02) continue;
+      if(fr<1) ctx.globalAlpha=fr; px(R[0],R[1],R[2],R[3],R[4]); if(fr<1) ctx.globalAlpha=1; }
   }
   function applyDark(night){                                   // night: dim road, keep a headlight cone lit
     for(var y=yH;y<H;y+=2){
@@ -410,7 +448,7 @@
   }
 
   function drawScene(wob){
-    lightR=[]; lightB=[];
+    lightR=[]; lightB=[]; carRects=[];
     var night=nightLevel();
     drawSky(night);
     drawRoad();
@@ -434,7 +472,7 @@
   //  GAME LOGIC
   // ============================================================
   function resetRun(){
-    dist=0; speed=0; playerX=-0.25; lean=0; score=0; nextSpawn=40; runTime=0;
+    dist=0; speed=0; playerX=-0.25; lean=0; vx=0; score=0; nextSpawn=40; runTime=0;
     combo=0; comboTimer=0;
     cars=[]; pops=[];
   }
@@ -491,11 +529,17 @@
   function updatePlay(dt){
     runTime += dt;
     if(comboTimer>0){ comboTimer-=dt; if(comboTimer<=0) combo=0; }
-    // steering — sluggish at low speed, full at top speed (realistic lateral feel)
+    // steering — now with momentum: lateral velocity eases toward the input, then glides.
+    // top-speed responsiveness is preserved (target vx at full speed == old instant steer rate).
     var s=(inR?1:0)-(inL?1:0)+gpSteer; if(s>1)s=1; if(s<-1)s=-1;
     var steerEff=STEERSPD*(STEER_LO + (1-STEER_LO)*(speed/SPEED_MAX));   // slow weave when slow, full at speed
-    playerX += s*steerEff*dt; if(playerX>0.92)playerX=0.92; if(playerX<-0.92)playerX=-0.92;
-    lean += (s - lean)*Math.min(1,dt*0.012);
+    var targetVx = s*steerEff;                                          // desired lateral velocity
+    if(s!==0){ vx += (targetVx - vx)*Math.min(1, STEER_ACCEL*dt); }     // build toward it (lean-in)
+    else { vx += (0 - vx)*Math.min(1, STEER_DAMP*dt); }                 // release -> glide to centre-hold
+    playerX += vx*dt; if(playerX>0.92){playerX=0.92; if(vx>0)vx=0;} if(playerX<-0.92){playerX=-0.92; if(vx<0)vx=0;}
+    // visual lean tracks actual lateral motion (smoother, reads the glide)
+    var leanTarget = Math.max(-1, Math.min(1, vx/Math.max(0.0001,STEERSPD)));
+    lean += (leanTarget - lean)*Math.min(1,dt*0.010);
     // speed
     if(inGas||gpGas) speed += ACCEL*dt; else speed -= COAST*dt;
     if(inBrake||gpBrake) speed -= BRAKE*dt;

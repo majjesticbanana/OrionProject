@@ -357,6 +357,9 @@
       if(p>=1) resolveShot(pl);
     }
     else if(pl.state==='cooldown'){
+      pl.hoopX+=pl.hdir*HOOPSPD*dt;          // hoop keeps sliding during cooldown
+      if(pl.hoopX>=RIMX+HOOPR){pl.hoopX=RIMX+HOOPR;pl.hdir=-1;}
+      if(pl.hoopX<=RIMX-HOOPR){pl.hoopX=RIMX-HOOPR;pl.hdir=1;}
       if(pl.flashT>0){ pl.flashT--; if(pl.outcome==='miss'){ pl.ball.y+=7; pl.ball.x+=pl.missVx; } }
       if(performance.now()-pl.cdStart>=CD){ pl.state='ready'; pl.ball.s=1; }
     }

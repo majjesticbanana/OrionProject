@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ScrollProgress from "@/components/ScrollProgress";
@@ -32,7 +33,7 @@ export default function ArcadePage() {
             <ArcadeStats />
             <div className="cta-row">
               <a href="#cabinet" className="btn btn-primary">Browse games</a>
-              <a href="/" className="btn btn-ghost">&larr; Back to Nueva</a>
+              <Link href="/" className="btn btn-ghost">&larr; Back to Nueva</Link>
             </div>
           </div>
           <ArcadeCabinet />
@@ -49,6 +50,8 @@ export default function ArcadePage() {
 
 function ArcadeStats() {
   const GAMES = [
+    { status: "live" },
+    { status: "live" },
     { status: "live" },
     { status: "live" },
     { status: "live" },

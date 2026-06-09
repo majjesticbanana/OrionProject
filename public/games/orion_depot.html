@@ -73,7 +73,7 @@
   button:active{ transform:translateY(0); }
   .ov{ position:absolute; inset:0; z-index:25; display:none; flex-direction:column; align-items:center; justify-content:center;
     text-align:center; background:rgba(236,227,210,.94); padding:22px; }
-  .ov h1{ font-family:'Press Start 2P',monospace; font-size:17px; color:var(--ink); line-height:1.7; margin-bottom:16px; }
+  .ov h1{ font-family:'Press Start 2P',monospace; font-size:clamp(11px,5.2vw,17px); color:var(--ink); line-height:1.7; margin-bottom:16px; max-width:100%; word-break:break-word; overflow-wrap:anywhere; }
   .ov p{ font-size:9px; color:var(--coffee); line-height:2.1; margin-bottom:16px; max-width:560px; }
   .k{ font-family:'Press Start 2P',monospace; font-size:8px; color:var(--paper); background:var(--ink);
     padding:2px 6px; border-radius:3px; display:inline-block; margin:0 1px; }
@@ -400,7 +400,12 @@
     ctx.fillStyle='#8a8fd0'; ctx.fillText('PACKED '+c.dishes, ox+6, 36);
     if(c.flash.t>0){ ctx.font='12px "Press Start 2P"'; ctx.textAlign='center';
       ctx.globalAlpha=Math.min(1,c.flash.t/300);
-      ctx.fillStyle=c.flash.col; ctx.fillText(c.flash.txt, stationX(ox), BELTY+40); ctx.globalAlpha=1; }
+      ctx.fillStyle=c.flash.col;
+      // keep the centered popup fully on-screen: clamp its center x by half the text width
+      var fx=stationX(ox), half=ctx.measureText(c.flash.txt).width/2 + 4;
+      if(fx-half < ox+2) fx = ox+2+half;            // not past this half's left edge
+      if(fx+half > ox+HW-2) fx = ox+HW-2-half;      // not past this half's right edge
+      ctx.fillText(c.flash.txt, fx, BELTY+40); ctx.globalAlpha=1; }
   }
   function divider(){ px(HW-1,0,2,H,'#000'); px(HW-1,0,2,30,'#3a3e7a'); }
 
