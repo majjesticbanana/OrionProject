@@ -193,7 +193,7 @@ export default function Home() {
           <div className="sec-head reveal">
             <span className="sec-num">05 / The Team</span>
             <h2>The crew of 10S4.</h2>
-            <p>The students behind Nueva. Swap in real names and roles below.</p>
+            <p>The students behind Nueva.</p>
           </div>
           <div className="team-grid reveal">
             <div className="member"><div className="av">YM</div><div><h4>Yoonus Abdulla Musthafa</h4><span>Leader</span></div></div>
@@ -207,6 +207,8 @@ export default function Home() {
             <div className="member"><div className="av">AJ</div><div><h4>Abdullah Dhaain Jamsheed</h4><span>10S4</span></div></div>
             <div className="member"><div className="av b">YN</div><div><h4>Yoosuf Nadhyan Nazim</h4><span>10S4</span></div></div>
             <div className="member"><div className="av">MA</div><div><h4>Mohammed Aloof Atheef</h4><span>10S4</span></div></div>
+            <div className="member"><div className="av">MY</div><div><h4>Mohamed Yavin Ziyad</h4><span>10S4</span></div></div>
+
           </div>
         </section>
       </div>
