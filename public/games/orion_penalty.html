@@ -7,40 +7,23 @@
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Nueva fonts for the chrome + Press Start 2P kept for the in-game canvas text -->
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Spline+Sans+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Press+Start+2P&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Spline+Sans+Mono:wght@400;500;600&family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --paper:#ece3d2; --paper-2:#e3d8c3; --coffee:#4a3526; --coffee-2:#6b513c;
+  :root{ --paper:#ece3d2; --paper-2:#e3d8c3; --coffee:#4a3526; --coffee-2:#6b513c;
     --blueprint:#2f5d8a; --blueprint-2:#3d74ab; --ink:#1c150f; --accent:#a63a53;
-    --line:rgba(74,53,38,.22); --grid:rgba(47,93,138,.10); --maxw:1140px;
-  }
+    --line:rgba(74,53,38,.22); --grid:rgba(47,93,138,.10); --maxw:1140px; }
   *{ box-sizing:border-box; margin:0; padding:0; }
   html{ scroll-behavior:smooth; }
-  body{
-    background:var(--paper); color:var(--coffee);
-    font-family:'Press Start 2P', ui-monospace, monospace; line-height:1.7;
-    min-height:100vh; display:flex; flex-direction:column;
-    overflow-x:hidden; position:relative; user-select:none;
-  }
-  body::before{
-    content:""; position:fixed; inset:0; z-index:-2;
-    background:
-      linear-gradient(var(--grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid) 1px, transparent 1px),
-      linear-gradient(var(--grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid) 1px, transparent 1px),
-      var(--paper);
-    background-size:120px 120px,120px 120px,24px 24px,24px 24px;
-  }
-  body::after{
-    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  body{ background:var(--paper); color:var(--coffee); font-family:'Press Start 2P', ui-monospace, monospace;
+    line-height:1.7; min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden; position:relative; user-select:none; }
+  body::before{ content:""; position:fixed; inset:0; z-index:-2;
+    background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),
+      linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),var(--paper);
+    background-size:120px 120px,120px 120px,24px 24px,24px 24px; }
+  body::after{ content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
-    opacity:.05; mix-blend-mode:multiply;
-  }
+    opacity:.05; mix-blend-mode:multiply; }
   .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 28px; }
-
-  /* ---------- top bar ---------- */
   header{ backdrop-filter:blur(6px); background:rgba(236,227,210,.82); border-bottom:1px solid var(--line); }
   .topbar{ display:flex; align-items:center; justify-content:space-between; padding:14px 0; }
   .brand{ display:flex; align-items:center; gap:12px; font-family:'Space Grotesk',sans-serif; font-weight:700;
@@ -48,18 +31,14 @@
   .brand .mark{ width:34px; height:34px; object-fit:contain; display:block; flex:0 0 auto; }
   .back{ font-family:'Spline Sans Mono',monospace; font-size:.8rem; letter-spacing:.08em; text-transform:uppercase; color:var(--coffee-2); text-decoration:none; }
   .back:hover{ color:var(--blueprint); }
-
-  /* ============ NUEVA GAME SHELL (reusable across games) ============ */
   .stage{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:34px 20px 40px; }
-  .console{ position:relative; width:720px; max-width:96vw; background:rgba(255,255,255,.32);
-    border:1px solid var(--line); border-radius:8px; padding:20px 22px 22px; box-shadow:8px 10px 0 rgba(47,93,138,.10); }
-
-  .hud{ display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin-bottom:14px; }
+  .console{ position:relative; width:720px; max-width:96vw; background:rgba(255,255,255,.32); border:1px solid var(--line);
+    border-radius:8px; padding:20px 22px 22px; box-shadow:8px 10px 0 rgba(47,93,138,.10); }
+  .hud{ display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin-bottom:12px; }
   .gtitle{ font-family:'Press Start 2P',monospace; font-size:14px; color:var(--ink); line-height:1.4; letter-spacing:1px; }
-  .round{ font-family:'Press Start 2P',monospace; font-size:9px; line-height:1.6; color:var(--blueprint); white-space:nowrap; }
+  .round{ font-size:9px; line-height:1.6; letter-spacing:1px; color:var(--blueprint); white-space:nowrap; }
   .round b{ color:var(--accent); }
-
-  .score{ display:flex; align-items:center; justify-content:center; gap:18px; margin-bottom:14px;
+  .score{ display:flex; align-items:center; justify-content:center; gap:18px; margin-bottom:12px;
     background:rgba(47,93,138,.06); border:1px solid var(--line); border-radius:5px; padding:10px 14px; }
   .p{ display:flex; align-items:center; gap:10px; }
   .p.right{ flex-direction:row-reverse; }
@@ -74,39 +53,32 @@
   .d{ color:rgba(74,53,38,.28); }
   .d.g{ color:var(--blueprint); }
   .d.m{ color:var(--accent); }
-
   .screen{ position:relative; width:100%; border:3px solid var(--ink); border-radius:4px; overflow:hidden;
     background:#0a0a18; box-shadow:inset 0 0 0 1px rgba(47,93,138,.35); }
   canvas{ display:block; width:100%; height:auto; image-rendering:pixelated; background:#0a0a18; }
   .screen::after{ content:""; position:absolute; inset:0; pointer-events:none; z-index:5;
     background:repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 2px, transparent 2px 4px); mix-blend-mode:multiply; }
-
   .prompt{ margin-top:12px; text-align:center; font-size:9px; line-height:1.9; color:var(--coffee); min-height:16px; }
   .prompt b{ color:var(--blueprint); }
-
   .foot{ margin-top:14px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
-  .keys{ font-size:8px; color:var(--coffee-2); line-height:1.9; }
+  .keys{ font-size:7.5px; color:var(--coffee-2); line-height:1.9; }
   .keys b{ color:var(--ink); }
-  button{ font-family:'Press Start 2P',monospace; font-size:8px; letter-spacing:.04em;
-    color:var(--paper); background:var(--ink); border:1.5px solid var(--ink); border-radius:3px; padding:10px 14px;
-    cursor:pointer; transition:transform .12s, background .2s, border-color .2s; }
+  button{ font-family:'Press Start 2P',monospace; font-size:8px; letter-spacing:.04em; color:var(--paper);
+    background:var(--ink); border:1.5px solid var(--ink); border-radius:3px; padding:10px 14px; cursor:pointer;
+    transition:transform .12s, background .2s, border-color .2s; }
   button:hover{ background:var(--blueprint); border-color:var(--blueprint); transform:translateY(-2px); }
   button:active{ transform:translateY(0); }
-
   .ov{ position:absolute; inset:0; z-index:25; display:none; flex-direction:column; align-items:center; justify-content:center;
     text-align:center; background:rgba(236,227,210,.94); padding:22px; }
-  .ov h1{ font-family:'Press Start 2P',monospace; font-size:clamp(11px,5.2vw,17px); color:var(--ink); line-height:1.7; margin-bottom:16px; max-width:100%; word-break:break-word; overflow-wrap:anywhere; }
-  .ov p{ font-size:9px; color:var(--coffee); line-height:2.1; margin-bottom:18px; max-width:520px; }
-  .ov .k{ color:var(--paper); background:var(--ink); padding:2px 7px; border-radius:3px; }
-  .ov .a{ color:var(--blueprint); } .ov .b{ color:var(--accent); }
-
+  .ov h1{ font-family:'Press Start 2P',monospace; font-size:clamp(11px,5.2vw,17px); color:var(--ink); line-height:1.7;
+    margin-bottom:16px; max-width:100%; word-break:break-word; overflow-wrap:anywhere; }
+  .ov p{ font-size:9px; color:var(--coffee); line-height:2.1; margin-bottom:16px; max-width:560px; }
+  .k{ font-family:'Press Start 2P',monospace; font-size:8px; color:var(--paper); background:var(--ink);
+    padding:2px 6px; border-radius:3px; display:inline-block; margin:0 1px; }
+  .ov .a{ color:var(--blueprint); }
+  .ov .b{ color:var(--accent); }
   .tagline{ margin-top:16px; font-size:8px; letter-spacing:1px; line-height:1.8; text-transform:uppercase; color:var(--coffee-2); }
-
-  @media (max-width:560px){
-    .wrap{ padding:0 16px; }
-    .gtitle{ font-size:1.3rem; }
-    .hud{ flex-direction:column; align-items:flex-start; gap:4px; }
-  }
+  @media (max-width:560px){ .wrap{padding:0 16px;} .gtitle{font-size:12px;} .hud{flex-direction:column; align-items:flex-start; gap:6px;} .keys{font-size:7px;} }
   @media (prefers-reduced-motion: reduce){ .p.on{ animation:none; } }
 </style>
 </head>
@@ -118,7 +90,7 @@
       <img class="mark" src="/nueva-logo.png" alt="Nueva logo">
       Nueva
     </a>
-    <a href="/arcade" class="back">← Arcade</a>
+    <a href="/arcade" class="back">&larr; Arcade</a>
   </div>
 </header>
 
@@ -144,10 +116,10 @@
     <div class="prompt" id="prompt"></div>
     <div class="foot">
       <div class="keys"><b>P1</b> = <b style="color:#2f5d8a">A</b> &nbsp; <b>P2</b> = <b style="color:#a63a53">L</b><br>keys A / L &nbsp;or&nbsp; L1 / R1 on pad</div>
-      <button id="reset">Reset</button>
+      <button id="reset">RESET</button>
     </div>
   </div>
-  <p class="tagline">FIG.01 · A Nueva arcade build</p>
+  <p class="tagline">FIG.01 &middot; A Nueva arcade build</p>
 </main>
 <script>
 (function(){
