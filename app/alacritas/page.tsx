@@ -3,6 +3,9 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
+import ScrollProgress from "@/components/ScrollProgress";
 import "./alacritas.css";
 
 type FoodItem = {
@@ -243,7 +246,11 @@ export default function AlacritasPage() {
   }, [items]);
 
   return (
-    <main className="alacritas-page">
+    <>
+      <ScrollProgress />
+      <Nav activeLink="alacritas" />
+
+      <main className="alacritas-page">
       <div className="alacritas-backbar">
         <Link href="/" className="alacritas-back">← Back to Nueva</Link>
         <span>AI Lab · Café Division</span>
@@ -444,6 +451,9 @@ export default function AlacritasPage() {
           {result.notes && <p className="alacritas-notes">{result.notes}</p>}
         </section>
       )}
-    </main>
+      </main>
+
+      <Footer subtitle="Alacritas · Café food-tech prototype" />
+    </>
   );
 }

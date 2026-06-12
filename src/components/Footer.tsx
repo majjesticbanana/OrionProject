@@ -7,7 +7,7 @@ interface FooterProps {
   subtitle?: string;
 }
 
-export default function Footer({ subtitle = "Class 10S4 \u00b7 A student workshop" }: FooterProps) {
+export default function Footer({ subtitle = "Class 10S4 · A student workshop" }: FooterProps) {
   return (
     <footer>
       <div className="wrap">
@@ -17,15 +17,20 @@ export default function Footer({ subtitle = "Class 10S4 \u00b7 A student worksho
             <div className="foot-brand">Nueva</div>
             <p>{subtitle}</p>
           </div>
-          <div className="foot-links">
+
+          <div className="foot-links" aria-label="Footer navigation">
             <Link href="/#about">About</Link>
             <Link href="/#projects">Workshop</Link>
-            <Link href="/arcade">Arcade</Link>
             <Link href="/#try">Valkyrie</Link>
+            <Link href="/arcade">Arcade</Link>
+            <Link href="/alacritas">Alacritas</Link>
             <Link href="/#team">Team</Link>
           </div>
         </div>
-        <div className="copyr">&copy; {new Date().getFullYear()} Nueva &middot; Class 10S4 &middot; Built in cardboard &amp; blueprint blue.</div>
+
+        <div className="copyr">
+          &copy; {new Date().getFullYear()} Nueva &middot; Class 10S4 &middot; Built in cardboard, caf&eacute; light, and prototype energy.
+        </div>
       </div>
     </footer>
   );
