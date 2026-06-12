@@ -829,6 +829,9 @@
   addEventListener("scroll", measureBoxes, { passive:true });
   addEventListener("resize", measureBoxes);
   function hideCursor(){ if (shown){ shown = false; document.body.classList.remove("cur-on","cur-hot"); } }
+  /* Hide the cursor after 3s of stillness; the next move brings it back. */
+  var idleTimer = 0;
+  function armIdle(){ clearTimeout(idleTimer); idleTimer = setTimeout(hideCursor, 3000); }
 
   function cframe(){
     craf = 0; rx += (dx - rx) * 0.16; ry += (dy - ry) * 0.16;
@@ -841,6 +844,7 @@
     if (nearEmbed(e.clientX, e.clientY)){ hideCursor(); return; }
     dx = e.clientX; dy = e.clientY;
     if (!shown){ shown = true; document.body.classList.add("cur-on"); rx = dx; ry = dy; }
+    armIdle();
     ckick();
   }, { passive:true });
   addEventListener("pointerover", function(e){
