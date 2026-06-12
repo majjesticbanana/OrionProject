@@ -7,7 +7,7 @@
 .ahero h1{ font-family:'Fraunces',serif; font-weight:600; font-size:clamp(3rem,9vw,6rem);
   line-height:.92; color:var(--ink); letter-spacing:-.01em; position:relative; width:max-content; max-width:100%; }
 .ahero h1::before{ content:"The Arcade"; position:absolute; left:.05em; top:.05em; z-index:-1;
-  color:transparent; -webkit-text-stroke:1.4px var(--maroon); opacity:.45; }
+  white-space:nowrap; color:transparent; -webkit-text-stroke:1.4px var(--maroon); opacity:.45; }
 .htag{ display:inline-flex; align-items:center; gap:14px; font-size:.8rem; letter-spacing:.4em;
   text-transform:uppercase; color:var(--coffee-2); margin-top:10px; }
 .htag::before,.htag::after{ content:""; width:36px; height:1px; background:var(--coffee-2); opacity:.5; }
