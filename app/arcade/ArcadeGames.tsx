@@ -19,6 +19,7 @@ const GAMES: Game[] = [
   { title: "Nueva Depot", genre: "Co-op \u00b7 Sorting", players: "2", status: "live", href: "/games/orion_depot.html", icon: "pad" },
   { title: "Nueva Squadron", genre: "Co-op \u00b7 Shmup", players: "2", status: "live", href: "/games/orion_squadron.html", icon: "ship" },
   { title: "Nueva Crosser", genre: "Race \u00b7 Arcade", players: "2", status: "live", href: "/games/orion_crosser.html", icon: "cross" },
+  { title: "Nueva Hollow", genre: "Horror \u00b7 Survival", players: "1", status: "live", href: "/games/orion_hollow.html", icon: "tree" },
 ];
 
 const ICONS: Record<string, string> = {
@@ -29,6 +30,7 @@ const ICONS: Record<string, string> = {
   pong: '<rect x="22" y="20" width="6" height="22" class="bp-line"/><rect x="92" y="34" width="6" height="22" class="bp-line"/><circle cx="60" cy="38" r="4" class="bp-line"/><path class="bp-dash" d="M60 12v52"/>',
   ship: '<path class="bp-line" d="M60 10l10 24-10 8-10-8z"/><path class="bp-line-2" d="M50 30l-12 14 12-2 M70 30l12 14-12-2"/><circle cx="60" cy="24" r="4" class="bp-line-2"/><path class="bp-dash" d="M60 44v16 M48 50v8 M72 50v8"/>',
   cross: '<path class="bp-thin" d="M22 18h76 M22 34h76 M22 50h76"/><path class="bp-dash" d="M60 12v52"/><rect x="34" y="22" width="14" height="8" rx="2" class="bp-line"/><rect x="74" y="38" width="14" height="8" rx="2" class="bp-line-2"/>',
+  tree: '<path class="bp-line" d="M60 10 L44 36 H76 Z"/><path class="bp-line-2" d="M60 24 L40 50 H80 Z"/><rect x="56" y="48" width="8" height="12" class="bp-thin"/><path class="bp-dash" d="M24 60h72"/><circle cx="86" cy="20" r="3" class="bp-dot"/>',
 };
 
 const META: Record<string, { pill: string; cls: string; build: string }> = {
@@ -138,7 +140,10 @@ export default function ArcadeGames() {
                       <div><dt>Build</dt><dd>{m.build}</dd></div>
                     </dl>
                     {g.status === "live" && g.href ? (
-                      <a className="gbtn" href={g.href}>Play &#9654;</a>
+                      <a className="gbtn" href={g.href}>
+                        <span className="face">Play &#9654;</span>
+                        <span className="coin" aria-hidden="true">INSERT COIN</span>
+                      </a>
                     ) : (
                       <span className="gbtn dis">{g.status === "soon" ? "Planned" : "In progress"}</span>
                     )}

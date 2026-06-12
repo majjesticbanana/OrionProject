@@ -5,6 +5,7 @@ import ScrollProgress from "@/components/ScrollProgress";
 import RevealObserver from "@/components/RevealObserver";
 import BlueprintSchematic from "@/components/BlueprintSchematic";
 import NavScrollHighlight from "@/components/NavScrollHighlight";
+import Fx from "./fx/Fx";
 import "./home.css";
 
 export default function Home() {
@@ -13,6 +14,7 @@ export default function Home() {
       <ScrollProgress />
       <RevealObserver />
       <NavScrollHighlight />
+      <Fx />
       <Nav />
 
       {/* HERO */}
@@ -20,7 +22,14 @@ export default function Home() {
         <section className="hero">
           <div className="hero-text" id="heroText">
             <div className="eyebrow">Class 10S4 &middot; A Student Workshop</div>
-            <div className="wordmark">Nueva</div>
+            <div className="wordmark" aria-label="Nueva">
+              {"Nueva".split("").map((ch, i) => (
+                <span key={i} className="wm" aria-hidden="true" style={{ "--i": i } as React.CSSProperties}>{ch}</span>
+              ))}
+              <svg className="swash" viewBox="0 0 600 36" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M8 24 C 130 6, 320 34, 592 14" />
+              </svg>
+            </div>
             <div className="project-tag">Design &middot; Build &middot; Gather</div>
             <p className="lead">
               We&apos;re a group of students who <b>build our own tech and games</b> &mdash; and bring them together in a retro arcade caf&eacute;. A workshop where the things our curiosity creates are also the things that bring people together to play, compete, and connect.
@@ -35,7 +44,13 @@ export default function Home() {
         </section>
       </div>
 
-      <div className="wrap"><div className="divider" /></div>
+      {/* TICKER TAPE */}
+      <div className="tape" aria-hidden="true">
+        <div className="tape-in">
+          <span>NUEVA ARCADE <b>&#9670;</b> BUILT BY 10S4 <b>&#9670;</b> INSERT COIN <b>&#9670;</b> WORKSHOP &middot; ARCADE &middot; CAF&Eacute; <b>&#9670;</b> PRESS START <b>&#9670;</b>&nbsp;</span>
+          <span>NUEVA ARCADE <b>&#9670;</b> BUILT BY 10S4 <b>&#9670;</b> INSERT COIN <b>&#9670;</b> WORKSHOP &middot; ARCADE &middot; CAF&Eacute; <b>&#9670;</b> PRESS START <b>&#9670;</b>&nbsp;</span>
+        </div>
+      </div>
 
       {/* ABOUT */}
       <div className="wrap">
@@ -58,7 +73,7 @@ export default function Home() {
       {/* PILLARS */}
       <div className="wrap">
         <section>
-          <div className="sec-head reveal">
+          <div className="sec-head reveal" data-num="02">
             <span className="sec-num">02 / How it fits together</span>
             <h2>Making, and gathering.</h2>
             <p>One idea, three facets &mdash; they feed each other. What we build draws people in; the people who visit tell us what to build next.</p>
@@ -85,7 +100,7 @@ export default function Home() {
       {/* PROJECTS / WORKSHOP */}
       <div className="wrap">
         <section id="projects">
-          <div className="sec-head reveal">
+          <div className="sec-head reveal" data-num="03">
             <span className="sec-num">03 / The Workshop</span>
             <h2>What we&apos;re building.</h2>
             <p>Our current bench. Some are running, some are still on the drawing board &mdash; all built by us.</p>
@@ -142,7 +157,7 @@ export default function Home() {
       {/* TRY IT (Valkyrie) */}
       <div className="wrap">
         <section id="try">
-          <div className="sec-head reveal">
+          <div className="sec-head reveal" data-num="04">
             <span className="sec-num">04 / From the bench</span>
             <h2>Meet Valkyrie.</h2>
             <p>
@@ -190,7 +205,7 @@ export default function Home() {
       {/* TEAM */}
       <div className="wrap">
         <section id="team">
-          <div className="sec-head reveal">
+          <div className="sec-head reveal" data-num="05">
             <span className="sec-num">05 / The Team</span>
             <h2>The crew of 10S4.</h2>
             <p>The students behind Nueva.</p>

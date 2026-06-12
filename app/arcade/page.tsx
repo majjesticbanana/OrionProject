@@ -57,6 +57,7 @@ function ArcadeStats() {
     { status: "live" },
     { status: "live" },
     { status: "live" },
+    { status: "live" },
   ];
   const nLive = GAMES.filter((g) => g.status === "live").length;
   return (
