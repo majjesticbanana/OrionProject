@@ -188,7 +188,7 @@
     </div>
     <div class="prompt" id="prompt"></div>
     <div class="foot">
-      <div class="keys"><b>P1</b> fly <b style="color:#2f5d8a">W A S D</b> &middot; fire <b style="color:#2f5d8a">F</b> &middot; spray <b style="color:#2f5d8a">G</b> &nbsp; <b>P2</b> fly <b style="color:#a63a53">ARROWS</b> &middot; fire <b style="color:#a63a53">/</b> &middot; spray <b style="color:#a63a53">.</b><br>pad: sticks fly &middot; R1/L1 = fire &middot; R2/L2 = side-spray</div>
+      <div class="keys"><b>P1</b> fly <b style="color:#2f5d8a">W A S D</b> &middot; fire <b style="color:#2f5d8a">F</b> &middot; spray <b style="color:#2f5d8a">G</b> &nbsp; <b>P2</b> fly <b style="color:#a63a53">ARROWS</b> &middot; fire <b style="color:#a63a53">/</b> &middot; spray <b style="color:#a63a53">.</b><br>pad: P1 left stick + <b style="color:#2f5d8a">L1</b>/<b style="color:#2f5d8a">L2</b> &middot; P2 right stick + <b style="color:#a63a53">R1</b>/<b style="color:#a63a53">R2</b></div>
       <button id="reset">RESET</button>
     </div>
   </div>
@@ -224,7 +224,7 @@
   var SIDE_CD=70, SIDE_SPD=0.40;
   var SIDE_MAG=14;          // rounds per burst-mag (each tap of fire fires 2 bullets, costs 1 round)
   var SIDE_RELOAD=1600;     // ms to reload an empty magazine
-  var SIDE_DMG=0.34;        // damage per side bullet (vs 1.0 for a primary bolt) -> ~1/3 strength
+  var SIDE_DMG=0.45;        // damage per side bullet (vs 1.0 for a primary bolt) -> minigun, slightly buffed
   var EB_SPD=0.140;
 
   // ---- enemy archetypes (waves) ----
@@ -299,8 +299,8 @@
     var ps=pads();
     var p1={mx:0,my:0,fire:false,fire2:false}, p2={mx:0,my:0,fire:false,fire2:false};
     if(ps[0]){ var g=ps[0];
-      p1.mx=dz(g.axes[0]||0); p1.my=dz(g.axes[1]||0); p1.fire=btn(g,5); p1.fire2=btn(g,7);   // R1 primary / R2 side-spray
-      p2.mx=dz(g.axes[2]||0); p2.my=dz(g.axes[3]||0); p2.fire=btn(g,4); p2.fire2=btn(g,6);   // L1 primary / L2 side-spray
+      p1.mx=dz(g.axes[0]||0); p1.my=dz(g.axes[1]||0); p1.fire=btn(g,4); p1.fire2=btn(g,6);   // P1: left stick + L1 primary / L2 side-spray
+      p2.mx=dz(g.axes[2]||0); p2.my=dz(g.axes[3]||0); p2.fire=btn(g,5); p2.fire2=btn(g,7);   // P2: right stick + R1 primary / R2 side-spray
     }
     if(ps[1]){ var h=ps[1]; p2.mx=dz(h.axes[0]||0); p2.my=dz(h.axes[1]||0); if(btn(h,5)) p2.fire=true; if(btn(h,7)) p2.fire2=true; }
     var k1x=kAxis('a','d'), k1y=kAxis('w','s'); if(k1x||k1y){ p1.mx=k1x; p1.my=k1y; } if(keys['f']) p1.fire=true; if(keys['g']) p1.fire2=true;
@@ -785,8 +785,8 @@
       '<div class="pad"><span class="dot'+(conn?' ok':'')+'"></span>'+
         (conn?'<span class="g">CONTROLLER READY</span>':'<span class="a">KEYBOARD READY</span> <span class="sub">&middot; or plug in a pad</span>')+'</div>'+
       '<p>fly up through the fleet together. at <span class="a">0:50</span> a <span class="r">dreadnought</span> warps in &mdash; break it to win. the <span class="a">side-spray</span> fires left &amp; right and shoots down enemy fire, but it&apos;s weaker and reloads when its mag runs dry.</p>'+
-      '<div class="duo"><div><b>P1 &middot; BLUE</b><span class="k">W A S D</span> + <span class="k">F</span> / <span class="k">G</span><br>or left stick + <span class="k">R1</span> / <span class="k">R2</span></div>'+
-        '<div><b>P2 &middot; ROSE</b><span class="k">ARROWS</span> + <span class="k">/</span> / <span class="k">.</span><br>or right stick + <span class="k">L1</span> / <span class="k">L2</span></div></div>'+
+      '<div class="duo"><div><b>P1 &middot; BLUE</b><span class="k">W A S D</span> + <span class="k">F</span> / <span class="k">G</span><br>or left stick + <span class="k">L1</span> / <span class="k">L2</span></div>'+
+        '<div><b>P2 &middot; ROSE</b><span class="k">ARROWS</span> + <span class="k">/</span> / <span class="k">.</span><br>or right stick + <span class="k">R1</span> / <span class="k">R2</span></div></div>'+
       '<p class="sub">'+START_LIVES+' shared lives &middot; the boss has three phases &middot; dodge the column-lasers</p>'+
       '<button id="go">'+(conn?'PRESS &#9398; / ENTER':'PRESS ENTER TO LAUNCH')+'</button>';
     document.getElementById('go').addEventListener('click', startGame);
