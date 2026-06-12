@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ScrollProgress from "@/components/ScrollProgress";
@@ -42,6 +42,7 @@ export default function AlacritasPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+
   const [preview, setPreview] = useState<string | null>(null);
   const [imageData, setImageData] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<string | null>(null);
@@ -54,20 +55,42 @@ export default function AlacritasPage() {
 
   const canAnalyze = Boolean(imageData || mealText.trim());
 
-
-  function stopCamera() {
+  const stopCamera = useCallback(() => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
 
     if (videoRef.current) {
+      videoRef.current.pause();
       videoRef.current.srcObject = null;
+      videoRef.current.load();
     }
 
     setCameraOpen(false);
     setCameraLoading(false);
-  }
+  }, []);
+
+  useEffect(() => {
+    if (!cameraOpen || !streamRef.current || !videoRef.current) return;
+
+    const video = videoRef.current;
+    video.srcObject = streamRef.current;
+
+    const playVideo = async () => {
+      try {
+        await video.play();
+      } catch {
+        setError("Camera opened, but the preview could not start. Try Capture, or use Upload / mobile camera instead.");
+      }
+    };
+
+    playVideo();
+  }, [cameraOpen]);
+
+  useEffect(() => {
+    return () => stopCamera();
+  }, [stopCamera]);
 
   async function startCamera() {
     if (loading || cameraLoading) return;
@@ -84,29 +107,30 @@ export default function AlacritasPage() {
     try {
       stopCamera();
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { ideal: "environment" },
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-        audio: false,
-      });
+      let stream: MediaStream;
+
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: "environment" },
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+          audio: false,
+        });
+      } catch {
+        // Macs/desktops often do not have an environment-facing camera, so fall back cleanly.
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+          audio: false,
+        });
+      }
 
       streamRef.current = stream;
       setCameraOpen(true);
-
-      setTimeout(async () => {
-        if (!videoRef.current) return;
-
-        videoRef.current.srcObject = stream;
-
-        try {
-          await videoRef.current.play();
-        } catch {
-          // Some browsers wait for the user to interact again.
-        }
-      }, 0);
     } catch (err) {
       setCameraOpen(false);
       setError(
@@ -122,13 +146,18 @@ export default function AlacritasPage() {
   function capturePhoto() {
     const video = videoRef.current;
 
-    if (!video) {
+    if (!video || !streamRef.current) {
       setError("Camera is not ready yet. Try again in a second.");
       return;
     }
 
     const width = video.videoWidth || 1280;
     const height = video.videoHeight || 720;
+
+    if (!video.videoWidth || !video.videoHeight) {
+      setError("The camera preview is still loading. Wait a second, then capture again.");
+      return;
+    }
 
     const canvas = document.createElement("canvas");
     canvas.width = width;
@@ -151,10 +180,6 @@ export default function AlacritasPage() {
     setResult(null);
     stopCamera();
   }
-
-  useEffect(() => {
-    return () => stopCamera();
-  }, []);
 
   function handleFile(file?: File) {
     if (!file) return;
@@ -251,206 +276,208 @@ export default function AlacritasPage() {
       <Nav activeLink="alacritas" />
 
       <main className="alacritas-page">
-      <div className="alacritas-backbar">
-        <Link href="/" className="alacritas-back">← Back to Nueva</Link>
-        <span>AI Lab · Café Division</span>
-      </div>
-
-      <section className="alacritas-hero" aria-label="Alacritas introduction">
-        <div className="alacritas-fig">Nueva · FIG.09 · Food Tech</div>
-        <div className="alacritas-hero-grid">
-          <div>
-            <p className="alacritas-eyebrow">Photo calorie estimator</p>
-            <h1>Alacritas</h1>
-            <p className="alacritas-copy">
-              Snap a meal, add a quick note, and get a clean calorie and macro estimate for the food in front of you.
-            </p>
-            <div className="alacritas-pills" aria-label="Alacritas features">
-              <span>Photo + notes</span>
-              <span>Café-aware</span>
-              <span>Fast estimates</span>
-            </div>
-          </div>
-
-          <div className="alacritas-responsible" aria-label="Responsible estimate note">
-            <div className="alacritas-card-title">Estimate, not diagnosis</div>
-            <p>
-              Alacritas is for food awareness at the business fair. Portions from photos are approximate, so results should not be treated as medical advice.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        hidden
-        onChange={(e) => handleFile(e.target.files?.[0])}
-      />
-
-      <section className="alacritas-workbench" aria-label="Meal analysis workbench">
-        <div
-          className={`alacritas-dropzone ${preview ? "has-preview" : ""} ${cameraOpen ? "is-camera-open" : ""}`}
-          role="button"
-          tabIndex={0}
-          onClick={() => {
-            if (!cameraOpen) fileInputRef.current?.click();
-          }}
-          onKeyDown={(e) => {
-            if ((e.key === "Enter" || e.key === " ") && !cameraOpen) {
-              e.preventDefault();
-              fileInputRef.current?.click();
-            }
-          }}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            e.preventDefault();
-            handleFile(e.dataTransfer.files?.[0]);
-          }}
-        >
-          {cameraOpen ? (
-            <div className="alacritas-camera-live" onClick={(e) => e.stopPropagation()}>
-              <video
-                ref={videoRef}
-                className="alacritas-video"
-                autoPlay
-                playsInline
-                muted
-              />
-              <div className="alacritas-camera-controls">
-                <button type="button" className="alacritas-primary mini" onClick={capturePhoto}>
-                  Capture plate
-                </button>
-                <button type="button" className="alacritas-ghost mini" onClick={stopCamera}>
-                  Close camera
-                </button>
-              </div>
-            </div>
-          ) : preview ? (
-            <img src={preview} alt="Selected meal" className="alacritas-preview" />
-          ) : (
-            <div className="alacritas-dropzone-copy">
-              <div className="alacritas-camera">◎</div>
-              <h2>Photograph your plate</h2>
-              <p>Open the live camera, take a mobile photo, upload an image, or drag one here.</p>
-              <div className="alacritas-camera-choice">
-                <button
-                  type="button"
-                  className="alacritas-primary mini"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    startCamera();
-                  }}
-                  disabled={cameraLoading}
-                >
-                  {cameraLoading ? "Opening…" : "Open camera"}
-                </button>
-                <button
-                  type="button"
-                  className="alacritas-ghost mini"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    fileInputRef.current?.click();
-                  }}
-                >
-                  Upload / mobile camera
-                </button>
-              </div>
-            </div>
-          )}
+        <div className="alacritas-backbar">
+          <Link href="/" className="alacritas-back">← Back to Nueva</Link>
+          <span>AI Lab · Café Division</span>
         </div>
 
-        <div className="alacritas-panel">
-          <label className="alacritas-label" htmlFor="meal-notes">
-            Optional meal notes
-          </label>
-          <textarea
-            id="meal-notes"
-            value={mealText}
-            onChange={(e) => {
-              setMealText(e.target.value);
-              setError(null);
-            }}
-            placeholder="e.g. iced coffee with milk and sugar, small brownie, one glazed donut..."
-            rows={6}
-          />
-
-          <div className="alacritas-examples" aria-label="Example prompts">
-            {EXAMPLES.map((example) => (
-              <button
-                key={example}
-                type="button"
-                className="alacritas-chip"
-                onClick={() => setMealText(example)}
-              >
-                {example}
-              </button>
-            ))}
-          </div>
-
-          <div className="alacritas-actions">
-            <button type="button" className="alacritas-ghost" onClick={reset} disabled={loading}>
-              Reset
-            </button>
-            <button type="button" className="alacritas-primary" onClick={analyze} disabled={!canAnalyze || loading}>
-              {loading && <span className="alacritas-spinner" aria-hidden="true" />}
-              {loading ? "Estimating…" : "Estimate meal"}
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {error && <div className="alacritas-error" role="alert">{error}</div>}
-
-      {result && (
-        <section className="alacritas-receipt" aria-label="Nutrition estimate">
-          <div className="alacritas-receipt-head">
+        <section className="alacritas-hero" aria-label="Alacritas introduction">
+          <div className="alacritas-fig">Nueva · FIG.09 · Food Tech</div>
+          <div className="alacritas-hero-grid">
             <div>
-              <div className="alacritas-kicker">Alacritas receipt</div>
-              <div className="alacritas-meal-name">{result.mealName || "Meal estimate"}</div>
-            </div>
-            <div className="alacritas-confidence">{result.confidence || "low"} confidence</div>
-          </div>
-
-          {items.map((item, i) => (
-            <div className="alacritas-line-item" key={`${item.name || "item"}-${i}`}>
-              <div>
-                <div className="alacritas-food">{item.name || "Food item"}</div>
-                <div className="alacritas-portion">{item.portion || "estimated portion"}</div>
+              <p className="alacritas-eyebrow">Photo calorie estimator</p>
+              <h1>Alacritas</h1>
+              <p className="alacritas-copy">
+                Snap a meal, add a quick note, and get a clean calorie and macro estimate for the food in front of you.
+              </p>
+              <div className="alacritas-pills" aria-label="Alacritas features">
+                <span>Photo + notes</span>
+                <span>Café-aware</span>
+                <span>Fast estimates</span>
               </div>
-              <div className="alacritas-kcal">{roundNumber(item.calories)} kcal</div>
             </div>
-          ))}
 
-          <div className="alacritas-total-row">
-            <div className="alacritas-total-label">Estimated total</div>
-            <div className="alacritas-total-value">
-              {roundNumber(result.totalCalories)} <em>kcal</em>
+            <div className="alacritas-responsible" aria-label="Responsible estimate note">
+              <div className="alacritas-card-title">Estimate, not diagnosis</div>
+              <p>
+                Alacritas is for food awareness at the business fair. Portions from photos are approximate, so results should not be treated as medical advice.
+              </p>
             </div>
           </div>
-
-          {totals && (
-            <div className="alacritas-macros">
-              <div className="alacritas-macro">
-                <div className="alacritas-num">{roundNumber(totals.protein)}g</div>
-                <div className="alacritas-lbl">protein</div>
-              </div>
-              <div className="alacritas-macro">
-                <div className="alacritas-num">{roundNumber(totals.carbs)}g</div>
-                <div className="alacritas-lbl">carbs</div>
-              </div>
-              <div className="alacritas-macro">
-                <div className="alacritas-num">{roundNumber(totals.fat)}g</div>
-                <div className="alacritas-lbl">fat</div>
-              </div>
-            </div>
-          )}
-
-          {result.notes && <p className="alacritas-notes">{result.notes}</p>}
         </section>
-      )}
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          hidden
+          onChange={(e) => handleFile(e.target.files?.[0])}
+        />
+
+        <section className="alacritas-workbench" aria-label="Meal analysis workbench">
+          <div
+            className={`alacritas-dropzone ${preview ? "has-preview" : ""} ${cameraOpen ? "is-camera-open" : ""}`}
+            role="button"
+            tabIndex={0}
+            onClick={() => {
+              if (!cameraOpen) fileInputRef.current?.click();
+            }}
+            onKeyDown={(e) => {
+              if ((e.key === "Enter" || e.key === " ") && !cameraOpen) {
+                e.preventDefault();
+                fileInputRef.current?.click();
+              }
+            }}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              handleFile(e.dataTransfer.files?.[0]);
+            }}
+          >
+            {cameraOpen ? (
+              <div className="alacritas-camera-live" onClick={(e) => e.stopPropagation()}>
+                <video
+                  ref={videoRef}
+                  className="alacritas-video"
+                  autoPlay
+                  playsInline
+                  muted
+                  onLoadedMetadata={(e) => e.currentTarget.play().catch(() => undefined)}
+                  onCanPlay={(e) => e.currentTarget.play().catch(() => undefined)}
+                />
+                <div className="alacritas-camera-controls">
+                  <button type="button" className="alacritas-primary mini" onClick={capturePhoto}>
+                    Capture plate
+                  </button>
+                  <button type="button" className="alacritas-ghost mini" onClick={stopCamera}>
+                    Close camera
+                  </button>
+                </div>
+              </div>
+            ) : preview ? (
+              <img src={preview} alt="Selected meal" className="alacritas-preview" />
+            ) : (
+              <div className="alacritas-dropzone-copy">
+                <div className="alacritas-camera">◎</div>
+                <h2>Photograph your plate</h2>
+                <p>Open the live camera, take a mobile photo, upload an image, or drag one here.</p>
+                <div className="alacritas-camera-choice">
+                  <button
+                    type="button"
+                    className="alacritas-primary mini"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startCamera();
+                    }}
+                    disabled={cameraLoading}
+                  >
+                    {cameraLoading ? "Opening…" : "Open camera"}
+                  </button>
+                  <button
+                    type="button"
+                    className="alacritas-ghost mini"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      fileInputRef.current?.click();
+                    }}
+                  >
+                    Upload / mobile camera
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="alacritas-panel">
+            <label className="alacritas-label" htmlFor="meal-notes">
+              Optional meal notes
+            </label>
+            <textarea
+              id="meal-notes"
+              value={mealText}
+              onChange={(e) => {
+                setMealText(e.target.value);
+                setError(null);
+              }}
+              placeholder="e.g. iced coffee with milk and sugar, small brownie, one glazed donut..."
+              rows={6}
+            />
+
+            <div className="alacritas-examples" aria-label="Example prompts">
+              {EXAMPLES.map((example) => (
+                <button
+                  key={example}
+                  type="button"
+                  className="alacritas-chip"
+                  onClick={() => setMealText(example)}
+                >
+                  {example}
+                </button>
+              ))}
+            </div>
+
+            <div className="alacritas-actions">
+              <button type="button" className="alacritas-ghost" onClick={reset} disabled={loading}>
+                Reset
+              </button>
+              <button type="button" className="alacritas-primary" onClick={analyze} disabled={!canAnalyze || loading}>
+                {loading && <span className="alacritas-spinner" aria-hidden="true" />}
+                {loading ? "Estimating…" : "Estimate meal"}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {error && <div className="alacritas-error" role="alert">{error}</div>}
+
+        {result && (
+          <section className="alacritas-receipt" aria-label="Nutrition estimate">
+            <div className="alacritas-receipt-head">
+              <div>
+                <div className="alacritas-kicker">Alacritas receipt</div>
+                <div className="alacritas-meal-name">{result.mealName || "Meal estimate"}</div>
+              </div>
+              <div className="alacritas-confidence">{result.confidence || "low"} confidence</div>
+            </div>
+
+            {items.map((item, i) => (
+              <div className="alacritas-line-item" key={`${item.name || "item"}-${i}`}>
+                <div>
+                  <div className="alacritas-food">{item.name || "Food item"}</div>
+                  <div className="alacritas-portion">{item.portion || "estimated portion"}</div>
+                </div>
+                <div className="alacritas-kcal">{roundNumber(item.calories)} kcal</div>
+              </div>
+            ))}
+
+            <div className="alacritas-total-row">
+              <div className="alacritas-total-label">Estimated total</div>
+              <div className="alacritas-total-value">
+                {roundNumber(result.totalCalories)} <em>kcal</em>
+              </div>
+            </div>
+
+            {totals && (
+              <div className="alacritas-macros">
+                <div className="alacritas-macro">
+                  <div className="alacritas-num">{roundNumber(totals.protein)}g</div>
+                  <div className="alacritas-lbl">protein</div>
+                </div>
+                <div className="alacritas-macro">
+                  <div className="alacritas-num">{roundNumber(totals.carbs)}g</div>
+                  <div className="alacritas-lbl">carbs</div>
+                </div>
+                <div className="alacritas-macro">
+                  <div className="alacritas-num">{roundNumber(totals.fat)}g</div>
+                  <div className="alacritas-lbl">fat</div>
+                </div>
+              </div>
+            )}
+
+            {result.notes && <p className="alacritas-notes">{result.notes}</p>}
+          </section>
+        )}
       </main>
 
       <Footer subtitle="Alacritas · Café food-tech prototype" />

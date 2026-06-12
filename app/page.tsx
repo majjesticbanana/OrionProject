@@ -120,6 +120,7 @@ export default function Home() {
               <p>Our IGCSE question-answering assistant, grounded in real past-paper mark schemes.</p>
               <span className="status live">Live</span>
             </div>
+
             <div className="proj reveal">
               <div className="icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -127,22 +128,12 @@ export default function Home() {
                   <circle cx="16" cy="11" r="1" /><circle cx="18.5" cy="13.5" r="1" />
                 </svg>
               </div>
-              <h3>The Arcade</h3>
+              <h3>Nueva Arcade</h3>
               <p>Eight pixel games we built, played through two recycled prototype arcade cabinets.</p>
               <span className="status live">Playable</span>
             </div>
-            <div className="proj reveal">
-              <div className="icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 13l2-5h14l2 5" /><path d="M2 13h20v4H2z" />
-                  <circle cx="7" cy="17.5" r="1.7" /><circle cx="17" cy="17.5" r="1.7" />
-                </svg>
-              </div>
-              <h3>Delivery Car</h3>
-              <p>Our remote-controlled car &mdash; being built into a runner that delivers around the caf&eacute;.</p>
-              <span className="status">In progress</span>
-            </div>
-            <Link href="/alacritas" className="proj more reveal proj-link">
+
+            <Link href="/alacritas" className="proj reveal proj-link">
               <div className="icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 11c0-3 2-5 5-5h6c3 0 5 2 5 5v2c0 3-2 5-5 5H9c-3 0-5-2-5-5v-2z" />
@@ -152,8 +143,20 @@ export default function Home() {
               </div>
               <h3>Alacritas</h3>
               <p>Our caf&eacute;-side AI that estimates calories and macros from food photos or quick meal notes.</p>
-              <span className="status live">New</span>
+              <span className="status live">Live</span>
             </Link>
+
+            <div className="proj reveal">
+              <div className="icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 13l2-5h14l2 5" /><path d="M2 13h20v4H2z" />
+                  <circle cx="7" cy="17.5" r="1.7" /><circle cx="17" cy="17.5" r="1.7" />
+                </svg>
+              </div>
+              <h3>RC Delivery Car</h3>
+              <p>Our remote-controlled delivery runner for the caf&eacute; side. It is still on the bench as a work in progress.</p>
+              <span className="status">Work in progress</span>
+            </div>
           </div>
         </section>
       </div>

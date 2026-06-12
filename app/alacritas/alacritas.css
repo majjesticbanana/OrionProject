@@ -308,7 +308,7 @@
   align-items:center;
   justify-content:center;
   gap:9px;
-  background:var(--ink);
+  background:var(--maroon-deep);
   color:var(--paper);
   box-shadow:5px 5px 0 var(--maroon-soft);
 }
@@ -517,6 +517,11 @@
   object-fit:cover;
   display:block;
   background:#12080c;
+  transform:translateZ(0);
+}
+
+.alacritas-video::-webkit-media-controls{
+  display:none !important;
 }
 
 .alacritas-camera-controls{
@@ -530,7 +535,7 @@
   align-items:center;
   padding:10px;
   border:1px solid rgba(236,227,210,.28);
-  background:rgba(18,8,12,.72);
+  background:rgba(246,239,226,.88);
   backdrop-filter:blur(8px);
   border-radius:8px;
 }
@@ -552,14 +557,17 @@
 }
 
 .alacritas-camera-controls .alacritas-primary.mini{
-  background:var(--gold);
-  color:var(--ink);
+  background:var(--gold) !important;
+  color:var(--ink) !important;
+  border-color:var(--ink) !important;
+  box-shadow:4px 4px 0 rgba(18,8,12,.28) !important;
 }
 
 .alacritas-camera-controls .alacritas-ghost.mini{
-  border-color:rgba(236,227,210,.65);
-  color:var(--paper);
-  background:rgba(236,227,210,.08);
+  border-color:var(--maroon-deep) !important;
+  color:var(--maroon-deep) !important;
+  background:var(--paper) !important;
+  box-shadow:4px 4px 0 rgba(18,8,12,.18) !important;
 }
 
 @media (max-width:560px){

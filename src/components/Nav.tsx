@@ -12,7 +12,7 @@ const NAV_LINKS = [
   { key: "projects", label: "Workshop", href: "/#projects", scroll: true },
   { key: "try", label: "Valkyrie", href: "/#try", scroll: true },
   { key: "arcade", label: "Arcade", href: "/arcade", scroll: false },
-  { key: "alacritas", label: "Alacritas", href: "/alacritas", scroll: false, spotlight: true },
+  { key: "alacritas", label: "Alacritas", href: "/alacritas", scroll: false },
   { key: "team", label: "Team", href: "/#team", scroll: true },
 ];
 
@@ -31,9 +31,7 @@ export default function Nav({ activeLink }: NavProps) {
               <Link
                 href={link.href}
                 data-scroll-link={link.scroll ? "true" : undefined}
-                className={[activeLink === link.key ? "active" : "", link.spotlight ? "nav-spotlight" : ""]
-                  .filter(Boolean)
-                  .join(" ")}
+                className={activeLink === link.key ? "active" : ""}
               >
                 {link.label}
               </Link>
