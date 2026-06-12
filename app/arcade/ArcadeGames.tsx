@@ -19,7 +19,7 @@ const GAMES: Game[] = [
   { title: "Nueva Depot", genre: "Co-op \u00b7 Sorting", players: "2", status: "live", href: "/games/orion_depot.html", icon: "pad" },
   { title: "Nueva Squadron", genre: "Co-op \u00b7 Shmup", players: "2", status: "live", href: "/games/orion_squadron.html", icon: "ship" },
   { title: "Nueva Crosser", genre: "Race \u00b7 Arcade", players: "2", status: "live", href: "/games/orion_crosser.html", icon: "cross" },
-  { title: "Nueva Hollow", genre: "Horror \u00b7 Survival", players: "1", status: "soon", href: "/games/orion_hollow.html", icon: "tree" },
+  { title: "Nueva Hollow", genre: "Horror \u00b7 Survival", players: "1", status: "live", href: "/games/orion_hollow.html", icon: "tree" },
 ];
 
 const ICONS: Record<string, string> = {
