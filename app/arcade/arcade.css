@@ -1,6 +1,7 @@
 /* ---------- HERO ---------- */
 .ahero{ display:grid; grid-template-columns:1.08fr .92fr; gap:44px; align-items:center;
-  min-height:70vh; padding:6vh 0 3vh; }
+  min-height:70vh; padding:6vh 0 3vh; position:relative; }
+.ahero > div, .ahero > .cabwrap{ position:relative; z-index:1; }
 .eyebrow{ font-size:.78rem; letter-spacing:.28em; text-transform:uppercase; color:var(--maroon);
   margin-bottom:18px; display:flex; align-items:center; gap:12px; }
 .eyebrow::before{ content:""; width:34px; height:1px; background:var(--maroon); }
@@ -142,4 +143,37 @@
   .gbtn .face,.gbtn .coin{ transition:none; }
   .gbtn:hover .face{ transform:none; opacity:1; }
   .gbtn:hover .coin{ transform:translateY(110%); }
+}
+
+/* ---------- MAROON INK SWIRLS (hero negative space) ---------- */
+/* Brought over from the home hero so the arcade breathes the same ink. */
+.swirls{ position:absolute; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; overflow:visible; }
+.swirls .sw{ fill:none; stroke:var(--maroon); stroke-width:2.1; stroke-linecap:round;
+  stroke-dasharray:1; stroke-dashoffset:1; opacity:0;
+  animation:swDraw var(--d,15s) cubic-bezier(.45,.05,.4,.95) var(--del,0s) infinite; }
+@keyframes swDraw{
+  0%   { stroke-dashoffset:1;  opacity:0; }
+  10%  { opacity:var(--o,.32); }
+  42%  { stroke-dashoffset:0;  }
+  58%  { stroke-dashoffset:0;  opacity:var(--o,.32); }
+  88%  { stroke-dashoffset:-1; opacity:0; }
+  100% { stroke-dashoffset:-1; opacity:0; }
+}
+.swl{ transform-box:fill-box; transform-origin:center; }
+.swl-a{ animation:swDriftA 26s ease-in-out infinite; }
+.swl-b{ animation:swDriftB 31s ease-in-out infinite; }
+@keyframes swDriftA{ 0%,100%{ transform:rotate(0deg) translateY(0); } 50%{ transform:rotate(9deg) translateY(-8px); } }
+@keyframes swDriftB{ 0%,100%{ transform:rotate(0deg) translateY(0); } 50%{ transform:rotate(-7deg) translateY(7px); } }
+.swd rect{ fill:var(--maroon); opacity:0; transform-box:fill-box; transform-origin:center;
+  animation:swDia var(--fd,10s) ease-in-out var(--fdel,0s) infinite; }
+@keyframes swDia{
+  0%,100%{ opacity:0; transform:translateY(8px) rotate(45deg) scale(.6); }
+  35%    { opacity:.5; transform:translateY(-4px) rotate(45deg) scale(1); }
+  70%    { opacity:.18; transform:translateY(-12px) rotate(45deg) scale(.85); }
+}
+@media (max-width:860px){ .swirls{ display:none; } }
+@media (prefers-reduced-motion: reduce){
+  .swirls .sw{ animation:none; stroke-dashoffset:0; opacity:.16; }
+  .swl-a,.swl-b,.swd rect{ animation:none; }
+  .swd rect{ opacity:.25; }
 }

@@ -3,7 +3,8 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ScrollProgress from "@/components/ScrollProgress";
 import RevealObserver from "@/components/RevealObserver";
-import BlueprintSchematic from "@/components/BlueprintSchematic";
+import HeroGear from "./fx/HeroGear";
+import Swirls from "./fx/Swirls";
 import NavScrollHighlight from "@/components/NavScrollHighlight";
 import Fx from "./fx/Fx";
 import "./home.css";
@@ -20,6 +21,7 @@ export default function Home() {
       {/* HERO */}
       <div className="wrap" id="top">
         <section className="hero">
+          <Swirls />
           <div className="hero-text" id="heroText">
             <div className="eyebrow">Class 10S4 &middot; A Student Workshop</div>
             <div className="wordmark" aria-label="Nueva">
@@ -40,7 +42,7 @@ export default function Home() {
               <Link href="#try" className="btn btn-ghost">Meet Valkyrie</Link>
             </div>
           </div>
-          <BlueprintSchematic />
+          <HeroGear />
         </section>
       </div>
 

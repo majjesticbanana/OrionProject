@@ -48,6 +48,34 @@ export default function Fx() {
       dot = document.createElement("div"); dot.id = "cur-dot";
       ring = document.createElement("div"); ring.id = "cur-ring";
       document.body.append(dot, ring);
+
+      /* Embeds (e.g. the Valkyrie iframe) swallow the pointer: the moment the
+         cursor crosses into one, the parent page stops receiving pointermove,
+         so the drafting cursor would otherwise freeze mid-page at its last spot.
+         We track each iframe's box and gracefully fade the cursor out as it
+         *approaches* an embed, then bring it back on the way out. */
+      const EDGE = 34;                       // fade-out margin around an embed
+      let boxes: DOMRect[] = [];
+      const measureBoxes = () => {
+        boxes = Array.from(document.querySelectorAll("iframe")).map((f) => f.getBoundingClientRect());
+      };
+      const nearEmbed = (x: number, y: number) =>
+        boxes.some((b) => x >= b.left - EDGE && x <= b.right + EDGE && y >= b.top - EDGE && y <= b.bottom + EDGE);
+      measureBoxes();
+      addEventListener("scroll", measureBoxes, { passive: true });
+      addEventListener("resize", measureBoxes);
+
+      const hideCursor = () => {
+        if (shown) { shown = false; document.body.classList.remove("cur-on", "cur-hot"); }
+      };
+
+      /* Hide the cursor after 3s of stillness; the next move brings it back. */
+      let idleTimer = 0;
+      const armIdle = () => {
+        clearTimeout(idleTimer);
+        idleTimer = window.setTimeout(hideCursor, 3000);
+      };
+
       const cframe = () => {
         craf = 0;
         rx += (dx - rx) * 0.16;
@@ -58,17 +86,23 @@ export default function Fx() {
       };
       const ckick = () => { if (!craf) craf = requestAnimationFrame(cframe); };
       const onMove = (e: PointerEvent) => {
+        if (nearEmbed(e.clientX, e.clientY)) { hideCursor(); return; }
         dx = e.clientX; dy = e.clientY;
         if (!shown) { shown = true; document.body.classList.add("cur-on"); rx = dx; ry = dy; }
+        armIdle();
         ckick();
       };
       const onOver = (e: PointerEvent) => {
         const hot = (e.target as Element | null)?.closest?.("a,button,[role=button]");
         document.body.classList.toggle("cur-hot", !!hot);
       };
-      const onLeave = () => { shown = false; document.body.classList.remove("cur-on"); };
+      const onLeave = () => hideCursor();
+      /* If the pointer slips fully into an embed and stops moving, focus shifts to
+         the iframe and no more pointermove events arrive — catch that and hide too. */
+      const onBlur = () => { if (document.activeElement?.tagName === "IFRAME") hideCursor(); };
       addEventListener("pointermove", onMove, { passive: true });
       addEventListener("pointerover", onOver, { passive: true });
+      addEventListener("blur", onBlur);
       document.documentElement.addEventListener("pointerleave", onLeave);
     }
 

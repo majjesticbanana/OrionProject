@@ -1,6 +1,7 @@
 /* ---------- HERO ---------- */
 .hero{ display:grid; grid-template-columns:1.15fr .85fr; gap:40px;
-  align-items:center; min-height:84vh; padding:6vh 0; }
+  align-items:center; min-height:84vh; padding:6vh 0; position:relative; }
+.hero > .hero-text, .hero > .schematic{ position:relative; z-index:1; }
 .eyebrow{ font-size:.78rem; letter-spacing:.28em; text-transform:uppercase;
   color:var(--maroon); margin-bottom:18px;
   display:flex; align-items:center; gap:12px; }
@@ -181,6 +182,9 @@
 }
 
 @media (prefers-reduced-motion: reduce){
+  .swirls .sw{ animation:none; stroke-dashoffset:0; opacity:.16; }
+  .swl-a,.swl-b,.swd rect{ animation:none; }
+  .swd rect{ opacity:.25; }
   .schematic{ animation:none; }
   .schematic::before{ animation:none; }
   .wordmark .wm{ animation:none; }
@@ -189,4 +193,45 @@
   .eyebrow::before,.project-tag,.lead,.cta-row .btn{ animation:none; }
   .status.live::before{ animation:none; }
   .pillar,.proj,.member,.vf{ transition:none; }
+}
+
+/* ---------- MAROON INK SWIRLS (hero negative space) ---------- */
+.swirls{ position:absolute; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; overflow:visible; }
+.swirls .sw{ fill:none; stroke:var(--maroon); stroke-width:2.1; stroke-linecap:round;
+  stroke-dasharray:1; stroke-dashoffset:1; opacity:0;
+  animation:swDraw var(--d,15s) cubic-bezier(.45,.05,.4,.95) var(--del,0s) infinite; }
+@keyframes swDraw{
+  0%   { stroke-dashoffset:1;  opacity:0; }
+  10%  { opacity:var(--o,.32); }
+  42%  { stroke-dashoffset:0;  }
+  58%  { stroke-dashoffset:0;  opacity:var(--o,.32); }
+  88%  { stroke-dashoffset:-1; opacity:0; }
+  100% { stroke-dashoffset:-1; opacity:0; }
+}
+.swl{ transform-box:fill-box; transform-origin:center; }
+.swl-a{ animation:swDriftA 26s ease-in-out infinite; }
+.swl-b{ animation:swDriftB 31s ease-in-out infinite; }
+@keyframes swDriftA{ 0%,100%{ transform:rotate(0deg) translateY(0); } 50%{ transform:rotate(9deg) translateY(-8px); } }
+@keyframes swDriftB{ 0%,100%{ transform:rotate(0deg) translateY(0); } 50%{ transform:rotate(-7deg) translateY(7px); } }
+.swd rect{ fill:var(--maroon); opacity:0; transform-box:fill-box; transform-origin:center;
+  animation:swDia var(--fd,10s) ease-in-out var(--fdel,0s) infinite; }
+@keyframes swDia{
+  0%,100%{ opacity:0; transform:translateY(8px) rotate(45deg) scale(.6); }
+  35%    { opacity:.5; transform:translateY(-4px) rotate(45deg) scale(1); }
+  70%    { opacity:.18; transform:translateY(-12px) rotate(45deg) scale(.85); }
+}
+
+/* ---------- HERO GEAR (the drafting engine) ---------- */
+.hg-teeth{ fill:rgba(142,39,66,.10); stroke:var(--maroon); stroke-width:2; stroke-linejoin:round; }
+.hg-teeth2{ fill:rgba(47,93,138,.06); stroke:var(--blueprint); stroke-width:1.6; stroke-linejoin:round; }
+.hg-arm{ stroke:var(--ink); stroke-width:5; stroke-linecap:round; }
+.hg-slot{ stroke:var(--paper); stroke-width:2.2; stroke-dasharray:5 4; }
+.hg-pin{ fill:var(--maroon); stroke:var(--paper); stroke-width:1.5; }
+.hg-nibp{ fill:var(--maroon-deep); }
+.hg-trail{ fill:none; stroke:var(--maroon); stroke-width:2.4; stroke-linecap:round;
+  stroke-linejoin:round; opacity:.5; }
+.hg-read{ font-family:'Press Start 2P',monospace; font-size:7px; fill:var(--maroon); letter-spacing:.08em; }
+
+@media (max-width:860px){
+  .swirls{ display:none; }
 }

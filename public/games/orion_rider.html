@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nueva Rider</title>
-<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="icon" type="image/png" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Spline+Sans+Mono:wght@400;500;600&family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -87,12 +87,89 @@
   .tagline{ margin-top:16px; font-size:8px; letter-spacing:1px; line-height:1.8; text-transform:uppercase; color:var(--coffee-2); }
   @media (max-width:560px){ .wrap{padding:0 16px;} .gtitle{font-size:12px;} .hud{flex-direction:column; align-items:flex-start; gap:6px;} .keys{font-size:7px;} }
 </style>
+<!-- Nueva FX: swirls + plotter rail + drafting cursor (shared design theory) -->
+<style id="nueva-fx-style">
+  :root{ --maroon:#8e2742; --maroon-2:#a63a53; --maroon-deep:#5a1626; }
+  /* keep game UI above the decorative ink */
+  body > header, body > main{ position:relative; z-index:1; }
+
+  /* ---- maroon ink swirls (fixed behind the console) ---- */
+  .swirls{ position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; overflow:hidden; }
+  .swirls .sw{ fill:none; stroke:var(--maroon); stroke-width:2.1; stroke-linecap:round;
+    stroke-dasharray:1; stroke-dashoffset:1; opacity:0;
+    animation:swDraw var(--d,15s) cubic-bezier(.45,.05,.4,.95) var(--del,0s) infinite; }
+  @keyframes swDraw{
+    0%{ stroke-dashoffset:1; opacity:0; } 10%{ opacity:var(--o,.32); }
+    42%{ stroke-dashoffset:0; } 58%{ stroke-dashoffset:0; opacity:var(--o,.32); }
+    88%{ stroke-dashoffset:-1; opacity:0; } 100%{ stroke-dashoffset:-1; opacity:0; } }
+  .swl{ transform-box:fill-box; transform-origin:center; }
+  .swl-a{ animation:swDriftA 26s ease-in-out infinite; }
+  .swl-b{ animation:swDriftB 31s ease-in-out infinite; }
+  @keyframes swDriftA{ 0%,100%{ transform:rotate(0deg) translateY(0); } 50%{ transform:rotate(9deg) translateY(-8px); } }
+  @keyframes swDriftB{ 0%,100%{ transform:rotate(0deg) translateY(0); } 50%{ transform:rotate(-7deg) translateY(7px); } }
+  .swd rect{ fill:var(--maroon); opacity:0; transform-box:fill-box; transform-origin:center;
+    animation:swDia var(--fd,10s) ease-in-out var(--fdel,0s) infinite; }
+  @keyframes swDia{
+    0%,100%{ opacity:0; transform:translateY(8px) rotate(45deg) scale(.6); }
+    35%{ opacity:.5; transform:translateY(-4px) rotate(45deg) scale(1); }
+    70%{ opacity:.18; transform:translateY(-12px) rotate(45deg) scale(.85); } }
+
+  /* ---- the plotter rail (scroll amount checker) ---- */
+  #plotter{ position:fixed; left:20px; top:0; bottom:0; width:2px; z-index:60; pointer-events:none; }
+  #plotter .rail{ position:absolute; inset:0; background:var(--line); opacity:.5; }
+  #plotter .fill{ position:absolute; top:0; left:0; width:100%; height:0;
+    background:linear-gradient(var(--maroon-deep), var(--maroon-2)); }
+  #plotter .nib{ position:absolute; left:50%; top:0; width:13px; height:13px;
+    transform:translate(-50%,-50%) rotate(45deg);
+    background:var(--maroon); border:2px solid var(--paper); box-shadow:0 0 0 1.5px var(--maroon); }
+  #plotter .tick{ position:absolute; left:-4px; width:10px; height:1.5px; background:var(--maroon); opacity:.4; }
+  #plotter .nib::after{ content:""; position:absolute; inset:-9px; border:1px dashed var(--maroon);
+    border-radius:50%; opacity:.5; animation:nibSpin 7s linear infinite; }
+  @keyframes nibSpin{ to{ transform:rotate(360deg); } }
+  @media (max-width:1240px){ #plotter{ display:none; } }
+
+  /* ---- the drafting cursor (follows the real pointer) ---- */
+  #cur-dot,#cur-ring{ position:fixed; top:0; left:0; z-index:999; pointer-events:none;
+    mix-blend-mode:multiply; opacity:0; transition:opacity .25s; }
+  #cur-dot{ width:7px; height:7px; margin:-3.5px 0 0 -3.5px; background:var(--maroon); transform:rotate(45deg); }
+  #cur-ring{ width:34px; height:34px; margin:-17px 0 0 -17px; border:1.5px solid var(--maroon);
+    border-radius:50%; transition:opacity .25s, width .22s, height .22s, margin .22s, border-color .22s; }
+  #cur-ring::before,#cur-ring::after{ content:""; position:absolute; background:var(--maroon); opacity:.65; }
+  #cur-ring::before{ left:50%; top:-5px; width:1px; height:5px; transform:translateX(-50%); }
+  #cur-ring::after{ top:50%; left:-5px; height:1px; width:5px; transform:translateY(-50%); }
+  body.cur-on #cur-dot, body.cur-on #cur-ring{ opacity:.85; }
+  body.cur-hot #cur-ring{ width:52px; height:52px; margin:-26px 0 0 -26px; border-style:dashed;
+    animation:nibSpin 6s linear infinite; }
+  @media (pointer:coarse){ #cur-dot,#cur-ring{ display:none; } }
+
+  @media (max-width:860px){ .swirls{ display:none; } }
+  @media (prefers-reduced-motion: reduce){
+    .swirls .sw{ animation:none; stroke-dashoffset:0; opacity:.16; }
+    .swl-a,.swl-b,.swd rect{ animation:none; }
+    .swd rect{ opacity:.25; }
+    #plotter .nib::after{ animation:none; }
+    #cur-dot,#cur-ring{ display:none; }
+  }
+</style>
 </head>
 <body>
+
+<!-- Nueva FX: decorative ink swirls -->
+<svg class="swirls" id="nueva-swirls" viewBox="0 0 1100 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g class="swl swl-a"><path class="sw" pathLength="1" style="--d:16s; --del:0s; --o:.34" d="M610.9 96.8 L610.6 97.5 L610.1 98.2 L609.2 98.7 L608.1 99.0 L606.9 99.0 L605.6 98.6 L604.4 97.7 L603.3 96.5 L602.5 95.0 L602.1 93.2 L602.2 91.2 L602.7 89.1 L603.9 87.2 L605.5 85.4 L607.7 84.1 L610.2 83.2 L613.0 83.0 L615.9 83.4 L618.8 84.6 L621.4 86.4 L623.6 89.0 L625.2 92.1 L626.0 95.6 L626.1 99.3 L625.3 103.1 L623.5 106.7 L620.9 110.0 L617.5 112.6 L613.4 114.4 L608.9 115.3 L604.2 115.1 L599.5 113.8 L595.2 111.5 L591.3 108.1 L588.3 103.8 L586.3 98.7 L585.4 93.3 L585.9 87.6 L587.6 82.1 L590.7 77.0 L594.9 72.6 L600.1 69.2 L606.1 67.0 L612.5 66.2 L619.1 66.9 L625.5 69.2 L631.4 72.9 L636.3 77.9 L640.0 84.1 L642.3 91.0 L643.0 98.5 L641.9 106.0 L639.2 113.2 L634.7 119.8 L628.9 125.2 L621.8 129.3 L613.8 131.6 L605.4 132.2 L597.0 130.8 L588.9 127.4 L581.7 122.3 L575.8 115.5 L571.5 107.5 L569.0 98.6 L568.7 89.2 L570.5 79.8 L574.4 71.0 L580.3 63.1 L587.9 56.7 L596.9 52.2 L606.9 49.7 L617.2 49.6" /></g>
+      <g class="swl swl-b"><path class="sw" pathLength="1" style="--d:13s; --del:2.5s; --o:.30" d="M62.9 501.0 L62.9 501.6 L63.0 502.2 L63.4 502.8 L64.0 503.3 L64.8 503.7 L65.7 503.8 L66.8 503.7 L67.8 503.4 L68.8 502.7 L69.7 501.8 L70.4 500.6 L70.9 499.2 L71.0 497.7 L70.7 496.0 L70.1 494.4 L69.1 492.9 L67.7 491.6 L65.9 490.6 L63.9 489.9 L61.7 489.7 L59.4 490.0 L57.2 490.8 L55.1 492.1 L53.3 493.9 L51.8 496.2 L50.8 498.7 L50.4 501.5 L50.6 504.5 L51.4 507.4 L52.9 510.2 L55.0 512.6 L57.6 514.6 L60.7 516.1 L64.1 516.8 L67.7 516.9 L71.4 516.2 L74.8 514.6 L78.0 512.4 L80.6 509.4 L82.6 505.9 L83.9 501.9 L84.3 497.7 L83.8 493.4 L82.4 489.2 L80.1 485.3 L76.9 481.9 L73.1 479.2 L68.6 477.3 L63.8 476.4 L58.8 476.5 L53.8 477.7 L49.1 479.9 L45.0 483.2 L41.5 487.3 L38.9 492.1 L37.3 497.4 L36.9 503.1 L37.7 508.8 L39.8 514.3 L42.9 519.3 L47.1 523.6 L52.2 527.0 L58.0 529.3 L64.3 530.4 L70.7 530.1 L77.0 528.5 L82.9 525.5 L88.1 521.3 L92.4 516.1 L95.6 510.0 L97.4 503.2 L97.8 496.2" /></g>
+      <g class="swl swl-a"><path class="sw" pathLength="1" style="--d:18s; --del:5s; --o:.26" d="M649.7 368.9 L649.9 369.6 L649.8 370.5 L649.6 371.4 L649.1 372.3 L648.3 373.1 L647.4 373.6 L646.2 373.9 L645.0 373.7 L643.7 373.2 L642.5 372.3 L641.4 370.9 L640.6 369.1 L640.1 367.1 L640.0 364.8 L640.3 362.5 L641.1 360.2 L642.4 358.1 L644.1 356.3 L646.2 355.0 L648.6 354.2 L651.1 354.1 L653.7 354.8 L656.3 356.2 L658.5 358.3 L660.4 361.0 L661.8 364.4 L662.6 368.1 L662.7 372.1 L662.1 376.2 L660.7 380.1 L658.5 383.6 L655.7 386.5 L652.4 388.7 L648.7 389.9 L644.7 390.1 L640.6 389.3 L636.8 387.3 L633.3 384.3 L630.3 380.3 L628.1 375.5 L626.8 370.1 L626.5 364.3 L627.2 358.5 L628.9 352.9 L631.7 347.8 L635.4 343.5 L639.9 340.2 L645.0 338.2 L650.4 337.5 L655.9 338.3 L661.2 340.6 L666.0 344.3 L670.2 349.3 L673.4 355.4 L675.5 362.3 L676.4 369.8 L675.8 377.4 L673.9 384.8 L670.7 391.6 L666.3 397.5 L660.8 402.2 L654.5 405.3 L647.8 406.8 L640.8 406.4 L634.0 404.1 L627.6 400.0 L622.1 394.2 L617.6 387.0 L614.5 378.6 L613.0 369.6 L613.1 360.1 L614.8 350.9" /></g>
+      <g class="swl swl-b"><path class="sw" pathLength="1" style="--d:15s; --del:8s; --o:.30" d="M315.6 597.7 L314.6 597.9 L313.8 598.2 L313.2 598.7 L312.8 599.3 L312.8 599.9 L313.2 600.6 L314.0 601.3 L315.3 602.0 L317.0 602.5 L319.0 602.9 L321.4 603.1 L323.9 603.1 L326.5 602.8 L329.1 602.2 L331.5 601.4 L333.5 600.3 L335.1 599.0 L336.1 597.6 L336.4 596.0 L336.0 594.3 L334.7 592.6 L332.7 591.0 L329.8 589.6 L326.3 588.4 L322.1 587.5 L317.5 587.0 L312.5 586.8 L307.4 587.2 L302.4 587.9 L297.7 589.2 L293.6 590.8 L290.1 592.8 L287.5 595.2 L286.0 597.8 L285.6 600.6 L286.5 603.4 L288.7 606.1 L292.1 608.7 L296.7 611.0 L302.4 612.9 L308.9 614.3 L316.1 615.1 L323.7 615.3 L331.4 614.9 L338.9 613.8 L345.9 612.0 L352.2 609.7 L357.4 606.8 L361.3 603.4 L363.7 599.7 L364.5 595.8 L363.5 591.8 L360.8 587.9 L356.3 584.3 L350.2 581.0 L342.6 578.3 L333.9 576.2 L324.3 574.9 L314.1 574.4 L303.7 574.8 L293.5 576.1 L284.0 578.3 L275.4 581.2 L268.1 584.9 L262.6 589.2 L258.9 594.0 L257.4 599.0 L258.1 604.2 L261.1 609.3 L266.3 614.0 L273.6 618.4 L282.8 622.0" /></g>
+      <g class="swl swl-a"><path class="sw" pathLength="1" style="--d:12s; --del:4s; --o:.38" d="M548.6 36.9 L548.9 36.8 L549.4 36.9 L549.8 37.0 L550.2 37.3 L550.6 37.7 L550.9 38.2 L551.1 38.8 L551.2 39.5 L551.0 40.3 L550.7 41.0 L550.3 41.8 L549.6 42.4 L548.8 42.9 L547.8 43.2 L546.8 43.4 L545.6 43.3 L544.5 43.0 L543.4 42.5 L542.4 41.6 L541.5 40.6 L540.9 39.4 L540.4 38.0 L540.3 36.5 L540.5 35.0 L540.9 33.4 L541.7 32.0 L542.8 30.6 L544.2 29.5 L545.8 28.7 L547.6 28.1 L549.6 28.0 L551.6 28.2 L553.5 28.8 L555.4 29.8 L557.0 31.2 L558.4 32.9 L559.5 34.9 L560.1 37.1 L560.4 39.5 L560.1 41.9 L559.4 44.3 L558.2 46.6 L556.6 48.6 L554.5 50.3 L552.2 51.6 L549.5 52.4 L546.7 52.7 L543.9 52.5 L541.0 51.7 L538.4 50.3 L536.0 48.5 L534.0 46.1 L532.4 43.4 L531.4 40.4 L530.9 37.1 L531.1 33.8 L532.0 30.6 L533.5 27.5 L535.5 24.7 L538.2 22.3 L541.2 20.4 L544.7 19.2 L548.3 18.6 L552.1 18.7 L555.8 19.6 L559.3 21.2 L562.5 23.4 L565.3 26.3 L567.4 29.7 L568.9 33.5 L569.7 37.6 L569.7 41.8" /></g>
+      <g class="swd" style="--fd:9s; --fdel:1s"><rect x="700" y="190" width="9" height="9" transform="rotate(45 704.5 194.5)" /></g>
+      <g class="swd" style="--fd:12s; --fdel:4s"><rect x="120" y="330" width="7" height="7" transform="rotate(45 123.5 333.5)" /></g>
+      <g class="swd" style="--fd:10s; --fdel:6.5s"><rect x="480" y="560" width="8" height="8" transform="rotate(45 484 564)" /></g>
+    </svg>
+
 <header>
   <div class="wrap topbar">
     <a href="/#top" class="brand">
-      <img class="mark" src="/nueva-logo.png" alt="Nueva logo">
+      <img class="mark" src="nueva-logo.png" alt="Nueva logo">
       Nueva
     </a>
     <a href="/arcade" class="back">&larr; Arcade</a>
@@ -702,6 +779,76 @@
 
   showStart();
   requestAnimationFrame(frame);
+})();
+</script>
+<script id="nueva-fx-script">
+/* Nueva FX — plotter rail (scroll amount checker) + drafting cursor.
+   Vanilla port of the site's <Fx /> component. Bails out for touch + reduced motion. */
+(function(){
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  /* ---------- plotter rail ---------- */
+  var rail = document.createElement("div");
+  rail.id = "plotter";
+  rail.innerHTML = '<div class="rail"></div><div class="fill"></div><div class="nib"></div>' +
+    [12,28,44,60,76,92].map(function(p){ return '<div class="tick" style="top:'+p+'%"></div>'; }).join("");
+  document.body.appendChild(rail);
+  var fill = rail.querySelector(".fill"), nib = rail.querySelector(".nib");
+  var raf = 0, cur = 0, target = 0;
+  function measure(){
+    var max = document.documentElement.scrollHeight - innerHeight;
+    target = max > 0 ? scrollY / max : 0; kick();
+  }
+  function frame(){
+    raf = 0; cur += (target - cur) * 0.12;
+    var pct = cur * 100; fill.style.height = pct + "%"; nib.style.top = pct + "%";
+    if (Math.abs(target - cur) > 0.0008) kick();
+  }
+  function kick(){ if (!raf) raf = requestAnimationFrame(frame); }
+  addEventListener("scroll", measure, { passive:true });
+  addEventListener("resize", measure);
+  measure();
+
+  /* ---------- drafting cursor ---------- */
+  if (!window.matchMedia("(pointer: fine)").matches) return;
+  var dot = document.createElement("div"); dot.id = "cur-dot";
+  var ring = document.createElement("div"); ring.id = "cur-ring";
+  document.body.appendChild(dot); document.body.appendChild(ring);
+
+  var craf = 0, dx = 0, dy = 0, rx = 0, ry = 0, shown = false;
+  var EDGE = 34, boxes = [];
+  function measureBoxes(){
+    boxes = Array.prototype.map.call(document.querySelectorAll("iframe"), function(f){ return f.getBoundingClientRect(); });
+  }
+  function nearEmbed(x, y){
+    for (var i=0;i<boxes.length;i++){ var b=boxes[i];
+      if (x >= b.left-EDGE && x <= b.right+EDGE && y >= b.top-EDGE && y <= b.bottom+EDGE) return true; }
+    return false;
+  }
+  measureBoxes();
+  addEventListener("scroll", measureBoxes, { passive:true });
+  addEventListener("resize", measureBoxes);
+  function hideCursor(){ if (shown){ shown = false; document.body.classList.remove("cur-on","cur-hot"); } }
+
+  function cframe(){
+    craf = 0; rx += (dx - rx) * 0.16; ry += (dy - ry) * 0.16;
+    dot.style.transform = "translate("+dx+"px,"+dy+"px) rotate(45deg)";
+    ring.style.transform = "translate("+rx+"px,"+ry+"px)";
+    if (Math.abs(dx - rx) > 0.3 || Math.abs(dy - ry) > 0.3) ckick();
+  }
+  function ckick(){ if (!craf) craf = requestAnimationFrame(cframe); }
+  addEventListener("pointermove", function(e){
+    if (nearEmbed(e.clientX, e.clientY)){ hideCursor(); return; }
+    dx = e.clientX; dy = e.clientY;
+    if (!shown){ shown = true; document.body.classList.add("cur-on"); rx = dx; ry = dy; }
+    ckick();
+  }, { passive:true });
+  addEventListener("pointerover", function(e){
+    var hot = e.target && e.target.closest && e.target.closest("a,button,[role=button]");
+    document.body.classList.toggle("cur-hot", !!hot);
+  }, { passive:true });
+  addEventListener("blur", function(){ if (document.activeElement && document.activeElement.tagName === "IFRAME") hideCursor(); });
+  document.documentElement.addEventListener("pointerleave", hideCursor);
 })();
 </script>
 </body>

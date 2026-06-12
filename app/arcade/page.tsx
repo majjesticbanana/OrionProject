@@ -6,6 +6,8 @@ import ScrollProgress from "@/components/ScrollProgress";
 import RevealObserver from "@/components/RevealObserver";
 import ArcadeCabinet from "./ArcadeCabinet";
 import ArcadeGames from "./ArcadeGames";
+import Fx from "../fx/Fx";
+import Swirls from "../fx/Swirls";
 import "./arcade.css";
 
 export const metadata: Metadata = {
@@ -18,11 +20,13 @@ export default function ArcadePage() {
     <>
       <ScrollProgress />
       <RevealObserver />
+      <Fx />
       <Nav activeLink="arcade" />
 
       {/* HERO */}
       <div className="wrap" id="top">
         <section className="ahero">
+          <Swirls />
           <div>
             <div className="eyebrow">Welcome to</div>
             <h1>The Arcade</h1>
